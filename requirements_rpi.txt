@@ -1,0 +1,4 @@
+colorzero==1.1
+gpiozero==1.5.1
+picamera==1.13
+RPi.GPIO==0.7.0
