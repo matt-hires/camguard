@@ -7,11 +7,11 @@ remote_host="pi@raspberrycam"
 remote_dir="/home/pi/pidev/camguard"
 
 printf "Running initial sync to '%s:%s'\n" "$remote_host" "$remote_dir"
-rsync -avP --rsh=ssh "." "$remote_host":"$remote_dir" --exclude="venv" --exclude=".idea/" --exclude="architecture.*" --exclude="*.log" --exclude="*.python-version" --exclude="**/__pycache__"
+rsync -avP --rsh=ssh "." "$remote_host":"$remote_dir" --exclude="venv" --exclude=".idea/" --exclude="*.log" --exclude="*.python-version" --exclude="**/__pycache__"
 
 printf "Watching file changes in current directory and syncing them to remote shell with args: '%s'\n" "$*"
 
-inotifywait -rm -e create,close_write,move,delete --format %T##%e##%w%f%0 --timefmt "%d-%m-%Y-%H:%M:%S" --exclude "(\.idea)|(.*~)|(architecture.*)|(venv)|(\.python-version)|(__pycache__)" . |\
+inotifywait -rm -e create,close_write,move,delete --format %T##%e##%w%f%0 --timefmt "%d-%m-%Y-%H:%M:%S" --exclude "(\.idea)|(.*~)|(venv)|(\.python-version)|(__pycache__)" . |\
     while IFS= read -r event
     do
         echo "***********************"
