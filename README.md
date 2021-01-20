@@ -1,2 +1,3 @@
 # camguard
-Python surveillance camera 
+A python surveillance camera module
+

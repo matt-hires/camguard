@@ -32,6 +32,7 @@ class CamGuard:
         LOGGER.info("Detected motion...")
         self.camera.record_picture()
 
+
 def parse_args():
     parser = ArgumentParser(
         description="A motion sensor controlled home surveillance system"

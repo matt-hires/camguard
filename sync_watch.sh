@@ -1,7 +1,7 @@
 #!/bin/bash
 # Author: matt-hires
 # Date: 12.12.20 14:01
-# Description: Watch project file system changes and sync to remote shell
+# Description: Watch project file system changes and sync them to remote pi
 
 remote_host="pi@raspberrycam"
 remote_dir="/home/pi/pidev/camguard"

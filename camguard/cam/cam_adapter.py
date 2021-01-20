@@ -1,7 +1,11 @@
 import logging
+import os
 import time
+from datetime import date
 from os import path
 
+# picamera cannot be installed on a non-pi system
+# noinspection PyUnresolvedReferences
 from picamera import PiCamera
 
 from camguard.exceptions.input_error import InputError
@@ -53,8 +57,15 @@ class CamAdapter:
             if self.record_root_path is None or not path.isdir(self.record_root_path):
                 raise InputError("Record root path invalid")
 
+            # create directory with the current date
+            date_str = date.today().strftime("%Y%m%d/")
+            record_path = os.path.join(self.record_root_path, date_str)
+
+            if not path.exists(record_path):
+                os.mkdir(record_path)
+
             for i, filename in enumerate(
-                    pi_camera.capture_continuous(f"{self.record_root_path}" +
+                    pi_camera.capture_continuous(f"{record_path}" +
                                                  "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
                                                  f"{self.record_file_name}.jpg")):
                 LOGGER.debug(f"Recording picture to {filename}...")
