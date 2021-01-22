@@ -43,4 +43,4 @@ class MotionSensorAdapterTest(TestCase):
         self.assertEqual(activations, mock_callback.call_count)
 
     def tearDown(self) -> None:
-        Device.pin_factory.release_pins(self.sut.motion_sensor, self.gpio_pin)
+        Device.pin_factory.release_pins(self.sut._motion_sensor, self.gpio_pin)

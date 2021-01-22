@@ -1,6 +1,6 @@
 import logging
 from argparse import ArgumentParser
-from signal import pause
+from signal import SIGINT, sigwait
 
 LOGGER = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class CamGuard:
         :param motion_sensor_gpio_pin: gpio pin for motion sensor
         """
         # initialize class logger
-        LOGGER.debug("Setting up camera and motion sensor...")
+        LOGGER.debug("Setting up camera and motion sensor")
 
         # import packages in here so that script execution can be run without them
         from camguard.motionsensor.motionsensor_adapter import MotionSensorAdapter
@@ -25,15 +25,28 @@ class CamGuard:
         self.motion_sensor = MotionSensorAdapter(motion_sensor_gpio_pin)
         self.camera = CamAdapter(record_root_path)
 
-    def guard(self):
+    def guard(self) -> None:
+        """
+        start guard
+        """
         self.motion_sensor.detect_motion(self._motion_handler)
 
-    def _motion_handler(self):
+    def shutdown(self) -> None:
+        """
+        shutdown the guard
+        """
+        LOGGER.info("Shutting down camguard, currently running recording will finish")
+        # order has to be <1> camera <2> motion_sensor
+        self.camera.shutdown()
+        self.motion_sensor.shutdown()
+        exit(0)
+
+    def _motion_handler(self) -> None:
         LOGGER.info("Detected motion...")
         self.camera.record_picture()
 
 
-def parse_args():
+def _parse_args():
     parser = ArgumentParser(
         description="A motion sensor controlled home surveillance system"
     )
@@ -46,21 +59,25 @@ def parse_args():
     return parser.parse_args()
 
 
-def configure_logger(loglevel: str):
+def _configure_logger(loglevel: str) -> None:
     # noinspection PyArgumentList
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                         handlers=[logging.StreamHandler(), logging.FileHandler("camguard.log")],
                         level=loglevel)
 
 
-def main():
-    args = parse_args()
-    configure_logger(args.log)
+def main() -> None:
+    args = _parse_args()
+    _configure_logger(args.log)
 
     LOGGER.info(f"Starting up with args: {args}")
+
     camguard = CamGuard(args.gpio_pin, args.record_path)
     camguard.guard()
-    pause()
+
+    print("Camguard running, press ctrl-c to quit...")
+    sigwait((SIGINT,))
+    camguard.shutdown()
 
 
 if __name__ == "__main__":

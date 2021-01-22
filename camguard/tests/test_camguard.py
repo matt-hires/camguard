@@ -47,4 +47,4 @@ class CamGuardTest(TestCase):
         self.sut.camera.record_picture.assert_called()
 
     def tearDown(self) -> None:
-        Device.pin_factory.release_pins(self.sut.motion_sensor.motion_sensor, self.gpio_pin)
+        Device.pin_factory.release_pins(self.sut.motion_sensor._motion_sensor, self.gpio_pin)

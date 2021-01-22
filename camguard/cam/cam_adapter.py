@@ -41,10 +41,11 @@ class CamAdapter:
                      f"record_interval_sec: {record_interval_sec} "
                      f"record_count: {record_count}")
 
-        self.__record_root_path = record_root_path
-        self.__record_file_name = record_file_name
-        self.__record_interval_sec = record_interval_sec
-        self.__record_picture_count = record_count
+        self._record_root_path = record_root_path
+        self._record_file_name = record_file_name
+        self._record_interval_sec = record_interval_sec
+        self._record_picture_count = record_count
+        self._shutdown = False
 
     def record_picture(self) -> None:
         """
@@ -52,7 +53,7 @@ class CamAdapter:
         :raises: :NotADirectoryError: if record_root_path is :None: or not an directory
         """
         with PiCamera() as pi_camera:
-            LOGGER.info("Recording picture...")
+            LOGGER.info("Recording picture")
 
             if self.record_root_path is None or not path.isdir(self.record_root_path):
                 raise InputError("Record root path invalid")
@@ -68,39 +69,47 @@ class CamAdapter:
                     pi_camera.capture_continuous(f"{record_path}" +
                                                  "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
                                                  f"{self.record_file_name}.jpg")):
-                LOGGER.debug(f"Recording picture to {filename}...")
+                if self._shutdown:
+                    LOGGER.debug("Record interrupted by shutdown")
+                    break
+
+                LOGGER.debug(f"Recorded picture to {filename}")
                 time.sleep(self.record_interval_sec)
                 if i == self.record_picture_count - 1:
                     break
 
+    def shutdown(self) -> None:
+        LOGGER.debug(f"Shutting down")
+        self._shutdown = True
+
     @property
     def record_file_name(self) -> str:
-        return self.__record_file_name
+        return self._record_file_name
 
     @record_file_name.setter
     def record_file_name(self, file_name) -> None:
-        self.__record_file_name = file_name
+        self._record_file_name = file_name
 
     @property
     def record_root_path(self) -> str:
-        return self.__record_root_path
+        return self._record_root_path
 
     @record_root_path.setter
     def record_root_path(self, value: str) -> None:
-        self.__record_root_path = value
+        self._record_root_path = value
 
     @property
     def record_picture_count(self) -> int:
-        return self.__record_picture_count
+        return self._record_picture_count
 
     @record_picture_count.setter
     def record_picture_count(self, value: int) -> None:
-        self.__record_picture_count = value
+        self._record_picture_count = value
 
     @property
     def record_interval_sec(self) -> int:
-        return self.__record_interval_sec
+        return self._record_interval_sec
 
     @record_interval_sec.setter
     def record_interval_sec(self, value: int) -> None:
-        self.__record_interval_sec = value
+        self._record_interval_sec = value
