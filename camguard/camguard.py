@@ -1,4 +1,5 @@
 import logging
+import sys
 from argparse import ArgumentParser
 from signal import SIGINT, sigwait
 
@@ -39,7 +40,7 @@ class CamGuard:
         # order has to be <1> camera <2> motion_sensor
         self.camera.shutdown()
         self.motion_sensor.shutdown()
-        exit(0)
+        sys.exit()
 
     def _motion_handler(self) -> None:
         LOGGER.info("Detected motion...")
