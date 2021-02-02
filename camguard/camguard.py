@@ -20,11 +20,11 @@ class CamGuard:
         LOGGER.debug("Setting up camera and motion sensor")
 
         # import packages in here so that script execution can be run without them
-        from camguard.motionsensor.motionsensor_adapter import MotionSensorAdapter
-        from camguard.cam.cam_adapter import CamAdapter
+        from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
+        from camguard.cam.cam_facade import CamFacade
 
-        self.motion_sensor = MotionSensorAdapter(motion_sensor_gpio_pin)
-        self.camera = CamAdapter(record_root_path)
+        self.motion_sensor = MotionSensorFacade(motion_sensor_gpio_pin)
+        self.camera = CamFacade(record_root_path)
 
     def guard(self) -> None:
         """

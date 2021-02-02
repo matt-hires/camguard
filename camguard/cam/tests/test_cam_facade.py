@@ -24,7 +24,7 @@ class PiCameraFakeContextManager(AbstractContextManager):
         return False
 
 
-class CamAdapterTest(TestCase):
+class CamFacadeTest(TestCase):
 
     def setUp(self) -> None:
         """
@@ -42,12 +42,12 @@ class CamAdapterTest(TestCase):
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=False))
     def test_should_raise_error_when_invalid_record_path(self):
         # arrange
-        from camguard.cam.cam_adapter import CamAdapter
+        from camguard.cam.cam_facade import CamFacade
         for path in [f"{HOME}/non/existing/file.ext", None]:
             with self.subTest(record_path=path):
                 # arrange
-                # create adapter with invalid record path
-                sut = CamAdapter(path)
+                # create facade with invalid record path
+                sut = CamFacade(path)
                 sut.record_root_path = path
 
                 # act
@@ -59,8 +59,8 @@ class CamAdapterTest(TestCase):
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
     def test_should_call_capture(self):
         # arrange
-        from camguard.cam.cam_adapter import CamAdapter
-        sut = CamAdapter(HOME)
+        from camguard.cam.cam_facade import CamFacade
+        sut = CamFacade(HOME)
 
         # act
         sut.record_picture()
@@ -73,8 +73,8 @@ class CamAdapterTest(TestCase):
     @patch.object(os, "mkdir")
     def test_should_create_date_folder(self, mkdir_method_mock: Mock):
         # arrange
-        from camguard.cam.cam_adapter import CamAdapter
-        sut = CamAdapter(HOME)
+        from camguard.cam.cam_facade import CamFacade
+        sut = CamFacade(HOME)
 
         date_str = datetime.date.today().strftime("%Y%m%d/")
         record_path = os.path.join(HOME, date_str)
@@ -98,8 +98,8 @@ class CamAdapterTest(TestCase):
     @patch.object(os, "mkdir")
     def test_should_shutdown(self, _):
         # arrange
-        from camguard.cam.cam_adapter import CamAdapter
-        sut = CamAdapter(HOME)
+        from camguard.cam.cam_facade import CamFacade
+        sut = CamFacade(HOME)
 
         # act
         sut.shutdown()

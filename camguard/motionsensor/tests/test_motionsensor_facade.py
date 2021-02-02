@@ -5,14 +5,14 @@ from unittest.mock import Mock
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPin
 
-from camguard.motionsensor.motionsensor_adapter import MotionSensorAdapter
+from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
 
 
-class MotionSensorAdapterTest(TestCase):
+class MotionSensorFacadeTest(TestCase):
     def setUp(self):
         Device.pin_factory = MockFactory()
         self.gpio_pin = 13
-        self.sut = MotionSensorAdapter(self.gpio_pin)
+        self.sut = MotionSensorFacade(self.gpio_pin)
 
     def test_should_trigger_callback(self):
         """

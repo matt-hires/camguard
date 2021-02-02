@@ -7,7 +7,7 @@ from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPin
 
 from camguard.camguard import CamGuard
-from camguard.motionsensor.motionsensor_adapter import MotionSensorAdapter
+from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
 
 
 class CamGuardTest(TestCase):
@@ -28,10 +28,10 @@ class CamGuardTest(TestCase):
 
     def test_should_record_picture_on_motion(self):
         # arrange
-        from camguard.cam.cam_adapter import CamAdapter
+        from camguard.cam.cam_facade import CamFacade
 
         self.sut = CamGuard(self.gpio_pin, "")
-        self.sut.camera = create_autospec(spec=CamAdapter)
+        self.sut.camera = create_autospec(spec=CamFacade)
 
         pin: MockPin = Device.pin_factory.pin(self.gpio_pin)
         # default is 1/10, waiting twice as long
@@ -50,11 +50,11 @@ class CamGuardTest(TestCase):
     @patch("sys.exit")
     def test_should_shutdown(self, mock_exit: MagicMock):
         # arrange
-        from camguard.cam.cam_adapter import CamAdapter
+        from camguard.cam.cam_facade import CamFacade
 
         self.sut = CamGuard(self.gpio_pin, "")
-        self.sut.camera = create_autospec(spec=CamAdapter)
-        self.sut.motion_sensor = create_autospec(spec=MotionSensorAdapter)
+        self.sut.camera = create_autospec(spec=CamFacade)
+        self.sut.motion_sensor = create_autospec(spec=MotionSensorFacade)
         self.sut.guard()
 
         # act

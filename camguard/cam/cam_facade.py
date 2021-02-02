@@ -20,9 +20,9 @@ class RecordPathError(Exception):
 LOGGER = logging.getLogger(__name__)
 
 
-class CamAdapter:
+class CamFacade:
     """
-    Adapter class for wrapping python camera
+    Class for wrapping python camera
     """
 
     def __init__(self, record_root_path: str, record_file_name: str = 'capture',

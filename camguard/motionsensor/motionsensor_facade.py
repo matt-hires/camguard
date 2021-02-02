@@ -6,9 +6,9 @@ from gpiozero import MotionSensor
 LOGGER = logging.getLogger(__name__)
 
 
-class MotionSensorAdapter:
+class MotionSensorFacade:
     """
-    Adapter for wrapping python motion sensor
+    Class for wrapping python motion sensor
     """
 
     def __init__(self, gpio_pin: int):
