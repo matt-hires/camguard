@@ -3,12 +3,12 @@ import os
 import time
 from datetime import date
 from os import path
+from typing import Sequence
 
 # picamera cannot be installed on a non-pi system
-# noinspection PyUnresolvedReferences
+# pylint: disable=import-error
 from picamera import PiCamera
-
-from camguard.exceptions.input_error import InputError
+from camguard.exceptions.configuration_error import ConfigurationError
 
 
 class RecordPathError(Exception):
@@ -21,19 +21,18 @@ LOGGER = logging.getLogger(__name__)
 
 
 class CamFacade:
-    """
-    Class for wrapping python camera
+    """Class for wrapping python camera
     """
 
     def __init__(self, record_root_path: str, record_file_name: str = 'capture',
                  record_interval_sec: int = 1, record_count: int = 15):
-        """
-        default ctor
+        """ctor
 
-        :param record_root_path: root path where recorded pictures should be safed
-        :param record_file_name: record file name
-        :param record_interval_sec: interval seconds in which pictures should be taken (default is 1)
-        :param record_count: count of picture which should be recorded (default is 15)
+        Args:
+            record_root_path (str): root path where recorded pictures should be safed
+            record_file_name (str, optional): record file name. Defaults to 'capture'.
+            record_interval_sec (int, optional): interval seconds in which pictures should be taken. Defaults to 1.
+            record_count (int, optional): count of picture which should be recorded. Defaults to 15.
         """
         LOGGER.debug(f"Configuring picamera with params: "
                      f"record_root_path: {record_root_path} "
@@ -47,16 +46,20 @@ class CamFacade:
         self._record_picture_count = record_count
         self._shutdown = False
 
-    def record_picture(self) -> None:
-        """
-        record picture to given file_path
-        :raises: :NotADirectoryError: if record_root_path is :None: or not an directory
+    def record_picture(self) -> Sequence[str]:
+        """ record picture to given file_path
+
+        Raises:
+            ConfigurationError: if record_root_path is :None: or not an directory
+
+        Returns:
+            Sequence[str]: list of recorded file paths
         """
         with PiCamera() as pi_camera:
-            LOGGER.info("Recording picture")
+            LOGGER.info("Recording pictures")
 
             if self.record_root_path is None or not path.isdir(self.record_root_path):
-                raise InputError("Record root path invalid")
+                raise ConfigurationError("Record root path invalid")
 
             # create directory with the current date
             date_str = date.today().strftime("%Y%m%d/")
@@ -65,18 +68,24 @@ class CamFacade:
             if not path.exists(record_path):
                 os.mkdir(record_path)
 
+            recorded = []
             for i, filename in enumerate(
                     pi_camera.capture_continuous(f"{record_path}" +
                                                  "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
                                                  f"{self.record_file_name}.jpg")):
+
+                LOGGER.debug(f"Recorded picture to {filename}")
+                recorded.append(filename)
                 if self._shutdown:
                     LOGGER.debug("Record interrupted by shutdown")
                     break
 
-                LOGGER.debug(f"Recorded picture to {filename}")
                 time.sleep(self.record_interval_sec)
                 if i == self.record_picture_count - 1:
                     break
+
+            LOGGER.info("Finished recording")
+            return recorded
 
     def shutdown(self) -> None:
         LOGGER.debug(f"Shutting down")

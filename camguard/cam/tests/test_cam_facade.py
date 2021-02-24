@@ -5,7 +5,7 @@ from contextlib import AbstractContextManager
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 
-from camguard.exceptions.input_error import InputError
+from camguard.exceptions.configuration_error import ConfigurationError
 
 HOME = "/home"
 MODULES = "sys.modules"
@@ -51,7 +51,7 @@ class CamFacadeTest(TestCase):
                 sut.record_root_path = path
 
                 # act
-                with self.assertRaises(InputError):
+                with self.assertRaises(ConfigurationError):
                     sut.record_picture()
                 # assert
                 self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()
@@ -92,6 +92,20 @@ class CamFacadeTest(TestCase):
                 found = True
 
         self.assertTrue(found, "Check if record called for specific date folder name")
+
+    @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
+    @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
+    @patch("os.mkdir", MagicMock(spec=os.mkdir))
+    def test_should_return_recorded_files(self):
+        # arrange
+        from camguard.cam.cam_facade import CamFacade
+        sut = CamFacade(HOME)
+
+        # act
+        return_val = sut.record_picture()
+
+        # assert
+        self.assertEqual(["capture1.jpg", "capture2.jpg"], return_val)
 
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
     @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))

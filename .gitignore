@@ -130,3 +130,7 @@ dmypy.json
 
 # intellij
 .idea/
+
+# pydrive excludes
+client_secrets.json
+credentials.json

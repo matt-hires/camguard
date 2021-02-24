@@ -4,7 +4,7 @@
 # Description: Watch project file system changes and sync them to remote pi
 
 remote_host="pi@raspberrycam"
-remote_dir="/home/pi/pidev/camguard"
+remote_dir="/home/pi/pydev/camguard"
 
 printf "Running initial sync to '%s:%s'\n" "$remote_host" "$remote_dir"
 rsync -avP --rsh=ssh "." "$remote_host":"$remote_dir" --exclude="venv" --exclude=".idea/" --exclude="*.log" --exclude="*.python-version" --exclude="**/__pycache__"
