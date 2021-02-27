@@ -3,8 +3,7 @@ from datetime import date
 from os import path
 from typing import Dict, Sequence
 
-from camguard.exceptions.configuration_error import ConfigurationError
-from camguard.exceptions.gdrive_error import GDriveError
+from camguard.errors import ConfigurationError, GDriveError
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from pydrive.files import GoogleDriveFile

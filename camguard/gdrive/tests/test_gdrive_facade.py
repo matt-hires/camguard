@@ -3,8 +3,8 @@ import os
 from unittest import TestCase
 from unittest.mock import MagicMock, create_autospec, patch
 
-from camguard.exceptions.configuration_error import ConfigurationError
-from camguard.exceptions.gdrive_error import GDriveError
+from camguard.errors import ConfigurationError
+from camguard.errors import GDriveError
 from camguard.gdrive.gdrive_facade import GDriveFacade
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive, GoogleDriveFile

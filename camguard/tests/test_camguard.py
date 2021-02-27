@@ -33,7 +33,6 @@ class CamGuardTest(TestCase):
 
         self.sut = CamGuard(self.gpio_pin, "", False)
         self.sut.camera = create_autospec(spec=CamFacade)
-        self.sut.gdrive = create_autospec(spec=GDriveFacade)
 
         pin: MockPin = Device.pin_factory.pin(self.gpio_pin)
         # default is 1/10, waiting twice as long

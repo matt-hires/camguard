@@ -5,7 +5,7 @@ from contextlib import AbstractContextManager
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 
-from camguard.exceptions.configuration_error import ConfigurationError
+from camguard.errors import ConfigurationError
 
 HOME = "/home"
 MODULES = "sys.modules"
