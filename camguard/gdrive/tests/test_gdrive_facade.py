@@ -1,13 +1,11 @@
+import datetime
 import os
-from typing import Sequence
 from unittest import TestCase
 from unittest.mock import MagicMock, create_autospec, patch
 
-from pydrive.files import GoogleDriveFileList
-
 from camguard.exceptions.configuration_error import ConfigurationError
+from camguard.exceptions.gdrive_error import GDriveError
 from camguard.gdrive.gdrive_facade import GDriveFacade
-from pydrive import drive
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive, GoogleDriveFile
 from pydrive.settings import InvalidConfigError
@@ -47,16 +45,9 @@ class GDriveFacadeTest(TestCase):
         # arrange
         upload_files = ["capture1.jpeg", "capture2.jpeg"]
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
-        search_query = {
-            'q': f"title='{self.sut.upload_root_path}' "
-            "and mimeType='application/vnd.google-apps.folder' "
-            "and 'root' in parents "
-            "and trashed=false"
-        }
-        gdrive_file_list = MagicMock(spec=GoogleDriveFileList)
-        gdrive_file_list.GetList = MagicMock(return_value=[])
-        self.sut._gdrive.ListFile = MagicMock(args=search_query,
-                                              return_value=gdrive_file_list)
+
+        # mock root folder query
+        self.sut.search_folder = MagicMock(return_value=[])
 
         create_folder_dict = {
             'title': self.sut.upload_root_path,
@@ -67,7 +58,74 @@ class GDriveFacadeTest(TestCase):
         self.sut.upload(upload_files)
 
         # assert
-        self.sut._gdrive.CreateFile.assert_called_once_with(create_folder_dict)
+        self.sut._gdrive.CreateFile.assert_any_call(create_folder_dict)
+
+    def test_should_raise_error_when_more_than_one_root_found(self):
+        # arrange
+        self.sut._gdrive = create_autospec(spec=GoogleDrive)
+        self.sut.search_folder = MagicMock(return_value=["Root1","Root2"])
+
+        # act
+        with self.assertRaises(GDriveError):
+            self.sut.upload(["capture1.jpeg", "capture2.jpeg"])
+
+        # assert
+        self.sut._gdrive.CreateFile.assert_not_called()
+
+    def test_should_create_date_folder(self):
+        # arrange
+        upload_files = ["capture1.jpeg", "capture2.jpeg"]
+        self.sut._gdrive = create_autospec(spec=GoogleDrive)
+
+        # mock root folder query
+        gdrive_root_folder = MagicMock(spec=GoogleDriveFile)
+        gdrive_root_folder.__getitem__ = MagicMock(key="id", return_value="test")
+        self.sut.search_folder = MagicMock(side_effect=[
+            [gdrive_root_folder], # root folder
+            [] # date folder
+            ])
+        date_str = datetime.date.today().strftime("%Y%m%d")
+        create_folder_dict = {
+            'title': date_str,
+            'mimeType': 'application/vnd.google-apps.folder',
+            'parents': [{'id': 'test'}]
+        }
+
+        # act
+        self.sut.upload(upload_files)
+
+        # assert
+        self.sut._gdrive.CreateFile.assert_called_with(create_folder_dict)
+
+    def test_should_upload_files(self):
+        # arrange
+        upload_files = ["capture1.jpeg", "capture2.jpeg"]
+        self.sut._gdrive = create_autospec(spec=GoogleDrive)
+        gdrive_folder = MagicMock(spec=GoogleDriveFile)
+        gdrive_folder.__getitem__ = MagicMock(key="id", return_value="test")
+
+        # mock root/date folder query
+        self.sut.search_folder = MagicMock(side_effect=[
+            [gdrive_folder], # root folder
+            [gdrive_folder], # date folder
+        ])
+        # mock files
+        self.sut.search_file = MagicMock(side_effect=[
+            [], # capture1.jpeg
+            [] # capture2.jpeg
+        ])
+
+        # act
+        self.sut.upload(upload_files)
+
+        # assert
+        for file in upload_files:
+            create_file_dict = {
+                'title': file,
+                'mimeType': 'application/jpeg',
+                'parents': [{'id': "test"}]
+            }
+            self.sut._gdrive.CreateFile.assert_any_call(create_file_dict)
 
     def test_should_raise_error_when_search_file_no_filename(self):
         # arrange
@@ -85,7 +143,8 @@ class GDriveFacadeTest(TestCase):
         file_name = "upload.jpeg"
         parent_id = "12345"
         search_query = {
-            'q': f"title='{file_name}' and '{parent_id}' in parents and trashed=false"
+            'q': f"title='{file_name}' "
+                 f"and '{parent_id}' in parents and trashed=false"
         }
 
         # act

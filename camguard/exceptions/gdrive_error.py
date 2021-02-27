@@ -1,8 +1,8 @@
 from camguard.exceptions.camguard_error import CamGuardError
 
 
-class ConfigurationError(CamGuardError):
-    """ indicates wrong configuration
+class GDriveError(CamGuardError):
+    """ indicates error with gdrive processing 
     """
 
     def __init__(self, message: str):
