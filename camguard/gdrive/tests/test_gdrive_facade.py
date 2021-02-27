@@ -1,11 +1,10 @@
 import datetime
 import os
 from unittest import TestCase
-from unittest.mock import MagicMock, create_autospec, patch
+from unittest.mock import MagicMock, call, create_autospec, patch
 
 from camguard.errors import ConfigurationError
 from camguard.errors import GDriveError
-from camguard.gdrive.gdrive_facade import GDriveFacade
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive, GoogleDriveFile
 from pydrive.settings import InvalidConfigError
@@ -13,38 +12,39 @@ from pydrive.settings import InvalidConfigError
 
 class GDriveFacadeTest(TestCase):
 
-    def setUp(self) -> None:
+    @patch("pydrive.auth.GoogleAuth")
+    @patch("pydrive.drive.GoogleDrive")
+    def setUp(self, _, gdrive) -> None:
+        from camguard.gdrive.gdrive_facade import GDriveFacade
         self.sut = GDriveFacade()
+        self.gdrive = gdrive
 
     @patch("os.path.exists", MagicMock(spec=os.path.exists, return_value=False))
     def test_should_raise_error_when_no_client_secrets(self):
         # arrange
-        self.sut._gauth = create_autospec(spec=GoogleAuth)
-        self.sut._gauth.CommandLineAuth.side_effect = InvalidConfigError(
-            "Test")
+        self.sut._gauth.CommandLineAuth.side_effect = InvalidConfigError("Test")
 
         # act / assert
         with self.assertRaises(ConfigurationError):
             self.sut.authenticate()
 
-        self.sut._gauth.CommandLineAuth.assert_called_once()
+        self.sut._gauth.CommandLineAuth.assert_called()
 
-    @patch.object(GoogleDrive, "__init__", return_value=None)
-    def test_should_authenticate(self, gdrive_mock: MagicMock):
+    def test_should_authenticate(self):
         # arrange
-        self.sut._gauth = create_autospec(spec=GoogleAuth)
 
         # act
         self.sut.authenticate()
 
         # assert
-        self.sut._gauth.CommandLineAuth.assert_called_once()
-        gdrive_mock.assert_called_once()
+        self.sut._gauth.CommandLineAuth.assert_called()
+        self.assertTrue(call() in self.gdrive.mock_calls)
 
     def test_should_create_root(self):
         # arrange
-        upload_files = ["capture1.jpeg", "capture2.jpeg"]
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
+
+        upload_files = ["capture1.jpeg", "capture2.jpeg"]
 
         # mock root folder query
         self.sut.search_folder = MagicMock(return_value=[])
@@ -63,7 +63,7 @@ class GDriveFacadeTest(TestCase):
     def test_should_raise_error_when_more_than_one_root_found(self):
         # arrange
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
-        self.sut.search_folder = MagicMock(return_value=["Root1","Root2"])
+        self.sut.search_folder = MagicMock(return_value=["Root1", "Root2"])
 
         # act
         with self.assertRaises(GDriveError):
@@ -74,16 +74,16 @@ class GDriveFacadeTest(TestCase):
 
     def test_should_create_date_folder(self):
         # arrange
-        upload_files = ["capture1.jpeg", "capture2.jpeg"]
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
+        upload_files = ["capture1.jpeg", "capture2.jpeg"]
 
         # mock root folder query
         gdrive_root_folder = MagicMock(spec=GoogleDriveFile)
         gdrive_root_folder.__getitem__ = MagicMock(key="id", return_value="test")
         self.sut.search_folder = MagicMock(side_effect=[
-            [gdrive_root_folder], # root folder
-            [] # date folder
-            ])
+            [gdrive_root_folder],  # root folder
+            []  # date folder
+        ])
         date_str = datetime.date.today().strftime("%Y%m%d")
         create_folder_dict = {
             'title': date_str,
@@ -99,20 +99,20 @@ class GDriveFacadeTest(TestCase):
 
     def test_should_upload_files(self):
         # arrange
-        upload_files = ["capture1.jpeg", "capture2.jpeg"]
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
+        upload_files = ["capture1.jpeg", "capture2.jpeg"]
         gdrive_folder = MagicMock(spec=GoogleDriveFile)
         gdrive_folder.__getitem__ = MagicMock(key="id", return_value="test")
 
         # mock root/date folder query
         self.sut.search_folder = MagicMock(side_effect=[
-            [gdrive_folder], # root folder
-            [gdrive_folder], # date folder
+            [gdrive_folder],  # root folder
+            [gdrive_folder],  # date folder
         ])
         # mock files
         self.sut.search_file = MagicMock(side_effect=[
-            [], # capture1.jpeg
-            [] # capture2.jpeg
+            [],  # capture1.jpeg
+            []  # capture2.jpeg
         ])
 
         # act

@@ -54,7 +54,8 @@ class CamGuard:
     def _motion_handler(self) -> None:
         LOGGER.info("Detected motion...")
         recorded_files = self.camera.record_picture()
-        self.gdrive.upload(recorded_files)
+        if self.gdrive:
+            self.gdrive.upload(recorded_files)
 
 
 def _parse_args():

@@ -6,19 +6,18 @@ from unittest.mock import Mock, create_autospec, MagicMock, patch
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPin
 
-from camguard.camguard import CamGuard
-from camguard.gdrive.gdrive_facade import GDriveFacade
 from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
 
 
 class CamGuardTest(TestCase):
 
-    def setUp(self):
+    @patch("camguard.gdrive.gdrive_facade.GDriveFacade")
+    def setUp(self, _):
         # setup mocks
 
         # cam
         pi_camera_module = Mock()
-        pi_camera_module.PiCamera = Mock(spec=AbstractContextManager)
+        pi_camera_module.PiCamera = MagicMock(spec=AbstractContextManager)
 
         self.patcher = patch.dict("sys.modules", picamera=pi_camera_module)
         self.patcher.start()
@@ -27,12 +26,13 @@ class CamGuardTest(TestCase):
         self.gpio_pin = 13
         Device.pin_factory = MockFactory()
 
+        from camguard.camguard import CamGuard
+        self.sut = CamGuard(self.gpio_pin, "", True)
+        from camguard.cam.cam_facade import CamFacade
+        self.sut.camera = create_autospec(spec=CamFacade)
+
     def test_should_record_picture_on_motion(self):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
-
-        self.sut = CamGuard(self.gpio_pin, "", False)
-        self.sut.camera = create_autospec(spec=CamFacade)
 
         pin: MockPin = Device.pin_factory.pin(self.gpio_pin)
         # default is 1/10, waiting twice as long
@@ -51,11 +51,6 @@ class CamGuardTest(TestCase):
     @patch("sys.exit")
     def test_should_shutdown(self, mock_exit: MagicMock):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
-
-        self.sut = CamGuard(self.gpio_pin, "", False)
-        self.sut.camera = create_autospec(spec=CamFacade)
-        self.sut.gdrive = create_autospec(spec=GDriveFacade)
         self.sut.motion_sensor = create_autospec(spec=MotionSensorFacade)
         self.sut.guard()
 
@@ -69,8 +64,6 @@ class CamGuardTest(TestCase):
 
     def test_should_authenticate_when_gdrive_upload(self):
         # arrange
-        self.sut = CamGuard(self.gpio_pin, "", True)
-        self.sut.gdrive = create_autospec(spec=GDriveFacade)
 
         # act
         self.sut.guard()
@@ -80,13 +73,8 @@ class CamGuardTest(TestCase):
 
     def test_should_upload_recorded_files_when_gdrive_upload(self):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
-
         files = ["capture1.jpg", "capture2.jpg"]
-        self.sut = CamGuard(self.gpio_pin, "", False)
-        self.sut.camera = create_autospec(spec=CamFacade)
         self.sut.camera.record_picture.return_value = files
-        self.sut.gdrive = create_autospec(spec=GDriveFacade)
 
         pin: MockPin = Device.pin_factory.pin(self.gpio_pin)
         # default is 1/10, waiting twice as long
