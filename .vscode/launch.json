@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Debug unittests",
+            "type": "python",
+            "request": "launch",
+            "module": "unittest"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

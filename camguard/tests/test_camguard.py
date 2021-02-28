@@ -11,7 +11,7 @@ from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
 
 class CamGuardTest(TestCase):
 
-    @patch("camguard.gdrive.gdrive_facade.GDriveFacade")
+    @patch("camguard.gdrive_facade.GDriveFacade")
     def setUp(self, _):
         # setup mocks
 

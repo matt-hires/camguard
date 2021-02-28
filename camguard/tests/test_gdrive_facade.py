@@ -1,3 +1,4 @@
+from camguard.gdrive_facade import GDriveFacade
 import datetime
 import os
 from unittest import TestCase
@@ -5,17 +6,17 @@ from unittest.mock import MagicMock, call, create_autospec, patch
 
 from camguard.errors import ConfigurationError
 from camguard.errors import GDriveError
-from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive, GoogleDriveFile
 from pydrive.settings import InvalidConfigError
 
 
 class GDriveFacadeTest(TestCase):
 
-    @patch("pydrive.auth.GoogleAuth")
-    @patch("pydrive.drive.GoogleDrive")
+    # GDriveFacade has its own imported version of GoogleAuth, 
+    # therefore it's necessary to patch this one
+    @patch("camguard.gdrive_facade.GoogleAuth")
+    @patch("camguard.gdrive_facade.GoogleDrive")
     def setUp(self, _, gdrive) -> None:
-        from camguard.gdrive.gdrive_facade import GDriveFacade
         self.sut = GDriveFacade()
         self.gdrive = gdrive
 

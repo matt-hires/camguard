@@ -24,7 +24,7 @@ class CamGuard:
         # import packages in here so that script execution can be run without them
         from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
         from camguard.cam.cam_facade import CamFacade
-        from camguard.gdrive.gdrive_facade import GDriveFacade
+        from camguard.gdrive_facade import GDriveFacade
 
         self.motion_sensor = MotionSensorFacade(motion_sensor_gpio_pin)
         self.camera = CamFacade(record_root_path)
