@@ -42,7 +42,7 @@ class CamFacadeTest(TestCase):
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=False))
     def test_should_raise_error_when_invalid_record_path(self):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
+        from camguard.cam_facade import CamFacade
         for path in [f"{HOME}/non/existing/file.ext", None]:
             with self.subTest(record_path=path):
                 # arrange
@@ -59,7 +59,7 @@ class CamFacadeTest(TestCase):
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
     def test_should_call_capture(self):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
+        from camguard.cam_facade import CamFacade
         sut = CamFacade(HOME)
 
         # act
@@ -73,7 +73,7 @@ class CamFacadeTest(TestCase):
     @patch.object(os, "mkdir")
     def test_should_create_date_folder(self, mkdir_method_mock: Mock):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
+        from camguard.cam_facade import CamFacade
         sut = CamFacade(HOME)
 
         date_str = datetime.date.today().strftime("%Y%m%d/")
@@ -98,7 +98,7 @@ class CamFacadeTest(TestCase):
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
     def test_should_return_recorded_files(self):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
+        from camguard.cam_facade import CamFacade
         sut = CamFacade(HOME)
 
         # act
@@ -112,7 +112,7 @@ class CamFacadeTest(TestCase):
     @patch.object(os, "mkdir")
     def test_should_shutdown(self, _):
         # arrange
-        from camguard.cam.cam_facade import CamFacade
+        from camguard.cam_facade import CamFacade
         sut = CamFacade(HOME)
 
         # act

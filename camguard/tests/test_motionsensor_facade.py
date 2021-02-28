@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPin
 
-from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
+from camguard.motionsensor_facade import MotionSensorFacade
 
 
 class MotionSensorFacadeTest(TestCase):

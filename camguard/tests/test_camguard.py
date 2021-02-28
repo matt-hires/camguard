@@ -6,7 +6,7 @@ from unittest.mock import Mock, create_autospec, MagicMock, patch
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPin
 
-from camguard.motionsensor.motionsensor_facade import MotionSensorFacade
+from camguard.motionsensor_facade import MotionSensorFacade
 
 
 class CamGuardTest(TestCase):
@@ -28,7 +28,7 @@ class CamGuardTest(TestCase):
 
         from camguard.camguard import CamGuard
         self.sut = CamGuard(self.gpio_pin, "", True)
-        from camguard.cam.cam_facade import CamFacade
+        from camguard.cam_facade import CamFacade
         self.sut.camera = create_autospec(spec=CamFacade)
 
     def test_should_record_picture_on_motion(self):
