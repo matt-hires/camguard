@@ -1,6 +1,5 @@
 from typing import Sequence
 
-from oauth2client.client import _parse_exchange_token_response
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from pydrive.files import GoogleDriveFile

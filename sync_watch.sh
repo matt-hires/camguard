@@ -7,7 +7,7 @@ remote_host="pi@raspberrycam"
 remote_dir="/home/pi/pydev/camguard"
 
 printf "Running initial sync to '%s:%s'\n" "$remote_host" "$remote_dir"
-rsync -avP --rsh=ssh "." "$remote_host":"$remote_dir" --exclude="venv" --exclude=".idea/" --exclude="*.log" --exclude="*.python-version" --exclude="**/__pycache__"
+rsync -avP --rsh=ssh "./src/camguard" "$remote_host":"$remote_dir" --exclude="venv" --exclude=".idea/" --exclude="*.log" --exclude="*.python-version" --exclude="**/__pycache__"
 
 printf "Watching file changes in current directory and syncing them to remote shell with args: '%s'\n" "$*"
 

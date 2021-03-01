@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools >= 40.8.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py37
+skipsdist = true
+
+[testenv]
+deps = tox 
+commands = python -m unittest -v {posargs}
+"""
