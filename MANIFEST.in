@@ -1,2 +1,2 @@
-include settings.yaml
+include src/camguard/settings.yaml
 global-exclude *.pyc
