@@ -31,8 +31,10 @@ class CamFacade:
         Args:
             record_root_path (str): root path where recorded pictures should be safed
             record_file_name (str, optional): record file name. Defaults to 'capture'.
-            record_interval_sec (int, optional): interval seconds in which pictures should be taken. Defaults to 1.
-            record_count (int, optional): count of picture which should be recorded. Defaults to 15.
+            record_interval_sec (int, optional): interval seconds in which pictures 
+            should be taken. Defaults to 1.
+            record_count (int, optional): count of picture which should be recorded. 
+            Defaults to 15.
         """
         LOGGER.debug(f"Configuring picamera with params: "
                      f"record_root_path: {record_root_path} "
@@ -40,10 +42,10 @@ class CamFacade:
                      f"record_interval_sec: {record_interval_sec} "
                      f"record_count: {record_count}")
 
-        self._record_root_path = record_root_path
-        self._record_file_name = record_file_name
-        self._record_interval_sec = record_interval_sec
-        self._record_picture_count = record_count
+        self.record_root_path = record_root_path
+        self.record_file_name = record_file_name
+        self.record_interval_sec = record_interval_sec
+        self.record_picture_count = record_count
         self._shutdown = False
 
     def record_picture(self) -> Sequence[str]:
@@ -90,35 +92,3 @@ class CamFacade:
     def shutdown(self) -> None:
         LOGGER.debug(f"Shutting down")
         self._shutdown = True
-
-    @property
-    def record_file_name(self) -> str:
-        return self._record_file_name
-
-    @record_file_name.setter
-    def record_file_name(self, file_name) -> None:
-        self._record_file_name = file_name
-
-    @property
-    def record_root_path(self) -> str:
-        return self._record_root_path
-
-    @record_root_path.setter
-    def record_root_path(self, value: str) -> None:
-        self._record_root_path = value
-
-    @property
-    def record_picture_count(self) -> int:
-        return self._record_picture_count
-
-    @record_picture_count.setter
-    def record_picture_count(self, value: int) -> None:
-        self._record_picture_count = value
-
-    @property
-    def record_interval_sec(self) -> int:
-        return self._record_interval_sec
-
-    @record_interval_sec.setter
-    def record_interval_sec(self, value: int) -> None:
-        self._record_interval_sec = value
