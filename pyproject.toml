@@ -10,7 +10,5 @@ isolated_build = True
 envlist = py37
 
 [testenv]
-changedir = tests
-commands = discover
-deps = discover
+commands = python -m unittest -v {posargs}
 """
