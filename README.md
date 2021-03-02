@@ -1,5 +1,5 @@
 # camguard ![camguard-logo](camguard-logo.png)
-A python cli surveillance camera tool
+A cli surveillance-camera tool, in python
 
 
 ## GoogleDrive support
