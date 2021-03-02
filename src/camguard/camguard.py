@@ -46,7 +46,6 @@ class CamGuard:
         # order has to be <1> camera <2> motion_sensor
         self.camera.shutdown()
         self.motion_sensor.shutdown()
-        sys.exit()
 
     def _motion_handler(self) -> None:
         LOGGER.info("Detected motion...")

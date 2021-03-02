@@ -48,8 +48,7 @@ class CamGuardTest(TestCase):
         # assert
         self.sut.camera.record_picture.assert_called_once()
 
-    @patch("sys.exit")
-    def test_should_shutdown(self, mock_exit: MagicMock):
+    def test_should_shutdown(self):
         # arrange
         self.sut.motion_sensor = create_autospec(spec=MotionSensorFacade)
         self.sut.guard()
@@ -60,7 +59,6 @@ class CamGuardTest(TestCase):
         # assert
         self.sut.camera.shutdown.assert_called_once()
         self.sut.motion_sensor.shutdown.assert_called_once()
-        mock_exit.assert_called_once()
 
     def test_should_authenticate_when_gdrive_upload(self):
         # arrange
