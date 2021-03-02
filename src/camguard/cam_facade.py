@@ -6,8 +6,7 @@ from os import path
 from typing import Sequence
 
 # picamera cannot be installed on a non-pi system
-# pylint: disable=import-error
-from picamera import PiCamera
+from picamera import PiCamera # type: ignore reportMissingImports
 from .errors import ConfigurationError
 
 
