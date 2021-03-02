@@ -1,15 +1,16 @@
 [build-system]
-requires = ["setuptools >= 40.8.0", "wheel", "tox"]
+requires = ["setuptools >= 40.8.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.tox]
 legacy_tox_ini = """
 [tox]
+# To use a PEP 517 build-backend
 isolated_build = True
 envlist = py37
-skipsdist = true
 
 [testenv]
-deps = tox 
-commands = python -m unittest -v {posargs}
+changedir = tests
+commands = discover
+deps = discover
 """
