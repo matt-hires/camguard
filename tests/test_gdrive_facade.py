@@ -4,8 +4,8 @@ import os
 from unittest import TestCase
 from unittest.mock import MagicMock, call, create_autospec, patch
 
-from camguard.errors import ConfigurationError
-from camguard.errors import GDriveError
+from camguard.exceptions import ConfigurationError
+from camguard.exceptions import GDriveError
 from pydrive.drive import GoogleDrive, GoogleDriveFile
 from pydrive.settings import InvalidConfigError
 

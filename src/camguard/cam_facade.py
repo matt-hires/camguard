@@ -7,7 +7,7 @@ from typing import Sequence
 
 # picamera cannot be installed on a non-pi system
 from picamera import PiCamera # type: ignore reportMissingImports
-from .errors import ConfigurationError
+from .exceptions import ConfigurationError
 
 
 class RecordPathError(Exception):

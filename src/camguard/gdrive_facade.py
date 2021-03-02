@@ -3,7 +3,7 @@ from datetime import date
 from os import path
 from typing import Dict, Sequence
 
-from .errors import ConfigurationError, GDriveError
+from .exceptions import ConfigurationError, GDriveError
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from pydrive.files import GoogleDriveFile
