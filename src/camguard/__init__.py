@@ -5,6 +5,7 @@ from signal import SIGINT, sigwait
 
 from .camguard import CamGuard
 
+__version__ = "1.0.0"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -13,6 +14,7 @@ def _parse_args():
         prog=__name__,
         description="A motion sensor controlled home surveillance system"
     )
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
     group_rec = parser.add_argument_group(title="Camguard surveillance",
                                           description="Detect motion with configured sensor "
@@ -45,23 +47,19 @@ def _configure_logger(loglevel: str) -> None:
 
 
 def main() -> None:
-    args = _parse_args()
-    _configure_logger(args.log)
-
-    LOGGER.info(f"Starting up with args: {args}")
-
-    camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
-    camguard.guard()
-
-    print("Camguard running, press ctrl-c to quit...")
-    sigwait((SIGINT,))
-    camguard.shutdown()
-
-
-if __name__ == '__main__':
     rc = 1
     try:
-        main()
+        args = _parse_args()
+        _configure_logger(args.log)
+
+        LOGGER.info(f"Starting up with args: {args}")
+
+        camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
+        camguard.guard()
+
+        print("Camguard running, press ctrl-c to quit...")
+        sigwait((SIGINT,))
+        camguard.shutdown()
         rc = 0
     except Exception as e:
         print('Error: %s' % e, file=sys.stderr)

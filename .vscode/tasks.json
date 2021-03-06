@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "source venv/bin/activate && pip install --use-pep517 .",
+            "command": "source venv/bin/activate && pip install -e .",
             "group": {
                 "kind": "build",
                 "isDefault": true
