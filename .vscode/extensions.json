@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "ms-python.python",
-        "lextudio.restructuredtext"
+        "ms-python.python"
     ]
 }
