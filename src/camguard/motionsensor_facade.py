@@ -19,7 +19,7 @@ class MotionSensorFacade:
         LOGGER.debug(f"Configuring motion sensor on pin {gpio_pin}")
         self._motion_sensor = MotionSensor(gpio_pin)
 
-    def detect_motion(self, callback: Callable) -> None:
+    def detect_motion(self, callback: Callable):
         """ detect motion by using sensor on given pin and call function on movement
 
         Args:
@@ -28,6 +28,6 @@ class MotionSensorFacade:
         LOGGER.debug(f"Registering motion_sensor callback")
         self._motion_sensor.when_activated = callback
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         LOGGER.debug(f"Shutting down motion sensor")
         self._motion_sensor.close()

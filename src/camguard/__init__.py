@@ -39,14 +39,14 @@ def _parse_args():
     return parser.parse_args()
 
 
-def _configure_logger(loglevel: str) -> None:
+def _configure_logger(loglevel: str):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                         handlers=[logging.StreamHandler(
                         ), logging.FileHandler("camguard.log")],
                         level=loglevel)
 
 
-def main() -> None:
+def main():
     rc = 1
     try:
         args = _parse_args()

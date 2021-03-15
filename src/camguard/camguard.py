@@ -30,7 +30,7 @@ class CamGuard:
         self.camera = CamFacade(record_root_path)
         self.gdrive = GDriveFacade() if gdrive_upload else None 
 
-    def guard(self) -> None:
+    def guard(self):
         """start guard...
         """
 
@@ -39,7 +39,7 @@ class CamGuard:
 
         self.motion_sensor.detect_motion(self._motion_handler)
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         """ shutdown the guard
         """
         LOGGER.info("Shutting down camguard")
@@ -47,7 +47,7 @@ class CamGuard:
         self.camera.shutdown()
         self.motion_sensor.shutdown()
 
-    def _motion_handler(self) -> None:
+    def _motion_handler(self):
         LOGGER.info("Detected motion...")
         recorded_files = self.camera.record_picture()
         if self.gdrive:
@@ -82,14 +82,14 @@ def _parse_args():
     return parser.parse_args()
 
 
-def _configure_logger(loglevel: str) -> None:
+def _configure_logger(loglevel: str):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                         handlers=[logging.StreamHandler(
                         ), logging.FileHandler("camguard.log")],
                         level=loglevel)
 
 
-def main() -> None:
+def main():
     args = _parse_args()
     _configure_logger(args.log)
 

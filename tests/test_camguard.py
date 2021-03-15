@@ -89,7 +89,7 @@ class CamGuardTest(TestCase):
         self.sut.camera.record_picture.assert_called_once()
         self.sut.gdrive.upload.assert_called_once_with(files)
 
-    def tearDown(self) -> None:
+    def tearDown(self):
         self.patcher.stop()
         if hasattr(self.sut.motion_sensor, "_motion_sensor"):
             Device.pin_factory.release_pins(self.sut.motion_sensor._motion_sensor, self.gpio_pin)

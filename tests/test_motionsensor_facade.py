@@ -42,5 +42,5 @@ class MotionSensorFacadeTest(TestCase):
         mock_callback.assert_called()
         self.assertEqual(activations, mock_callback.call_count)
 
-    def tearDown(self) -> None:
+    def tearDown(self):
         Device.pin_factory.release_pins(self.sut._motion_sensor, self.gpio_pin)

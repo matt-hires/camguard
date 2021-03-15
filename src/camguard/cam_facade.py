@@ -88,6 +88,6 @@ class CamFacade:
             LOGGER.info("Finished recording")
             return recorded
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         LOGGER.debug(f"Shutting down")
         self._shutdown = True

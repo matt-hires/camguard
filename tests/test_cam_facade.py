@@ -26,7 +26,7 @@ class PiCameraFakeContextManager(AbstractContextManager):
 
 class CamFacadeTest(TestCase):
 
-    def setUp(self) -> None:
+    def setUp(self):
         """
         PiCamera is a black box in here, therefore we have to patch the modules
         """
@@ -124,5 +124,5 @@ class CamFacadeTest(TestCase):
         # should be called once
         self.pi_camera_module.PiCamera.capture_continuous.assert_called_once()
 
-    def tearDown(self) -> None:
+    def tearDown(self):
         self.patcher.stop()

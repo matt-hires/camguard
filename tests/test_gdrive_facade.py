@@ -16,7 +16,7 @@ class GDriveFacadeTest(TestCase):
     # therefore it's necessary to patch this one
     @patch("camguard.gdrive_facade.GoogleAuth")
     @patch("camguard.gdrive_facade.GoogleDrive")
-    def setUp(self, _, gdrive) -> None:
+    def setUp(self, _, gdrive):
         self.sut = GDriveFacade()
         self.gdrive = gdrive
 
