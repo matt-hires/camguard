@@ -76,8 +76,7 @@ class GDriveFacade:
 
         # create directory with the current date
         cur_date: str = date.today().strftime("%Y%m%d")
-        found_date_folders: Sequence[GoogleDriveFile] = self.search_folder(
-            cur_date)
+        found_date_folders: Sequence[GoogleDriveFile] = self.search_folder(cur_date)
         date_folder: GoogleDriveFile = None
 
         if not found_date_folders:
@@ -85,7 +84,9 @@ class GDriveFacade:
                 'title': cur_date,
                 'mimeType': 'application/vnd.google-apps.folder',
                 'parents': [{'id': root_folder['id']}]
-            })['id']
+            })
+            LOGGER.debug(f"Creating date folder '{cur_date}' ...")
+            date_folder.Upload()
         else:
             if len(found_date_folders) > 1:
                 raise GDriveError(
@@ -96,23 +97,34 @@ class GDriveFacade:
         for file in files:
             # check if file path is a file with os.path.isfile
             file_name = path.basename(file)
-            found_gdrive_files: Sequence[GoogleDriveFile] = self.search_file(file_name,
-                                                                             date_folder['id'])
+
             gdrive_file: GoogleDriveFile = None
-            if not found_gdrive_files:
-                gdrive_file = self._gdrive.CreateFile({
-                    'title': file_name,
-                    'mimeType': 'application/jpeg',
-                    'parents': [{'id': date_folder['id']}]
-                })
-            else:
-                if len(found_date_folders) > 1:
+            found_gdrive_files: Sequence[GoogleDriveFile] = None
+            if found_date_folders:
+                found_gdrive_files = self.search_file(file_name, date_folder['id'])
+
+                if len(found_gdrive_files) > 1:
                     raise GDriveError(
                         f"Multiple gdrive files '{file_name}' found")
+
+            if found_gdrive_files:
                 gdrive_file = found_gdrive_files[0]
                 LOGGER.debug(f"Found file '{file_name}' with id '{gdrive_file['id']}'")
+            else:
+                LOGGER.debug(f"Creating file '{file_name}' in folder: '{date_folder['id']}'")
+                gdrive_file = self._gdrive.CreateFile({
+                    'title': file_name,
+                    'mimeType': 'image/jpeg',
+                    'parents': [{'id': date_folder['id']}]
+                })
+
+            LOGGER.info(f"Uploading file '{file_name}' "
+                        f"to '{self.upload_root_path}/{cur_date}' ...")
+
             gdrive_file.SetContentFile(file)
             gdrive_file.Upload()
+
+        LOGGER.info("Finished gdrive upload")
 
     def search_file(self, file_name: str,
                     parent_id: str = None) -> Sequence[GoogleDriveFile]:
@@ -144,7 +156,7 @@ class GDriveFacade:
                     file_title=file_name)
             }
 
-        return self._gdrive.ListFile(query).getList()
+        return self._gdrive.ListFile(query).GetList()
 
     def search_folder(self, folder_name: str,
                       parent_id: str = None) -> Sequence[GoogleDriveFile]:

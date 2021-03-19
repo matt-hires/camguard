@@ -14,7 +14,7 @@ def _parse_args():
         prog=__name__,
         description="A motion sensor controlled home surveillance system"
     )
-    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
     group_rec = parser.add_argument_group(title="Camguard surveillance",
                                           description="Detect motion with configured sensor "
@@ -32,7 +32,7 @@ def _parse_args():
                                             description="For using the Google-Drive upload, "
                                                         "please configure the Google-OAuth "
                                                         "authentication with the google-oauth setup")
-    group_gauth.add_argument("-u", "--upload", default=False, metavar='',
+    group_gauth.add_argument("-u", "--upload", default=False, action='store_true',
                              help="Upload files to a configured google drive, "
                                   "authenticates on first usage")
 

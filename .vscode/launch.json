@@ -16,6 +16,20 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            // check https://code.visualstudio.com/docs/python/debugging
+            "name": "Python: Attach Remote Pi",
+            "type": "python",
+            "request": "attach",
+            "port": 5678,
+            "host": "localhost",
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "./pydev/camguard/"
+                }
+            ]
         }
     ]
 }

@@ -1,3 +1,4 @@
+from unittest.case import skip
 from camguard.gdrive_facade import GDriveFacade
 import datetime
 import os
@@ -96,7 +97,7 @@ class GDriveFacadeTest(TestCase):
         self.sut.upload(upload_files)
 
         # assert
-        self.sut._gdrive.CreateFile.assert_called_with(create_folder_dict)
+        self.sut._gdrive.CreateFile.assert_any_call(create_folder_dict)
 
     def test_should_upload_files(self):
         # arrange
@@ -123,7 +124,7 @@ class GDriveFacadeTest(TestCase):
         for file in upload_files:
             create_file_dict = {
                 'title': file,
-                'mimeType': 'application/jpeg',
+                'mimeType': 'image/jpeg',
                 'parents': [{'id': "test"}]
             }
             self.sut._gdrive.CreateFile.assert_any_call(create_file_dict)
