@@ -23,9 +23,9 @@ class CamGuard:
         from camguard.gdrive_facade import GDriveFacade
         from camguard.motionsensor_facade import MotionSensorFacade
 
-        self.motion_sensor = MotionSensorFacade(motion_sensor_gpio_pin)
-        self.camera = CamFacade(record_root_path)
-        self.gdrive = GDriveFacade() if gdrive_upload else None
+        self.motion_sensor: MotionSensorFacade = MotionSensorFacade(motion_sensor_gpio_pin)
+        self.camera: CamFacade = CamFacade(record_root_path)
+        self.gdrive: GDriveFacade = GDriveFacade() if gdrive_upload else None
 
     def guard(self):
         """start guard...
@@ -40,7 +40,7 @@ class CamGuard:
         """ shutdown the guard
         """
         LOGGER.info('Shutting down camguard')
-        # order has to be <1> camera <2> motion_sensor
+        # order has to be <1> camera <2> motion_sensor <3> gdrive
         self.camera.shutdown()
         self.motion_sensor.shutdown()
 

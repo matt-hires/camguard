@@ -24,13 +24,13 @@ class CamFacade:
     """
 
     def __init__(self, record_root_path: str, record_file_name: str = 'capture',
-                 record_interval_sec: int = 1, record_count: int = 15):
+                 record_interval_sec: float = 1.0, record_count: int = 15):
         """ctor
 
         Args:
             record_root_path (str): root path where recorded pictures should be safed
             record_file_name (str, optional): record file name. Defaults to 'capture'.
-            record_interval_sec (int, optional): interval seconds in which pictures 
+            record_interval_sec (float, optional): interval seconds in which pictures 
             should be taken. Defaults to 1.
             record_count (int, optional): count of picture which should be recorded. 
             Defaults to 15.
@@ -41,11 +41,11 @@ class CamFacade:
                      f"record_interval_sec: {record_interval_sec} "
                      f"record_count: {record_count}")
 
-        self.record_root_path = record_root_path
-        self.record_file_name = record_file_name
-        self.record_interval_sec = record_interval_sec
-        self.record_picture_count = record_count
-        self._shutdown = False
+        self.record_root_path: str = record_root_path
+        self.record_file_name: str = record_file_name
+        self.record_interval_sec: float = record_interval_sec
+        self.record_picture_count: int = record_count
+        self._shutdown : bool = False
 
     def record_picture(self) -> Sequence[str]:
         """ record picture to given file_path
@@ -89,5 +89,7 @@ class CamFacade:
             return recorded
 
     def shutdown(self):
+        """shutdown picam recording 
+        """
         LOGGER.debug(f"Shutting down")
         self._shutdown = True

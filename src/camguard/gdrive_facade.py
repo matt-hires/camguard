@@ -41,6 +41,7 @@ class GDriveFacade:
             created in root. Defaults to "camguard". """
         self._gauth: GoogleAuth = GoogleAuth()
         self._gdrive: GoogleDrive = None
+        self._shutdown: bool = False
         self.upload_root_path: str = upload_root_path
 
     def authenticate(self):
@@ -95,6 +96,10 @@ class GDriveFacade:
             LOGGER.debug(f"Found date folder '{cur_date}' with id '{date_folder['id']}'")
 
         for file in files:
+            if self._shutdown:
+                LOGGER.debug("Upload interrupted by shutdown")
+                break
+
             # check if file path is a file with os.path.isfile
             file_name = path.basename(file)
 
@@ -190,3 +195,9 @@ class GDriveFacade:
             }
 
         return self._gdrive.ListFile(query).GetList()
+
+    def shutdown(self):
+        """shutdown grive upload
+        """
+        LOGGER.debug(f"Shutting down")
+        self._shutdown = True

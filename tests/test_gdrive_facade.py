@@ -194,3 +194,30 @@ class GDriveFacadeTest(TestCase):
 
         # assert
         self.sut._gdrive.ListFile.assert_called_once_with(search_query)
+
+    def test_should_shutdown(self):
+        # arrange
+        self.sut._gdrive = create_autospec(spec=GoogleDrive)
+        upload_files = ["capture1.jpeg", "capture2.jpeg"]
+        gdrive_folder = MagicMock(spec=GoogleDriveFile)
+        gdrive_folder.__getitem__ = MagicMock(key="id", return_value="test")
+
+        # mock root/date folder query
+        self.sut.search_folder = MagicMock(side_effect=[
+            [gdrive_folder],  # root folder
+            [gdrive_folder],  # date folder
+        ])
+        # mock files
+        self.sut.search_file = MagicMock(side_effect=[
+            [],  # capture1.jpeg
+            []  # capture2.jpeg
+        ])
+
+        # act
+        self.sut.shutdown()
+        self.sut.upload(upload_files)
+
+        # assert
+        for file in upload_files:
+            self.sut._gdrive.CreateFile.assert_not_called()
+
