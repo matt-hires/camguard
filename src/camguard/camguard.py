@@ -1,3 +1,7 @@
+from camguard.picam import PiCam
+from camguard.motion import MotionHandler, MotionDetector
+from camguard.motion_sensor import MotionSensor
+from camguard.gdrive_facade import GDriveFacade
 import logging
 
 LOGGER = logging.getLogger(__name__)
@@ -18,34 +22,18 @@ class CamGuard:
         # initialize class logger
         LOGGER.debug('Setting up camera and motion sensor')
 
-        # import packages in here so that script execution can be run without them
-        from camguard.cam_facade import CamFacade
-        from camguard.gdrive_facade import GDriveFacade
-        from camguard.motionsensor_facade import MotionSensorFacade
-
-        self.motion_sensor: MotionSensorFacade = MotionSensorFacade(motion_sensor_gpio_pin)
-        self.camera: CamFacade = CamFacade(record_root_path)
+        self.sensor: MotionDetector = MotionSensor(motion_sensor_gpio_pin)
+        self.cam: MotionHandler = PiCam(record_root_path)
         self.gdrive: GDriveFacade = GDriveFacade() if gdrive_upload else None
-
-    def guard(self):
-        """start guard...
-        """
-        LOGGER.info("Start guard...")
         if self.gdrive:
             self.gdrive.authenticate()
 
-        self.motion_sensor.detect_motion(self._motion_handler)
+    def guard(self):
+        LOGGER.info("Start guard...")
+        self.sensor.detect_motion(self.cam)
 
     def shutdown(self):
-        """ shutdown the guard
-        """
         LOGGER.info('Shutting down camguard')
         # order has to be <1> camera <2> motion_sensor <3> gdrive
-        self.camera.shutdown()
-        self.motion_sensor.shutdown()
-
-    def _motion_handler(self):
-        LOGGER.info('Detected motion...')
-        recorded_files = self.camera.record_picture()
-        if self.gdrive:
-            self.gdrive.upload(recorded_files)
+        self.cam.shutdown()
+        self.sensor.shutdown()

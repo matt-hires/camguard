@@ -3,28 +3,29 @@ import os
 import time
 from datetime import date
 from os import path
-from typing import Sequence
+from typing import List
+from .motion import MotionHandler
 
 # picamera cannot be installed on a non-pi system
-from picamera import PiCamera # type: ignore reportMissingImports
+from picamera import PiCamera  # type: ignore reportMissingImports
 from .exceptions import ConfigurationError
 
 
 class RecordPathError(Exception):
 
-    def __init__(self, message):
+    def __init__(self, message) -> None:
         self.message = message
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class CamFacade:
+class PiCam(MotionHandler):
     """Class for wrapping python camera
     """
 
     def __init__(self, record_root_path: str, record_file_name: str = 'capture',
-                 record_interval_sec: float = 1.0, record_count: int = 15):
+                 record_interval_sec: float = 1.0, record_count: int = 15) -> None:
         """ctor
 
         Args:
@@ -40,14 +41,26 @@ class CamFacade:
                      f"record_file_name: {record_file_name} "
                      f"record_interval_sec: {record_interval_sec} "
                      f"record_count: {record_count}")
+        super().__init__()
 
         self.record_root_path: str = record_root_path
         self.record_file_name: str = record_file_name
         self.record_interval_sec: float = record_interval_sec
         self.record_picture_count: int = record_count
-        self._shutdown : bool = False
+        self.recorded_pictures: List[str] = [] 
+        self._shutdown: bool = False
 
-    def record_picture(self) -> Sequence[str]:
+    def on_motion(self) -> None:
+        LOGGER.debug(f"Triggered by motion")
+        self.recorded_pictures = self._record_picture()
+
+    def shutdown(self) -> None:
+        """shutdown picam recording 
+        """
+        LOGGER.debug(f"Shutting down")
+        self._shutdown = True
+
+    def _record_picture(self) -> List[str]:
         """ record picture to given file_path
 
         Raises:
@@ -87,9 +100,3 @@ class CamFacade:
 
             LOGGER.info("Finished recording")
             return recorded
-
-    def shutdown(self):
-        """shutdown picam recording 
-        """
-        LOGGER.debug(f"Shutting down")
-        self._shutdown = True

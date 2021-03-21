@@ -24,7 +24,7 @@ class PiCameraFakeContextManager(AbstractContextManager):
         return False
 
 
-class CamFacadeTest(TestCase):
+class PiCamTest(TestCase):
 
     def setUp(self):
         """
@@ -42,28 +42,28 @@ class CamFacadeTest(TestCase):
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=False))
     def test_should_raise_error_when_invalid_record_path(self):
         # arrange
-        from camguard.cam_facade import CamFacade
+        from camguard.picam import PiCam
         for path in [f"{HOME}/non/existing/file.ext", None]:
             with self.subTest(record_path=path):
                 # arrange
                 # create facade with invalid record path
-                sut = CamFacade(path)
+                sut = PiCam(path)
                 sut.record_root_path = path
 
                 # act
                 with self.assertRaises(ConfigurationError):
-                    sut.record_picture()
+                    sut.on_motion()
                 # assert
                 self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()
 
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
     def test_should_call_capture(self):
         # arrange
-        from camguard.cam_facade import CamFacade
-        sut = CamFacade(HOME)
+        from camguard.picam import PiCam
+        sut = PiCam(HOME)
 
         # act
-        sut.record_picture()
+        sut.on_motion()
 
         # assert
         self.pi_camera_module.PiCamera.capture_continuous.assert_called()
@@ -73,14 +73,14 @@ class CamFacadeTest(TestCase):
     @patch.object(os, "mkdir")
     def test_should_create_date_folder(self, mkdir_method_mock: Mock):
         # arrange
-        from camguard.cam_facade import CamFacade
-        sut = CamFacade(HOME)
+        from camguard.picam import PiCam
+        sut = PiCam(HOME)
 
         date_str = datetime.date.today().strftime("%Y%m%d/")
         record_path = os.path.join(HOME, date_str)
 
         # act
-        sut.record_picture()
+        sut.on_motion()
 
         # assert
         mkdir_method_mock.assert_called_with(record_path)
@@ -96,28 +96,28 @@ class CamFacadeTest(TestCase):
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
     @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
-    def test_should_return_recorded_files(self):
+    def test_should_store_recorded_files(self):
         # arrange
-        from camguard.cam_facade import CamFacade
-        sut = CamFacade(HOME)
+        from camguard.picam import PiCam
+        sut = PiCam(HOME)
 
         # act
-        return_val = sut.record_picture()
+        sut.on_motion()
 
         # assert
-        self.assertEqual(["capture1.jpg", "capture2.jpg"], return_val)
+        self.assertEqual(["capture1.jpg", "capture2.jpg"], sut.recorded_pictures)
 
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
     @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
     @patch.object(os, "mkdir")
     def test_should_shutdown(self, _):
         # arrange
-        from camguard.cam_facade import CamFacade
-        sut = CamFacade(HOME)
+        from camguard.picam import PiCam
+        sut = PiCam(HOME)
 
         # act
         sut.shutdown()
-        sut.record_picture()
+        sut.on_motion()
 
         # assert
         self.assertTrue(sut._shutdown)

@@ -3,9 +3,8 @@ import sys
 from argparse import ArgumentParser
 from signal import SIGINT, sigwait
 
-from .camguard import CamGuard
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -54,6 +53,7 @@ def main():
 
         LOGGER.info(f"Starting up with args: {args}")
 
+        from camguard.camguard import CamGuard
         camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
         camguard.guard()
 

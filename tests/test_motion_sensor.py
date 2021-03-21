@@ -1,18 +1,18 @@
 from time import sleep
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import create_autospec
 
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory, MockPin
+from camguard.motion import MotionHandler
 
-from camguard.motionsensor_facade import MotionSensorFacade
+from camguard.motion_sensor import MotionSensor
 
-
-class MotionSensorFacadeTest(TestCase):
+class MotionSensorTest(TestCase):
     def setUp(self):
         Device.pin_factory = MockFactory()
         self.gpio_pin = 13
-        self.sut = MotionSensorFacade(self.gpio_pin)
+        self.sut = MotionSensor(self.gpio_pin)
 
     def test_should_trigger_callback(self):
         """
@@ -21,8 +21,7 @@ class MotionSensorFacadeTest(TestCase):
         the default sample wait time (1/10) configured in gpiozero/input_devices.py:612 (__init__)
         """
         # arrange
-        mock_callback = Mock()
-        mock_callback.__name__ = "callback"
+        mock_callback = create_autospec(spec=MotionHandler)
         pin: MockPin = Device.pin_factory.pin(self.gpio_pin)
         # default is 1/10, waiting twice as long
         sample_wait_time_sec = (2 / 10)
@@ -39,8 +38,8 @@ class MotionSensorFacadeTest(TestCase):
             sleep(sample_wait_time_sec)
 
         # assert
-        mock_callback.assert_called()
-        self.assertEqual(activations, mock_callback.call_count)
+        mock_callback.on_motion.assert_called()
+        self.assertEqual(activations, mock_callback.on_motion.call_count)
 
     def tearDown(self):
         Device.pin_factory.release_pins(self.sut._motion_sensor, self.gpio_pin)
