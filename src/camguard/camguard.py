@@ -22,18 +22,18 @@ class CamGuard:
         # initialize class logger
         LOGGER.debug('Setting up camera and motion sensor')
 
-        self.sensor: MotionDetector = MotionSensor(motion_sensor_gpio_pin)
-        self.cam: MotionHandler = PiCam(record_root_path)
+        self.motion_detector: MotionDetector = MotionSensor(motion_sensor_gpio_pin)
+        self.motion_handler: MotionHandler = PiCam(record_root_path)
         self.gdrive: GDriveFacade = GDriveFacade() if gdrive_upload else None
         if self.gdrive:
             self.gdrive.authenticate()
 
     def guard(self):
         LOGGER.info("Start guard...")
-        self.sensor.detect_motion(self.cam)
+        self.motion_detector.detect_motion(self.motion_handler)
 
     def shutdown(self):
         LOGGER.info('Shutting down camguard')
-        # order has to be <1> camera <2> motion_sensor <3> gdrive
-        self.cam.shutdown()
-        self.sensor.shutdown()
+        # order has to be <1> handler <2> sensor
+        self.motion_handler.shutdown()
+        self.motion_detector.shutdown()

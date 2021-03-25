@@ -52,7 +52,8 @@ class PiCam(MotionHandler):
 
     def on_motion(self) -> None:
         LOGGER.debug(f"Triggered by motion")
-        self.recorded_pictures = self._record_picture()
+        with PiCamera() as pi_camera:
+            self.recorded_pictures = self._record_picture(pi_camera)
 
     def shutdown(self) -> None:
         """shutdown picam recording 
@@ -60,7 +61,7 @@ class PiCam(MotionHandler):
         LOGGER.debug(f"Shutting down")
         self._shutdown = True
 
-    def _record_picture(self) -> List[str]:
+    def _record_picture(self, pi_camera) -> List[str]:
         """ record picture to given file_path
 
         Raises:
@@ -69,34 +70,32 @@ class PiCam(MotionHandler):
         Returns:
             Sequence[str]: list of recorded file paths
         """
-        with PiCamera() as pi_camera:
-            LOGGER.info("Recording pictures")
+        LOGGER.info("Recording pictures")
 
-            if self.record_root_path is None or not path.isdir(self.record_root_path):
-                raise ConfigurationError("Record root path invalid")
+        if self.record_root_path is None or not path.isdir(self.record_root_path):
+            raise ConfigurationError("Record root path invalid")
 
-            # create directory with the current date
-            date_str = date.today().strftime("%Y%m%d/")
-            record_path = os.path.join(self.record_root_path, date_str)
+        # create directory with the current date
+        date_str = date.today().strftime("%Y%m%d/")
+        record_path = os.path.join(self.record_root_path, date_str)
 
-            if not path.exists(record_path):
-                os.mkdir(record_path)
+        if not path.exists(record_path):
+            os.mkdir(record_path)
 
-            recorded = []
-            for i, filename in enumerate(
-                    pi_camera.capture_continuous(f"{record_path}" +
-                                                 "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
-                                                 f"{self.record_file_name}.jpg")):
+        recorded = []
+        for i, filename in enumerate(
+                pi_camera.capture_continuous(f"{record_path}" +
+                                            "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
+                                            f"{self.record_file_name}.jpg")):
+            LOGGER.debug(f"Recorded picture to {filename}")
+            recorded.append(filename)
+            if self._shutdown:
+                LOGGER.debug("Record interrupted by shutdown")
+                break
 
-                LOGGER.debug(f"Recorded picture to {filename}")
-                recorded.append(filename)
-                if self._shutdown:
-                    LOGGER.debug("Record interrupted by shutdown")
-                    break
+            time.sleep(self.record_interval_sec)
+            if i == self.record_picture_count - 1:
+                break
 
-                time.sleep(self.record_interval_sec)
-                if i == self.record_picture_count - 1:
-                    break
-
-            LOGGER.info("Finished recording")
-            return recorded
+        LOGGER.info("Finished recording")
+        return recorded
