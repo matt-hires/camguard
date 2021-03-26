@@ -62,5 +62,5 @@ def main():
         camguard.shutdown()
         rc = 0
     except Exception as e:
-        print('Error: %s' % e, file=sys.stderr)
+        print(f"Error: {e}", file=sys.stderr)
     sys.exit(rc)
