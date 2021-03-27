@@ -12,7 +12,7 @@ from pydrive.settings import InvalidConfigError
 LOGGER = logging.getLogger(__name__)
 
 
-class GDriveFacade:
+class GDriveStorage:
     """ Class for wrapping gdrive access and authentication
     """
     # TODO: Refactor this with QueryObject
@@ -152,12 +152,12 @@ class GDriveFacade:
         query: Dict = None
         if parent_id:
             query = {
-                'q': GDriveFacade.query_file_w_title_parent.format(
+                'q': GDriveStorage.query_file_w_title_parent.format(
                     file_title=file_name, parent_id=parent_id)
             }
         else:
             query = {
-                'q': GDriveFacade.query_file_w_title.format(
+                'q': GDriveStorage.query_file_w_title.format(
                     file_title=file_name)
             }
 
@@ -185,12 +185,12 @@ class GDriveFacade:
         query: Dict = None
         if parent_id:
             query = {
-                'q': GDriveFacade.query_folder_w_title_parent.format(
+                'q': GDriveStorage.query_folder_w_title_parent.format(
                     parent_id=parent_id, folder_title=folder_name)
             }
         else:
             query = {
-                'q': GDriveFacade.query_folder_w_title.format(
+                'q': GDriveStorage.query_folder_w_title.format(
                     folder_title=folder_name)
             }
 
