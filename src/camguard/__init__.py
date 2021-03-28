@@ -27,8 +27,8 @@ def _parse_args():
     group_rec.add_argument("gpio_pin", metavar="PIN", type=int,
                            help="Raspberry GPIO motion sensor pin number")
 
-    group_gauth = parser.add_argument_group(title="Optional Google-Drive upload",
-                                            description="For using the Google-Drive upload, "
+    group_gauth = parser.add_argument_group(title="Optional google-drive storage upload",
+                                            description="For using the upload, "
                                                         "please configure the Google-OAuth "
                                                         "authentication with the google-oauth setup")
     group_gauth.add_argument("-u", "--upload", default=False, action='store_true',

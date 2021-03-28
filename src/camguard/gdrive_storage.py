@@ -2,11 +2,11 @@ import logging
 from datetime import date
 from enum import Enum
 from os import path
-from typing import Dict, List, Sequence
+from typing import Dict, Sequence
 
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-from pydrive.files import GoogleDriveFile, GoogleDriveFileList
+from pydrive.files import GoogleDriveFile
 from pydrive.settings import InvalidConfigError
 
 from .exceptions import ConfigurationError, GDriveError
@@ -32,13 +32,16 @@ class GDriveStorage:
         Args:
             upload_folder_title (str, optional): upload folder name, will be
             created in root. Defaults to "camguard". """
-        self._gauth: GoogleAuth = GoogleAuth()
+        LOGGER.debug(f"Configuring gdrive storage with params: "
+                     f"upload_folder_title: {upload_folder_title}")
+        self._gauth: GoogleAuth = GoogleAuth(settings_file="google-oauth-settings.yaml")
         self._gdrive: GoogleDrive = None
         self.upload_folder_title: str = upload_folder_title
 
     def authenticate(self):
         """ Authenticate to google drive using oauth
         """
+        LOGGER.info("Authenticating to google")
 
         try:
             self._gauth.CommandLineAuth()
