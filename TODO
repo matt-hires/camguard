@@ -14,9 +14,9 @@ Bugs
 Features
 --------
 * general camguard-settings support
-** configurable cam-settings  
+    - configurable cam-settings  
 * gdrive queue
-**  should be exectued async after record
+    - should be exectued async after record
 * Recording/Upload subfolder {capture}_{count}
 
 =======
