@@ -3,6 +3,10 @@ TODO for camguard cli/daemon
 
 :Updated: 2021-04-01
 
+Wishlist
+--------
+* Add makefiles for easy build
+
 Bugs
 ----
 * Gdrive refresh token not working
