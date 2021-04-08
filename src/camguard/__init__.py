@@ -1,8 +1,11 @@
 import logging
-import sys
+import time
+from sys import stderr, stdout, exit
 from argparse import ArgumentParser
-from signal import SIGINT, sigwait
+from signal import SIGINT, SIGTERM
 
+from daemon.daemon import DaemonContext
+from pid import PidFile
 
 __version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
@@ -26,6 +29,11 @@ def _parse_args():
                            type=str, help="Root path for camera records")
     group_rec.add_argument("gpio_pin", metavar="PIN", type=int,
                            help="Raspberry GPIO motion sensor pin number")
+    group_rec.add_argument("-d", "--detach", default=False, action="store_true",
+                           help="Detach process from current terminal "
+                           "to run in the background as a daemon. "
+                           "Redundant if the process is started by the init system "
+                           "(sys-v, systemd, ...)")
 
     group_gauth = parser.add_argument_group(title="Optional google-drive storage upload",
                                             description="For using the upload, "
@@ -38,16 +46,40 @@ def _parse_args():
     return parser.parse_args()
 
 
-def _configure_logger(loglevel: str):
+def _configure_logger(loglevel: str) -> None:
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                        handlers=[logging.StreamHandler(
-                        ), logging.FileHandler("camguard.log")],
+                        handlers=[logging.StreamHandler()],
                         level=loglevel)
 
 
+def _configure_daemon(detach: bool, camguard) -> DaemonContext:
+    signal_map = {
+        SIGTERM: lambda sig, tb: _shutdown_daemon(camguard, sig, tb),
+        SIGINT: lambda sig, tb: _shutdown_daemon(camguard, sig, tb)
+    }
+
+    # setup pid file context (/var/run/camguard.pid)
+    pid_file: PidFile = PidFile(pidname="camguard") if detach else None
+    work_dir: str = '/' if detach else '.'
+
+    return DaemonContext(detach_process=detach,
+                         pidfile=pid_file,
+                         signal_map=signal_map,
+                         stderr=stderr,
+                         stdout=stdout,
+                         working_directory=work_dir)
+
+
+def _shutdown_daemon(camguard, signal_number, stack_frame):
+    LOGGER.info("Gracefully shutting down Camguard ...")
+    if camguard:
+        camguard.shutdown()
+    raise SystemExit(f"Received shutdown signal: {signal_number}")
+
+
 def main():
-    rc = 1
     try:
+        rc = 0
         args = _parse_args()
         _configure_logger(args.log)
 
@@ -55,12 +87,22 @@ def main():
 
         from camguard.camguard import CamGuard
         camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
-        camguard.guard()
+        daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
 
-        print("Camguard running, press ctrl-c to quit...")
-        sigwait((SIGINT,))
-        camguard.shutdown()
+        with daemon_context:
+            camguard.guard()
+            if not args.detach:
+                LOGGER.info("Camguard running, press ctrl-c to quit")
+
+            # main loop
+            while True:
+                time.sleep(10)
+    except SystemExit as e:
+        LOGGER.debug(e)
+        LOGGER.info("Camguard shut down gracefully")
         rc = 0
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-    sys.exit(rc)
+        LOGGER.error(f"Unexpected error occured: {e}")
+
+    LOGGER.debug(f"Camguard exit with code: {rc}")
+    exit(rc)

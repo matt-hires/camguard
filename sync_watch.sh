@@ -5,15 +5,15 @@
 
 remote_host="pi@raspberrycam"
 remote_dir="/home/pi/pydev/camguard"
-rsync_excludes=("--exclude=venv" "--exclude=*.log" "--exclude=**/__pycache__" \
+rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__" \
 "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version" \
-"--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info" "--exclude=.vscode/" \
+"--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/" \
 "--exclude=credentials.json")
 
 inotify_excludes='(\.idea)|(.*~)|(venv)|(\.python-version)|(__pycache__)|(\.git)|(\.vscode)'
 
 printf "Running initial sync to '%s:%s'\n" "$remote_host" "$remote_dir"
-rsync -avP --delete --rsh=ssh '.' "$remote_host":"$remote_dir" "${rsync_excludes[@]}"
+rsync -avP --force --delete --rsh=ssh '.' "$remote_host":"$remote_dir" "${rsync_excludes[@]}"
 echo "Watching file changes in current directory and syncing them to remote shell..."
 
 inotifywait -rm -e create,close_write,move,delete \

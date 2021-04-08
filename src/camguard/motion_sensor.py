@@ -30,6 +30,6 @@ class MotionSensor(MotionDetector):
         self._motion_sensor.when_activated = handler.on_motion
 
     def shutdown(self) -> None:
-        LOGGER.debug(f"Shutting down motion sensor")
+        LOGGER.debug(f"Shutting down")
         # shutdown motion sensor thread and join
         self._motion_sensor.close()

@@ -19,7 +19,7 @@
         },
         {
             // check https://code.visualstudio.com/docs/python/debugging
-            "name": "Python: Attach Remote Pi",
+            "name": "Python: Attach Remote Pi:5678",
             "type": "python",
             "request": "attach",
             "port": 5678,
