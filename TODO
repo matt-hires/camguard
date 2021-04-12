@@ -23,6 +23,7 @@ Features
 PENDING
 =======
 * Configure camguard as a daemon
+    - add makefiles for systemd installation
 
 ====
 DONE

@@ -1,0 +1,10 @@
+[Unit]
+Description=Camguard Service
+
+[Service]
+Type=simple
+ExecStart=${PYTHON} -u camguard '${RECORD_PATH}' ${GPIO_PIN}
+TimeoutStopSec=3
+
+[Install]
+WantedBy=multi-user.target
