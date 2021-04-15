@@ -1,16 +1,14 @@
 #! /usr/bin/make -f
 
 SHELL = /bin/bash
-PYTHON = python3
+PYTHON := ${shell which python3}
 NAME = camguard
 
 SYSTEMD_SERVICE_NAME = ${NAME}.service
 SYSTEMD_SRC_DIR := ${CURDIR}/systemd
 SYSTEMD_CONF := ${SYSTEMD_SRC_DIR}/${SYSTEMD_SERVICE_NAME}
-# TODO: for debugging
-#SYSTEMD_INSTALL_DIR = /etc/systemd/system
-SYSTEMD_INSTALL_DIR := ${CURDIR}
-SYSTEMD_INSTALL_PATH := ${SYSTEMD_INSTALL_DIR}/${SYSTEMD_SERVICE_NAME}
+#SYSTEMD_INSTALL_PATH := /etc/systemd/system/${SYSTEMD_SERVICE_NAME}
+SYSTEMD_INSTALL_PATH := ${CURDIR}/${SYSTEMD_SERVICE_NAME}
 # ARGS-PRESET
 GPIO_PIN = 23
 RECORD_PATH := ${CURDIR}/record
@@ -29,14 +27,26 @@ GENERATED_FILES += ${CURDIR}/__pycache__
 GENERATED_FILES += ${MODULE_DIR}/__pycache__
 GENERATED_FILES += ${TESTS_DIR}/__pycache__
 GENERATED_FILES += ${CURDIR}/.tox
+GENERATED_FILES += ${CURDIR}/client_secrets.json
 
-# default targets 
+.DEFAULT_GOAL = help
+.PHONY: help
+help:
+	@echo "*****************************HELP*****************************"
+	@echo "all                clean + install"
+	@echo "install            install modules for raspi + install-systemd"
+	@echo "install-debug      install modules for raspi with debugging"
+	@echo "install-dev        install modules for development"
+	@echo "install-systemd    install systemd service"
+	@echo "build              build python project to ${BUILD_DIR}"
+	@echo "clean              clean all generated files"
+
 .PHONY: all
 all: clean install
 
 .PHONY: install
 install: install-systemd
-	${PYTHON_PIP} .[raspi]
+	${PYTHON_PIP} install .[raspi]
 
 .PHONY: uninstall
 uninstall: uninstall-systemd 
@@ -47,7 +57,7 @@ build:
 	${PYTHON_PIP} install -b ${BUILD_DIR} .  
 
 .PHONY: clean
-clean:
+clean: 
 	-rm -r ${GENERATED_FILES}
 
 # additional targets
