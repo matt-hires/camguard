@@ -8,7 +8,7 @@ remote_dir="/home/pi/pydev/camguard"
 rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__" \
 "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version" \
 "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/" \
-"--exclude=credentials.json")
+"--exclude=credentials.json" "--exclude=record/")
 
 inotify_excludes='(\.idea)|(.*~)|(venv)|(\.python-version)|(__pycache__)|(\.git)|(\.vscode)'
 
