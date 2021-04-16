@@ -7,11 +7,14 @@ NAME = camguard
 SYSTEMD_SERVICE_NAME = ${NAME}.service
 SYSTEMD_SRC_DIR := ${CURDIR}/systemd
 SYSTEMD_CONF := ${SYSTEMD_SRC_DIR}/${SYSTEMD_SERVICE_NAME}
-#SYSTEMD_INSTALL_PATH := /etc/systemd/system/${SYSTEMD_SERVICE_NAME}
-SYSTEMD_INSTALL_PATH := ${CURDIR}/${SYSTEMD_SERVICE_NAME}
-# ARGS-PRESET
-GPIO_PIN = 23
+SYSTEMD_INSTALL_DIR := ${value HOME}/.config/systemd/user
+SYSTEMD_INSTALL_PATH := ${SYSTEMD_INSTALL_DIR}/${SYSTEMD_SERVICE_NAME}
 RECORD_PATH := ${CURDIR}/record
+# ARGS-PRESET
+GPIO_PIN_ARG = 23
+RECORD_PATH_ARG := ${RECORD_PATH}
+DEBUG_ARGS := -l DEBUG
+
 PYTHON_PIP := ${PYTHON} -m pip
 
 SOURCE_DIR := ${CURDIR}/src
@@ -33,13 +36,14 @@ GENERATED_FILES += ${CURDIR}/client_secrets.json
 .PHONY: help
 help:
 	@echo "*****************************HELP*****************************"
-	@echo "all                clean + install"
-	@echo "install            install modules for raspi + install-systemd"
-	@echo "install-debug      install modules for raspi with debugging"
-	@echo "install-dev        install modules for development"
-	@echo "install-systemd    install systemd service"
-	@echo "build              build python project to ${BUILD_DIR}"
-	@echo "clean              clean all generated files"
+	@echo "all                      clean + install"
+	@echo "install                  install modules for raspi + install-systemd"
+	@echo "install-debug            install modules for raspi with debugging + install-systemd"
+	@echo "install-dev              install modules for development"
+	@echo "install-systemd          install systemd service"
+	@echo "install-systemd-debug    install systemd service with debug args"
+	@echo "build                    build python project to ${BUILD_DIR}"
+	@echo "clean                    clean all generated files"
 
 .PHONY: all
 all: clean install
@@ -62,7 +66,7 @@ clean:
 
 # additional targets
 .PHONY: install-debug
-install-debug:
+install-debug: install-systemd-debug
 	${PYTHON_PIP} install -e .[raspi,debug]
 
 .PHONY: install-dev
@@ -72,10 +76,16 @@ install-dev:
 # systemd targets
 .PHONY: install-systemd
 install-systemd:
+	mkdir -p ${RECORD_PATH_ARG}
+	mkdir -p ${SYSTEMD_INSTALL_DIR}
 	cp ${SYSTEMD_CONF} ${SYSTEMD_INSTALL_PATH}
 	sed -i 's/$${PYTHON}/${subst /,\/,${PYTHON}}/g' ${SYSTEMD_INSTALL_PATH} 
-	sed -i 's/$${RECORD_PATH}/${subst /,\/,${RECORD_PATH}}/g' ${SYSTEMD_INSTALL_PATH} 
-	sed -i 's/$${GPIO_PIN}/${GPIO_PIN}/g' ${SYSTEMD_INSTALL_PATH} 
+	sed -i 's/$${RECORD_PATH}/${subst /,\/,${RECORD_PATH_ARG}}/g' ${SYSTEMD_INSTALL_PATH} 
+	sed -i 's/$${GPIO_PIN}/${GPIO_PIN_ARG}/g' ${SYSTEMD_INSTALL_PATH} 
+
+.PHONY: install-systemd-debug
+install-systemd-debug: install-systemd
+	sed -i 's/$${ARGS}/${DEBUG_ARGS}/g' ${SYSTEMD_INSTALL_PATH} 
 
 .PHONY: uninstall-systemd
 uninstall-systemd:

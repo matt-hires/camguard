@@ -1,9 +1,9 @@
 [Unit]
-Description=Camguard Service
+Description=Camguard Test-Service
 
 [Service]
 Type=simple
-ExecStart=${PYTHON} -u camguard '${RECORD_PATH}' ${GPIO_PIN}
+ExecStart=${PYTHON} -u -m camguard '${RECORD_PATH}' ${GPIO_PIN} ${ARGS}
 TimeoutStopSec=3
 
 [Install]

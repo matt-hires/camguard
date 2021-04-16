@@ -15,16 +15,17 @@ Features
 --------
 * general camguard-settings support
     - configurable cam-settings  
-* gdrive queue
-    - should be exectued async after record
+    - configurable settings file path (default /etc/camguard.d/camguard.yaml)
 * Recording/Upload subfolder {capture}_{count}
 
 =======
 PENDING
 =======
-* Configure camguard as a daemon
-    - add makefiles for systemd installation
+* gdrive queue
+    - should be exectued async after record
 
 ====
 DONE
 ====
+* Configure camguard as a daemon
+    - add makefiles for systemd installation
