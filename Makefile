@@ -16,6 +16,7 @@ RECORD_PATH_ARG := ${RECORD_PATH}
 DEBUG_ARGS := -l DEBUG
 
 PYTHON_PIP := ${PYTHON} -m pip
+PYTHON_TOX := ${PYTHON} -m tox
 
 SOURCE_DIR := ${CURDIR}/src
 MODULE_DIR := ${SRC_DIR}/${NAME}
@@ -42,6 +43,7 @@ help:
 	@echo "install-dev              install modules for development"
 	@echo "install-systemd          install systemd service"
 	@echo "install-systemd-debug    install systemd service with debug args"
+	@echo "check                    run tests (tox)"
 	@echo "build                    build python project to ${BUILD_DIR}"
 	@echo "clean                    clean all generated files"
 
@@ -59,6 +61,10 @@ uninstall: uninstall-systemd
 .PHONY: build
 build: 
 	${PYTHON_PIP} install -b ${BUILD_DIR} .  
+
+.PHONY: check
+check: 
+	${PYTHON_TOX}
 
 .PHONY: clean
 clean: 

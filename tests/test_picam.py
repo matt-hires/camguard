@@ -6,6 +6,7 @@ from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 
 from camguard.exceptions import ConfigurationError
+from camguard.motion import MotionHandler
 
 HOME = "/home"
 MODULES = "sys.modules"
@@ -34,7 +35,8 @@ class PiCamTest(TestCase):
         # setup mocks
         self.pi_camera_module = Mock()
         self.pi_camera_module.PiCamera = PiCameraFakeContextManager
-        self.pi_camera_module.PiCamera.capture_continuous = Mock(return_value=["capture1.jpg", "capture2.jpg"])
+        self.pi_camera_module.PiCamera.capture_continuous = Mock(
+            return_value=["capture1.jpg", "capture2.jpg"])
 
         self.patcher = patch.dict(MODULES, picamera=self.pi_camera_module)
         self.patcher.start()
@@ -98,9 +100,9 @@ class PiCamTest(TestCase):
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
     def test_should_trigger_motion_finished(self):
         # arrange
-        sut = PiCam(HOME)
-        sut.on_motion_finished = MagicMock()
         from camguard.picam import PiCam
+        sut: MotionHandler = PiCam(HOME)
+        sut.on_motion_finished = MagicMock()
 
         # act
         sut.on_motion()
@@ -115,15 +117,14 @@ class PiCamTest(TestCase):
         # arrange
         from camguard.picam import PiCam
         sut = PiCam(HOME)
+        sut.shutdown()
 
         # act
-        sut.shutdown()
         sut.on_motion()
 
         # assert
         self.assertTrue(sut._shutdown)
-        # should be called once
-        self.pi_camera_module.PiCamera.capture_continuous.assert_called_once()
+        self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()
 
     def tearDown(self):
         self.patcher.stop()

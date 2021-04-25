@@ -8,7 +8,7 @@ remote_dir="/home/pi/pydev/camguard"
 rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__" \
 "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version" \
 "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/" \
-"--exclude=credentials.json" "--exclude=record/")
+"--exclude=credentials.json" "--exclude=record/" "--exclude=**/*.tmp")
 
 inotify_excludes='(\.idea)|(.*~)|(venv)|(\.python-version)|(__pycache__)|(\.git)|(\.vscode)'
 
@@ -38,7 +38,7 @@ inotifywait -rm -e create,close_write,move,delete \
 
         echo "path: ${path}"
 
-        remotepath="$remote_dir/$path"
+        remotepath=$(dirname "$remote_dir/$path")
         echo "remotepath: ${remotepath}"
 
         rsync -avP "${delete_flags[@]}" --rsh=ssh "$path" \

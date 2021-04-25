@@ -61,7 +61,7 @@ class PiCam(MotionHandler):
     def shutdown(self) -> None:
         """shutdown picam recording 
         """
-        LOGGER.debug(f"Shutting down")
+        LOGGER.info(f"Shutting down")
         self._shutdown = True
         self.on_motion_finished = None
 
@@ -74,6 +74,9 @@ class PiCam(MotionHandler):
         Returns:
             Sequence[str]: list of recorded file paths
         """
+        if self._shutdown:
+            return
+
         LOGGER.info("Recording pictures")
 
         if self.record_root_path is None or not path.isdir(self.record_root_path):
@@ -91,7 +94,7 @@ class PiCam(MotionHandler):
                 pi_camera.capture_continuous(f"{record_path}" +
                                             "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
                                             f"{self.record_file_name}.jpg")):
-            LOGGER.debug(f"Recorded picture to {filename}")
+            LOGGER.info(f"Recorded picture to {filename}")
             recorded.append(filename)
             if self._shutdown:
                 LOGGER.debug("Record interrupted by shutdown")

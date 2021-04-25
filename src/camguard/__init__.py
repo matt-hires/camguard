@@ -20,7 +20,7 @@ def _parse_args():
 
     group_rec = parser.add_argument_group(title="Camguard surveillance",
                                           description="Detect motion with configured sensor "
-                                                      "and record pictures")
+                                          "and record pictures")
     group_rec.add_argument("-l", "--log", type=str, default="INFO",
                            choices=["INFO", "DEBUG",
                                     "WARN", "ERROR", "CRITICAL"],
@@ -35,21 +35,23 @@ def _parse_args():
                            "Redundant if the process is started by the init system "
                            "(sys-v, systemd, ...)")
 
-    group_gauth = parser.add_argument_group(title="Optional google-drive storage upload",
-                                            description="For using the upload, "
-                                                        "please configure the Google-OAuth "
-                                                        "authentication with the google-oauth setup")
-    group_gauth.add_argument("-u", "--upload", default=False, action='store_true',
-                             help="Upload files to a configured google drive, "
-                                  "authenticates on first usage")
+    group_gdrive = parser.add_argument_group(title="Optional google-drive storage upload",
+                                             description="For using the upload, "
+                                             "please configure the Google-OAuth "
+                                             "authentication with the google-oauth setup")
+    group_gdrive.add_argument("-u", "--upload", default=False, action='store_true',
+                              help="Upload files to a configured google drive, "
+                              "authenticates on first usage")
 
     return parser.parse_args()
 
 
 def _configure_logger(loglevel: str) -> None:
-    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    logging.basicConfig(format="%(asctime)s - %(threadName)s - %(name)s - %(levelname)s"
+                        " - %(message)s",
                         handlers=[logging.StreamHandler()],
                         level=loglevel)
+    logging.logThreads = True
 
 
 def _configure_daemon(detach: bool, camguard) -> DaemonContext:
@@ -71,9 +73,9 @@ def _configure_daemon(detach: bool, camguard) -> DaemonContext:
 
 
 def _shutdown_daemon(camguard, signal_number, stack_frame):
-    LOGGER.info("Gracefully shutting down Camguard ...")
+    LOGGER.info("Gracefully shutting down Camguard")
     if camguard:
-        camguard.shutdown()
+        camguard.stop_guard()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
 
 
@@ -85,12 +87,19 @@ def main():
 
         LOGGER.info(f"Starting up with args: {args}")
 
+        gdrive_auth = None
+        if args.upload:
+            from camguard.gdrive_storage import GDriveStorageAuth
+            gdrive_auth = GDriveStorageAuth()
+            # login on commandline before starting daemon
+            gdrive_auth.login()
+
         from camguard.camguard import CamGuard
-        camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
+        camguard = CamGuard(args.gpio_pin, args.record_path, gdrive_auth)
         daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
 
         with daemon_context:
-            camguard.guard()
+            camguard.start_guard()
             if not args.detach:
                 LOGGER.info("Camguard running, press ctrl-c to quit")
 
