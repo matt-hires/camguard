@@ -24,7 +24,7 @@ class MotionSensor(MotionDetector):
         """abstract base method for calling on motion callback
 
         Args:
-            handler (MotionHandler): motion handler for handling detection events 
+            handler (MotionHandler): motion handler callback 
         """
         LOGGER.debug(f"Registering motion_sensor callback")
         self._motion_sensor.when_activated = handler.on_motion

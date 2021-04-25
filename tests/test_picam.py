@@ -96,16 +96,17 @@ class PiCamTest(TestCase):
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
     @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
     @patch("os.mkdir", MagicMock(spec=os.mkdir))
-    def test_should_store_recorded_files(self):
+    def test_should_trigger_motion_finished(self):
         # arrange
-        from camguard.picam import PiCam
         sut = PiCam(HOME)
+        sut.on_motion_finished = MagicMock()
+        from camguard.picam import PiCam
 
         # act
         sut.on_motion()
 
         # assert
-        self.assertEqual(["capture1.jpg", "capture2.jpg"], sut.recorded_pictures)
+        sut.on_motion_finished.assert_called_once()
 
     @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
     @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))

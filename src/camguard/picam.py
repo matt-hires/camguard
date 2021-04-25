@@ -5,6 +5,7 @@ from datetime import date
 from os import path
 from typing import List
 from .motion import MotionHandler
+from threading import Event
 
 # picamera cannot be installed on a non-pi system
 from picamera import PiCamera  # type: ignore reportMissingImports
@@ -47,19 +48,22 @@ class PiCam(MotionHandler):
         self.record_file_name: str = record_file_name
         self.record_interval_sec: float = record_interval_sec
         self.record_picture_count: int = record_count
-        self.recorded_pictures: List[str] = [] 
         self._shutdown: bool = False
+        self._recorded: Event = Event()
 
     def on_motion(self) -> None:
         LOGGER.debug(f"Triggered by motion")
         with PiCamera() as pi_camera:
-            self.recorded_pictures = self._record_picture(pi_camera)
+            recorded_pics: List[str] = self._record_picture(pi_camera)
+            if self.on_motion_finished:
+                self.on_motion_finished(recorded_pics)
 
     def shutdown(self) -> None:
         """shutdown picam recording 
         """
         LOGGER.debug(f"Shutting down")
         self._shutdown = True
+        self.on_motion_finished = None
 
     def _record_picture(self, pi_camera) -> List[str]:
         """ record picture to given file_path

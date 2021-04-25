@@ -1,8 +1,8 @@
-from unittest.case import skip
 from camguard.gdrive_storage import GDriveMimetype, GDriveStorage
 import datetime
 import os
 from unittest import TestCase
+from time import sleep
 from unittest.mock import MagicMock, call, create_autospec, patch
 
 from camguard.exceptions import ConfigurationError
@@ -24,19 +24,21 @@ class GDriveStorageTest(TestCase):
     @patch("os.path.exists", MagicMock(spec=os.path.exists, return_value=False))
     def test_should_raise_error_when_no_client_secrets(self):
         # arrange
+        self.sut._upload_daemon = MagicMock()
         self.sut._gauth.CommandLineAuth.side_effect = InvalidConfigError("Test")
 
         # act / assert
         with self.assertRaises(ConfigurationError):
-            self.sut.authenticate()
+            self.sut.setup()
 
         self.sut._gauth.CommandLineAuth.assert_called()
 
     def test_should_authenticate(self):
         # arrange
+        self.sut._upload_daemon = MagicMock()
 
         # act
-        self.sut.authenticate()
+        self.sut.setup()
 
         # assert
         self.sut._gauth.CommandLineAuth.assert_called()
@@ -44,6 +46,7 @@ class GDriveStorageTest(TestCase):
 
     def test_should_create_root(self):
         # arrange
+        self.sut._upload_daemon = MagicMock()
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
         file = "capture1.jpeg"
 
@@ -60,10 +63,11 @@ class GDriveStorageTest(TestCase):
         self.sut.upload(file)
 
         # assert
-        self.sut._gdrive.CreateFile.assert_any_call(create_folder_dict)
+        self.sut._gdrive.CreateFile.assert_called_with(create_folder_dict)
 
     def test_should_raise_error_when_more_than_one_root_found(self):
         # arrange
+        self.sut._upload_daemon = MagicMock()
         file = "capture1.jpeg"
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
         folder = MagicMock(spec=GoogleDriveFile)
@@ -78,6 +82,7 @@ class GDriveStorageTest(TestCase):
 
     def test_should_create_date_folder(self):
         # arrange
+        self.sut._upload_daemon = MagicMock()
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
         file = "capture1.jpeg"
 
@@ -87,7 +92,7 @@ class GDriveStorageTest(TestCase):
         self.sut._search_file = MagicMock(side_effect=[
             [root_folder],  # root folder
             [],  # date folder
-            [] # file
+            []  # file
         ])
 
         date_str = datetime.date.today().strftime("%Y%m%d")
@@ -101,20 +106,21 @@ class GDriveStorageTest(TestCase):
         self.sut.upload(file)
 
         # assert
-        self.sut._gdrive.CreateFile.assert_any_call(create_folder_dict)
+        self.sut._gdrive.CreateFile.assert_called_with(create_folder_dict)
 
     def test_should_upload_file(self):
         # arrange
+        self.sut._upload_daemon = MagicMock()
         self.sut._gdrive = create_autospec(spec=GoogleDrive)
         file = "capture1.jpeg"
         gdrive_folder = MagicMock(spec=GoogleDriveFile)
         gdrive_folder.__getitem__ = MagicMock(key="id", return_value="folder_id")
 
-        # mock search 
+        # mock search
         self.sut._search_file = MagicMock(side_effect=[
             [gdrive_folder],  # root folder
             [gdrive_folder],  # date folder
-            [] # file
+            []  # file
         ])
 
         # act
@@ -126,4 +132,22 @@ class GDriveStorageTest(TestCase):
             'mimeType': GDriveMimetype.JPEG.value,
             'parents': [{'id': "folder_id"}]
         }
-        self.sut._gdrive.CreateFile.assert_any_call(create_file_dict)
+        self.sut._gdrive.CreateFile.assert_called_with(create_file_dict)
+
+    def test_should_upload_enqueued_files(self):
+        # arrange
+        files = ["capture1.jpeg", "capture2.jpeg"]
+        self.sut.upload = MagicMock()
+        self.sut._gdrive = create_autospec(spec=GoogleDrive)
+        self.sut.setup()
+
+        # act
+        self.sut.enqueue_files(files)
+        sleep(1) # 1 second should do it for upload to be called
+
+        self.assertEqual(len(files), self.sut.upload.call_count)
+        self.sut.upload.assert_has_calls(calls=[call(file) for file in files],
+                                         any_order=True)
+
+    def tearDown(self) -> None:
+        self.sut.shutdown()
