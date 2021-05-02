@@ -1,7 +1,7 @@
 TODO for camguard cli/daemon
 ############################
 
-:Updated: 2021-04-01
+:Updated: 2021-05-02
 
 Wishlist
 --------
@@ -17,15 +17,21 @@ Features
     - configurable cam-settings  
     - configurable settings file path (default /etc/camguard.d/camguard.yaml)
 * Recording/Upload subfolder {capture}_{count}
+* gdrive persist queue
+    - via file system (create directory to_upload / uploaded) ?
+    - via a persisted queue file
 
 =======
 PENDING
 =======
-* gdrive queue
-    - should be exectued async after record
+* Implement a bridge to hide concrete handler/detector classes
+    - this enables switching to a dummy implementation for testing without a raspi 
+    - create concrete implementations with abstract factory
 
 ====
 DONE
 ====
+* gdrive queue
+    - should be exectued async after record
 * Configure camguard as a daemon
     - add makefiles for systemd installation
