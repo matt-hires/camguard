@@ -75,7 +75,7 @@ def _configure_daemon(detach: bool, camguard) -> DaemonContext:
 def _shutdown_daemon(camguard, signal_number, stack_frame):
     LOGGER.info("Gracefully shutting down Camguard")
     if camguard:
-        camguard.stop_guard()
+        camguard.stop()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
 
 
@@ -87,19 +87,14 @@ def main():
 
         LOGGER.info(f"Starting up with args: {args}")
 
-        gdrive_auth = None
-        if args.upload:
-            from camguard.gdrive_storage import GDriveStorageAuth
-            gdrive_auth = GDriveStorageAuth()
-            # login on commandline before starting daemon
-            gdrive_auth.login()
-
         from camguard.camguard import CamGuard
-        camguard = CamGuard(args.gpio_pin, args.record_path, gdrive_auth)
-        daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
+        camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
+        # init camguard before starting daemon context
+        camguard.init()
 
+        daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
         with daemon_context:
-            camguard.start_guard()
+            camguard.start()
             if not args.detach:
                 LOGGER.info("Camguard running, press ctrl-c to quit")
 

@@ -4,7 +4,8 @@ import time
 from datetime import date
 from os import path
 from typing import List
-from .motion import MotionHandler
+
+from camguard.bridge import MotionHandlerImpl
 from threading import Event
 
 # picamera cannot be installed on a non-pi system
@@ -21,7 +22,7 @@ class RecordPathError(Exception):
 LOGGER = logging.getLogger(__name__)
 
 
-class PiCam(MotionHandler):
+class RaspiCam(MotionHandlerImpl):
     """Class for wrapping python camera
     """
 
@@ -51,19 +52,19 @@ class PiCam(MotionHandler):
         self._shutdown: bool = False
         self._recorded: Event = Event()
 
-    def on_motion(self) -> None:
+    def handle_motion(self) -> None:
         LOGGER.debug(f"Triggered by motion")
         with PiCamera() as pi_camera:
             recorded_pics: List[str] = self._record_picture(pi_camera)
-            if self.on_motion_finished:
-                self.on_motion_finished(recorded_pics)
+            if self.after_handling:
+                self.after_handling(recorded_pics)
 
     def shutdown(self) -> None:
         """shutdown picam recording 
         """
         LOGGER.info(f"Shutting down")
         self._shutdown = True
-        self.on_motion_finished = None
+        self.after_handling = None
 
     def _record_picture(self, pi_camera) -> List[str]:
         """ record picture to given file_path
@@ -92,8 +93,8 @@ class PiCam(MotionHandler):
         recorded = []
         for i, filename in enumerate(
                 pi_camera.capture_continuous(f"{record_path}" +
-                                            "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
-                                            f"{self.record_file_name}.jpg")):
+                                             "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +
+                                             f"{self.record_file_name}.jpg")):
             LOGGER.info(f"Recorded picture to {filename}")
             recorded.append(filename)
             if self._shutdown:
