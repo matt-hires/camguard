@@ -8,7 +8,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class CamGuard:
-    """holds and manages equipment objects
+    """CamGuard main device class, holds and manages equipment
     """
 
     def __init__(self, gpio_pin: int, record_root_path: str, upload: bool):
@@ -25,6 +25,9 @@ class CamGuard:
         self._file_storage = FileStorage() if upload else None
 
     def init(self):
+        """initialize equipment
+        this *has* to be done before start
+        """
         LOGGER.info("Initializing equipment")
 
         self._handler.init()
@@ -38,6 +41,11 @@ class CamGuard:
         self._init = True
 
     def start(self):
+        """start camguard
+
+        Raises:
+            CamGuardError: is camguard hasn't been initialized
+        """
         if not self._init:
             raise CamGuardError("Equipment has not been initialized before start")
 
@@ -47,6 +55,8 @@ class CamGuard:
         self._detector.on_motion(self._handler.handle_motion)
 
     def stop(self):
+        """stop camguard
+        """
         LOGGER.info('Stopping camguard')
         self._handler.stop()
         self._detector.stop()

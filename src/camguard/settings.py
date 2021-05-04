@@ -8,6 +8,8 @@ from enum import Enum
 
 
 class ImplementationType(Enum):
+    """implementation type setting for equipment selection
+    """
     DUMMY = "dummy"
     RASPI = "raspi"
 
@@ -22,10 +24,24 @@ class ImplementationType(Enum):
 
 
 class Settings:
+    """camguard yaml settings base class
+    """
     _instance = None
 
     @classmethod
     def load_settings(cls, filepath="settings.yaml"):
+        """load settings from yaml file path
+
+        Args:
+            filepath (str, optional): yaml file. Defaults to "settings.yaml".
+
+        Raises:
+            CamGuardError: if settings file cannot be openend 
+            ConfigurationError: on yaml errors 
+
+        Returns:
+            Settings: an initialized Settings object 
+        """
         instance = cls._create_instance()
 
         if not path.isfile(filepath):
@@ -45,6 +61,12 @@ class Settings:
 
     @classmethod
     def _create_instance(cls):
+        """create the one and only settings object
+        this is class method so it is also possible to use this for subclasses
+
+        Returns:
+           Settings: the settings object or it's derivation class
+        """
         if not cls._instance:
             cls._instance = cls.__new__(cls)
             # init default settings
@@ -53,13 +75,22 @@ class Settings:
         return cls._instance
 
     def _parse_data(self, data: Dict):
+        """parse data from yaml and store
+
+        Args:
+            data (Dict): yaml data dictionary
+        """
         pass
 
     def _default(self):
+        """generate default settings
+        """
         pass
 
 
 class MotionHandlerSettings(Settings):
+    """Specialized motion handler settings class
+    """
     _KEY = "motion_handler"
     _IMPL = "implementation"
 
@@ -83,6 +114,8 @@ class MotionHandlerSettings(Settings):
 
 
 class MotionDetectorSettings(Settings):
+    """Specialized motion detector settings class
+    """
     _KEY = "motion_detector"
     _IMPL = "implementation"
 

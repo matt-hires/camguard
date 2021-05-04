@@ -15,7 +15,7 @@ from pydrive.settings import InvalidConfigError
 
 from camguard.bridge import FileStorageImpl
 
-from .exceptions import CamGuardError, ConfigurationError, GDriveError
+from .exceptions import ConfigurationError, GDriveError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,6 +29,9 @@ class GDriveMimetype(Enum):
 
 
 class GDriveStorageAuth:
+    """manages gdrive oauth authentication control
+    """
+
     _gauth: GoogleAuth = None
 
     @classmethod
@@ -54,6 +57,9 @@ class GDriveStorageAuth:
 
 
 class GDriveUploadDaemon(Thread):
+    """Daemon for handling gdrive upload workers
+    filepath to uploaded are kept in a queue
+    """
     _QUEUE_SIZE: int = 100
     _MAX_WORKERS: int = 3
 
@@ -63,6 +69,11 @@ class GDriveUploadDaemon(Thread):
         self._queue: Queue[str] = Queue(maxsize=GDriveUploadDaemon._QUEUE_SIZE)
 
     def enqueue_files(self, files: List[str]) -> None:
+        """enqueue files for upload.
+
+        Args:
+            files (List[str]): path of the files to enqueue 
+        """
         for file in files:
             self._enqueue_file(file)
 
@@ -121,7 +132,7 @@ class GDriveUploadDaemon(Thread):
 
 
 class GDriveStorage(FileStorageImpl):
-    """ Class for wrapping gdrive access and authentication
+    """ Manages GDrive file upload
     """
     _lock = Lock()
     _gauth: GoogleAuth = None
@@ -132,23 +143,37 @@ class GDriveStorage(FileStorageImpl):
         self._daemon: GDriveUploadDaemon = GDriveUploadDaemon()
 
     def authenticate(self) -> None:
+        """authenticate to gdrive via cli
+        """
         self.__class__._gauth = GDriveStorageAuth.login()
 
     def start(self) -> None:
+        """start the upload daemon thread
+        """
         self._daemon.start()
 
     def stop(self) -> None:
+        """stop the upload daemon thread
+        """
         self._daemon.stop()
 
     def enqueue_files(self, files: List[str]) -> None:
+        """enqueue file paths for upload
+
+        Args:
+            files (List[str]): files to enqueue 
+        """
         self._daemon.enqueue_files(files)
 
     @classmethod
     def upload(cls, file: str) -> None:
-        """upload files to gdrive (authentication needed)
+        """upload given file to gdrive
 
         Args:
-            files (Sequence[str]): filepaths to upload
+            file (str): file to upload 
+
+        Raises:
+            GDriveError: on authentication failure
         """
 
         if not cls._gauth:

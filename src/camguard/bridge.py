@@ -8,6 +8,8 @@ from camguard.settings import ImplementationType, MotionDetectorSettings, Motion
 
 
 class MotionHandlerImpl(ABC):
+    """abstract base class for motion handler implementations
+    """
     def __init__(self) -> None:
         self._after_handling = None
 
@@ -34,6 +36,8 @@ class MotionHandlerImpl(ABC):
 
 
 class MotionHandler:
+    """ representation of the motion handler implementation abstraction
+    """
     def __init__(self, record_root_path: str) -> None:
         self._record_root_path = record_root_path
         self._settings: MotionHandlerSettings = None
@@ -69,6 +73,8 @@ class MotionHandler:
 
 
 class MotionDetectorImpl(ABC):
+    """abstract base class for motion detector implementations
+    """
     @abstractmethod
     def on_motion(self, handler: Callable) -> None:
         pass
@@ -79,6 +85,8 @@ class MotionDetectorImpl(ABC):
 
 
 class MotionDetector:
+    """ representation of the motion detector implementation abstraction
+    """
     def __init__(self, gpio_pin: int) -> None:
         self._gpio_pin: int = gpio_pin
         self._settings: MotionDetectorSettings = None
