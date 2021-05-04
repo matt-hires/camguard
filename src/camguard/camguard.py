@@ -2,8 +2,6 @@ from camguard.bridge import FileStorage, MotionHandler, MotionDetector
 import logging
 from camguard.exceptions import CamGuardError
 
-from camguard.settings import MotionDetectorSettings, MotionHandlerSettings
-
 LOGGER = logging.getLogger(__name__)
 
 
