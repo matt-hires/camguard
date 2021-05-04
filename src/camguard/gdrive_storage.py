@@ -88,6 +88,8 @@ class GDriveUploadDaemon(Thread):
             pass
 
     def run(self) -> None:
+        """start worker threads *and* wait for them to finish
+        """
         self._stop_event.clear()
         LOGGER.info(f"Daemon starting up")
         # ThreadPoolExecutor ContextManager blocks till every worker is done
@@ -96,7 +98,15 @@ class GDriveUploadDaemon(Thread):
             for _ in range(self._MAX_WORKERS):
                 executor.submit(self._upload_worker)
 
-    def stop(self, timeout_sec=10) -> None:
+    def stop(self, timeout_sec: float = 10.0) -> None:
+        """stop daemon thread gracefully
+
+        Args:
+            timeout_sec (float, optional): timeout seconds. Defaults to 10.0.
+
+        Raises:
+            GDriveError: if daemon failed to stop within timeout
+        """
         if not self.is_alive():
             LOGGER.debug("Daemon has already been stopped")
             return
@@ -104,6 +114,11 @@ class GDriveUploadDaemon(Thread):
         LOGGER.info("Daemon shutting down gracefully")
         self._stop_event.set()
         self.join(timeout_sec)
+
+        if self.is_alive():
+            msg = f"Daemon failed to stop within {timeout_sec}"
+            LOGGER.error(msg)
+            raise GDriveError(msg)
 
     def _upload_worker(self) -> None:
         LOGGER.info("Init")
@@ -124,7 +139,7 @@ class GDriveUploadDaemon(Thread):
                 except GDriveError as e:
                     LOGGER.warn(f"Upload failed: {file} with error: {e}")
                     # TODO: re-enqueue on error
-                    #self._enqueue_file(file)
+                    # self._enqueue_file(file)
         except Exception as e:
             LOGGER.error(f"Unrecoverable error in upload worker: {e}")
 
