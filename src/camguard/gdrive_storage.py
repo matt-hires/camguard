@@ -6,14 +6,14 @@ from os import path
 from queue import Empty, Full, Queue
 from random import uniform
 from threading import Event, Lock, Thread
-from typing import Dict, List, Sequence
+from typing import Callable, Dict, List, Sequence
 
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from pydrive.files import GoogleDriveFile
 from pydrive.settings import InvalidConfigError
 
-from camguard.bridge import FileStorageImpl
+from .bridge import FileStorageImpl
 
 from .exceptions import ConfigurationError, GDriveError
 
@@ -60,13 +60,19 @@ class GDriveUploadDaemon(Thread):
     """Daemon for handling gdrive upload workers
     filepath to uploaded are kept in a queue
     """
-    _QUEUE_SIZE: int = 100
     _MAX_WORKERS: int = 3
 
-    def __init__(self) -> None:
-        super().__init__(daemon=True)
+    def __init__(self, upload_fn: Callable[[str], None], queue_size: int = 100) -> None:
+        """ctor
+
+        Args:
+            upload_fn (Callable[[str], None]): function to upload file
+            queue_size (int, optional): gdrive upload queue size. Defaults to 100.
+        """
+        super().__init__(daemon=False)
         self._stop_event = Event()
-        self._queue: Queue[str] = Queue(maxsize=GDriveUploadDaemon._QUEUE_SIZE)
+        self._queue: Queue[str] = Queue(maxsize=queue_size)
+        self._upload_fn: Callable[[str], None] = upload_fn
 
     def enqueue_files(self, files: List[str]) -> None:
         """enqueue files for upload.
@@ -84,8 +90,6 @@ class GDriveUploadDaemon(Thread):
         except Full:
             LOGGER.warn(f"maxium queue length of "
                         f"{self._MAX_WORKERS} reached. Loosing item {file_path}")
-            # TODO: handle full queue and exceptions
-            pass
 
     def run(self) -> None:
         """start worker threads *and* wait for them to finish
@@ -129,33 +133,37 @@ class GDriveUploadDaemon(Thread):
                 try:
                     file = self._queue.get_nowait()
                 except Empty:
-                    # queue is empty continue loop
+                    # queue is empty, continue loop
                     continue
 
                 try:
                     LOGGER.debug(f"Starting upload: {file}")
-                    GDriveStorage.upload(file)
+                    self._upload_fn(file)
                     LOGGER.debug(f"Upload successful: {file}")
                 except GDriveError as e:
                     LOGGER.warn(f"Upload failed: {file} with error: {e}")
-                    # TODO: re-enqueue on error
-                    # self._enqueue_file(file)
-        except Exception as e:
-            LOGGER.error(f"Unrecoverable error in upload worker: {e}")
+                finally:
+                    # indicate formerly enqueued task is done
+                    self._queue.task_done()
 
-        LOGGER.info("Finished")
+        except Exception as e:
+            LOGGER.error("Unrecoverable error in upload worker", exc_info=e)
+
+        LOGGER.info("Exit")
 
 
 class GDriveStorage(FileStorageImpl):
     """ Manages GDrive file upload
     """
-    _lock = Lock()
+    _lock: Lock = Lock()
     _gauth: GoogleAuth = None
     _upload_folder_title: str = "Camguard"
 
     def __init__(self):
+        super().__init__()
+
         LOGGER.debug("Configuring gdrive storage")
-        self._daemon: GDriveUploadDaemon = GDriveUploadDaemon()
+        self._daemon: GDriveUploadDaemon = GDriveUploadDaemon(GDriveStorage.upload)
 
     def authenticate(self) -> None:
         """authenticate to gdrive via cli
@@ -198,9 +206,8 @@ class GDriveStorage(FileStorageImpl):
 
         gdrive = GoogleDrive(cls._gauth)
 
-        try:
-            # mutex parent folder creation
-            cls._lock.acquire()
+        # mutex parent folder creation
+        with cls._lock:
             # create the root folder
             root_folder: GoogleDriveFile = cls._create_file(
                 gdrive=gdrive,
@@ -216,9 +223,7 @@ class GDriveStorage(FileStorageImpl):
                 mimetype=GDriveMimetype.FOLDER,
                 parent_id=root_folder['id']
             )
-        finally:
-            # release in any case
-            cls._lock.release()
+        # released lock with ctx manager
 
         # check if file path is a file with os.path.isfile
         file_name = path.basename(file)

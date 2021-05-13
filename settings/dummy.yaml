@@ -1,0 +1,8 @@
+motion_handler:
+    implementation: dummy
+
+motion_detector:
+    implementation: dummy
+
+file_storage:
+    implementation: dummy

@@ -30,6 +30,27 @@
                     "remoteRoot": "./pydev/camguard/"
                 }
             ]
+        },
+        {
+            // check https://code.visualstudio.com/docs/python/debugging
+            "name": "Python: Attach Local:5678",
+            "type": "python",
+            "request": "attach",
+            "port": 5678,
+            "host": "localhost"
+        },
+        {
+            "name": "Python: Run Camguard",
+            "type": "python",
+            "request": "launch",
+            "module": "camguard",
+            "args": [
+                "./record",
+                "23",
+                "-l",
+                "DEBUG",
+                "-u"
+            ]
         }
     ]
 }

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Callable, List
 
-from camguard.settings import ImplementationType, MotionDetectorSettings, MotionHandlerSettings
-
+from camguard.settings import (FileStorageSettings, ImplementationType, MotionDetectorSettings,
+                               MotionHandlerSettings)
 
 """ Handler Bridge """
 
@@ -10,6 +10,7 @@ from camguard.settings import ImplementationType, MotionDetectorSettings, Motion
 class MotionHandlerImpl(ABC):
     """abstract base class for motion handler implementations
     """
+
     def __init__(self) -> None:
         self._after_handling = None
 
@@ -38,12 +39,13 @@ class MotionHandlerImpl(ABC):
 class MotionHandler:
     """ representation of the motion handler implementation abstraction
     """
+
     def __init__(self, record_root_path: str) -> None:
         self._record_root_path = record_root_path
         self._settings: MotionHandlerSettings = None
         self._impl: MotionHandlerImpl = None
 
-    def handle_motion(self)-> None:
+    def handle_motion(self) -> None:
         self._get_impl().handle_motion()
 
     def init(self) -> None:
@@ -59,11 +61,11 @@ class MotionHandler:
     def _get_impl(self) -> MotionHandlerImpl:
         if not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
-                # TODO implement dummy
-                pass
+                from .dummy_cam import DummyCam
+                self._impl = DummyCam(self._record_root_path)
             else:
                 # defaults to raspi cam implementation
-                from camguard.raspi_cam import RaspiCam
+                from .raspi_cam import RaspiCam
                 self._impl = RaspiCam(self._record_root_path)
 
         return self._impl
@@ -87,6 +89,7 @@ class MotionDetectorImpl(ABC):
 class MotionDetector:
     """ representation of the motion detector implementation abstraction
     """
+
     def __init__(self, gpio_pin: int) -> None:
         self._gpio_pin: int = gpio_pin
         self._settings: MotionDetectorSettings = None
@@ -105,11 +108,11 @@ class MotionDetector:
     def _get_impl(self) -> MotionDetectorImpl:
         if not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
-                # TODO implement dummy
-                pass
+                from .dummy_gpio_sensor import DummyGpioSensor
+                self._impl = DummyGpioSensor(self._gpio_pin)
             else:
                 # defaults to raspi cam implementation
-                from camguard.raspi_gpio_sensor import RaspiGpioSensor
+                from .raspi_gpio_sensor import RaspiGpioSensor
                 self._impl = RaspiGpioSensor(self._gpio_pin)
 
         return self._impl
@@ -139,6 +142,7 @@ class FileStorageImpl(ABC):
 class FileStorage:
     def __init__(self) -> None:
         self._impl: FileStorageImpl = None
+        self._settings: FileStorageSettings = FileStorageSettings.load_settings()
 
     def authenticate(self) -> None:
         self._get_impl().authenticate()
@@ -153,9 +157,13 @@ class FileStorage:
         self._get_impl().enqueue_files(files)
 
     def _get_impl(self) -> FileStorageImpl:
-        if self._impl:
-            return self._impl
+        if not self._impl:
+            if self._settings.impl_type == ImplementationType.DUMMY:
+                from .gdrive_dummy_storage import GDriveDummyStorage
+                self._impl = GDriveDummyStorage()
+            else:
+                # defaults to raspi cam implementation
+                from .gdrive_storage import GDriveStorage
+                self._impl = GDriveStorage()
 
-        from camguard.gdrive_storage import GDriveStorage
-        self._impl = GDriveStorage()
         return self._impl

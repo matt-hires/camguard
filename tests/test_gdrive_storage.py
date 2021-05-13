@@ -42,12 +42,15 @@ class GDriveStorageTest(TestCase):
         # assert
         gauth.CommandLineAuth.assert_called()
 
+    @patch("camguard.gdrive_storage.GoogleAuth")
     @patch("camguard.gdrive_storage.GoogleDrive")
-    def test_should_create_root(self, gdrive):
+    def test_should_create_root(self, gdrive, gauth):
         # arrange
         file = "capture1.jpeg"
         gdrive.CreateFile = MagicMock()
         gdrive.return_value = gdrive # otherwise ctor call would return wrong mock
+        gauth.access_token_expired = False
+        GDriveStorage._gauth = gauth
 
         # mock root folder query
         GDriveStorage._search_file = MagicMock(return_value=[])
@@ -80,12 +83,15 @@ class GDriveStorageTest(TestCase):
         # assert
         gdrive.CreateFile.assert_not_called()
 
+    @patch("camguard.gdrive_storage.GoogleAuth")
     @patch("camguard.gdrive_storage.GoogleDrive")
-    def test_should_create_date_folder(self, gdrive):
+    def test_should_create_date_folder(self, gdrive, gauth):
         # arrange
         gdrive.CreateFile = MagicMock()
         gdrive.return_value = gdrive # otherwise ctor call would return wrong mock
         file = "capture1.jpeg"
+        gauth.access_token_expired = False
+        GDriveStorage._gauth = gauth
 
         # mock root folder query
         root_folder = MagicMock(spec=GoogleDriveFile)

@@ -2,12 +2,13 @@ import logging
 from typing import Callable
 
 from gpiozero import MotionSensor as GPIOMotionSensor
-from camguard.bridge import MotionDetector
+
+from .bridge import MotionDetectorImpl
 
 LOGGER = logging.getLogger(__name__)
 
 
-class RaspiGpioSensor(MotionDetector):
+class RaspiGpioSensor(MotionDetectorImpl):
     """ Class for wrapping python motion sensor
     """
 
@@ -17,7 +18,7 @@ class RaspiGpioSensor(MotionDetector):
         Args:
             gpio_pin (int): gpio pin where the motion sensor is connected
         """
-        super().__init__(gpio_pin)
+        super().__init__()
         LOGGER.debug(f"Configuring motion sensor on pin {gpio_pin}")
         self._motion_sensor = GPIOMotionSensor(gpio_pin)
 

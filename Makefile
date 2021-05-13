@@ -10,6 +10,10 @@ SYSTEMD_CONF := ${SYSTEMD_SRC_DIR}/${SYSTEMD_SERVICE_NAME}
 SYSTEMD_INSTALL_DIR := ${value HOME}/.config/systemd/user
 SYSTEMD_INSTALL_PATH := ${SYSTEMD_INSTALL_DIR}/${SYSTEMD_SERVICE_NAME}
 RECORD_PATH := ${CURDIR}/record
+SETTINGS_DIR := ${CURDIR}/settings
+DUMMY_SETTINGS_PATH := ${SETTINGS_DIR}/dummy.yaml
+SETTINGS_FILE := settings.yaml
+
 # ARGS-PRESET
 GPIO_PIN_ARG = 23
 RECORD_PATH_ARG := ${RECORD_PATH}
@@ -40,9 +44,13 @@ help:
 	@echo "all                      clean + install"
 	@echo "install                  install modules for raspi + install-systemd"
 	@echo "install-debug            install modules for raspi with debugging + install-systemd"
-	@echo "install-dev              install modules for development"
+	@echo "install-dev              install modules for development + dummy-settings"
+	@echo "install-dummy-settings	install dummy settings"
 	@echo "install-systemd          install systemd service"
 	@echo "install-systemd-debug    install systemd service with debug args"
+	@echo "uninstall                uninstall modules + systemd + dummy-settings"
+	@echo "uninstall-systemd        uninstall systemd service"
+	@echo "uninstall-dummy-settings uninstall dummy settings"
 	@echo "check                    run tests (tox)"
 	@echo "build                    build python project to ${BUILD_DIR}"
 	@echo "clean                    clean all generated files"
@@ -55,7 +63,7 @@ install: install-systemd
 	${PYTHON_PIP} install .[raspi]
 
 .PHONY: uninstall
-uninstall: uninstall-systemd 
+uninstall: uninstall-systemd uninstall-dummy-settings
 	${PYTHON_PIP} uninstall ${NAME}
 
 .PHONY: build
@@ -76,8 +84,17 @@ install-debug: install-systemd-debug
 	${PYTHON_PIP} install -e .[raspi,debug]
 
 .PHONY: install-dev
-install-dev:
+install-dev: install-dummy-settings
 	${PYTHON_PIP} install -e .[dev]
+
+# dummy settings
+.PHONY: install-dummy-settings
+install-dummy-settings:
+	cp ${DUMMY_SETTINGS_PATH} ${CURDIR}/${SETTINGS_FILE}
+
+.PHONY: uninstall-dummy-settings
+uninstall-dummy-settings:
+	-rm ${CURDIR}/${SETTINGS_FILE}
 
 # systemd targets
 .PHONY: install-systemd

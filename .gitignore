@@ -134,3 +134,6 @@ dmypy.json
 # pydrive excludes
 client_secrets.json
 credentials.json
+
+# exclude camguard settings
+settings.yaml

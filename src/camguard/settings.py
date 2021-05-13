@@ -5,7 +5,9 @@ from yaml.error import YAMLError
 
 from camguard.exceptions import CamGuardError, ConfigurationError
 from enum import Enum
+import logging
 
+LOGGER = logging.getLogger(__name__)
 
 class ImplementationType(Enum):
     """implementation type setting for equipment selection
@@ -16,8 +18,10 @@ class ImplementationType(Enum):
     @classmethod
     def parse(cls, value):
         if value == 'raspi':
+            LOGGER.debug(f"{cls.__name__} - parsed implemenation type: raspi")
             return cls.RASPI
         if value == 'dummy':
+            LOGGER.debug(f"{cls.__name__} - parsed implemenation type: raspi")
             return cls.DUMMY
         else:
             raise ConfigurationError(f"Implementation type {value} not allowed")
@@ -107,7 +111,7 @@ class MotionHandlerSettings(Settings):
         self.impl_type = ImplementationType.RASPI
 
     def _parse_data(self, data: Dict):
-        super()._parse_data()
+        super()._parse_data(data)
 
         if self._IMPL in data[self._KEY]:
             self.impl_type = ImplementationType.parse(data[self._KEY][self._IMPL])
@@ -116,8 +120,8 @@ class MotionHandlerSettings(Settings):
 class MotionDetectorSettings(Settings):
     """Specialized motion detector settings class
     """
-    _KEY = "motion_detector"
-    _IMPL = "implementation"
+    _KEY: str = "motion_detector"
+    _IMPL: str = "implementation"
 
     @property
     def impl_type(self) -> ImplementationType:
@@ -133,7 +137,32 @@ class MotionDetectorSettings(Settings):
         self.impl_type = ImplementationType.RASPI
 
     def _parse_data(self, data: Dict):
-        super()._parse_data()
+        super()._parse_data(data)
 
         if self._IMPL in data[self._KEY]:
             self.impl_type = ImplementationType.parse(data[self._KEY][self._IMPL])
+
+class FileStorageSettings(Settings):
+    """specialized file storage settings class
+    """
+    _KEY:str  = "file_storage"
+    _IMPL:str = "implementation"
+
+    @property
+    def impl_type(self) -> ImplementationType:
+        return self._impl_type
+
+    @impl_type.setter
+    def impl_type(self, value: ImplementationType):
+        self._impl_type = value
+
+    def _default(self):
+        super()._default()
+        self.impl_type = ImplementationType.RASPI
+
+    def _parse_data(self, data: Dict):
+        super()._parse_data(data)
+
+        if self._IMPL in data[self._KEY]:
+            self.impl_type = ImplementationType.parse(data[self._KEY][self._IMPL])
+

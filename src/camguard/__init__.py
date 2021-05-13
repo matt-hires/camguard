@@ -106,7 +106,7 @@ def main():
         LOGGER.info("Camguard shut down gracefully")
         rc = 0
     except Exception as e:
-        LOGGER.error(f"Unexpected error occured: {e}")
+        LOGGER.error("Unexpected error occured", exc_info=e) 
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
     exit(rc)

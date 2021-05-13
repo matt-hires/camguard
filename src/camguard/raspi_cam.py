@@ -5,11 +5,10 @@ from datetime import date
 from os import path
 from typing import List
 
-from camguard.bridge import MotionHandlerImpl
-from threading import Event
-
 # picamera cannot be installed on a non-pi system
 from picamera import PiCamera  # type: ignore reportMissingImports
+
+from .bridge import MotionHandlerImpl
 from .exceptions import ConfigurationError
 
 
@@ -31,7 +30,7 @@ class RaspiCam(MotionHandlerImpl):
         """ctor
 
         Args:
-            record_root_path (str): root path where recorded pictures should be safed
+            record_root_path (str): root path where recorded pictures should be saved
             record_file_name (str, optional): record file name. Defaults to 'capture'.
             record_interval_sec (float, optional): interval seconds in which pictures 
             should be taken. Defaults to 1.
@@ -50,7 +49,6 @@ class RaspiCam(MotionHandlerImpl):
         self.record_interval_sec: float = record_interval_sec
         self.record_picture_count: int = record_count
         self._shutdown: bool = False
-        self._recorded: Event = Event()
 
     def handle_motion(self) -> None:
         LOGGER.debug(f"Triggered by motion")
@@ -84,8 +82,8 @@ class RaspiCam(MotionHandlerImpl):
             raise ConfigurationError("Record root path invalid")
 
         # create directory with the current date
-        date_str = date.today().strftime("%Y%m%d/")
-        record_path = os.path.join(self.record_root_path, date_str)
+        date_str: str = date.today().strftime("%Y%m%d/")
+        record_path: str = os.path.join(self.record_root_path, date_str)
 
         if not path.exists(record_path):
             os.mkdir(record_path)
