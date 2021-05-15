@@ -8,7 +8,6 @@ from unittest.mock import Mock, MagicMock, patch
 from camguard.exceptions import ConfigurationError
 from camguard.bridge import MotionHandler
 
-HOME = "/home"
 MODULES = "sys.modules"
 
 
@@ -33,36 +32,35 @@ class RaspiCamTest(TestCase):
         """
 
         # setup mocks
-        self.pi_camera_module = Mock()
+        self.pi_camera_module = MagicMock()
         self.pi_camera_module.PiCamera = RaspiCamFakeContextManager
-        self.pi_camera_module.PiCamera.capture_continuous = Mock(
+        self.pi_camera_module.PiCamera.capture_continuous = MagicMock(
             return_value=["capture1.jpg", "capture2.jpg"])
 
         self.patcher = patch.dict(MODULES, picamera=self.pi_camera_module)
         self.patcher.start()
 
-    @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=False))
+    @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=False))
     def test_should_raise_error_when_invalid_record_path(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        for path in [f"{HOME}/non/existing/file.ext", None]:
+        for path in [f"/non/existing/file.ext", None]:
             with self.subTest(record_path=path):
                 # arrange
-                # create facade with invalid record path
                 sut = RaspiCam(path)
-                sut.record_root_path = path
 
                 # act
                 with self.assertRaises(ConfigurationError):
                     sut.handle_motion()
+
                 # assert
                 self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()
 
-    @patch("os.mkdir", MagicMock(spec=os.mkdir))
+    @patch("camguard.raspi_cam.os.mkdir", MagicMock())
     def test_should_call_capture(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut = RaspiCam(HOME)
+        sut = RaspiCam("/")
 
         # act
         sut.handle_motion()
@@ -70,16 +68,17 @@ class RaspiCamTest(TestCase):
         # assert
         self.pi_camera_module.PiCamera.capture_continuous.assert_called()
 
-    @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
-    @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
-    @patch.object(os, "mkdir")
-    def test_should_create_date_folder(self, mkdir_method_mock: Mock):
+    @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=True))
+    @patch("camguard.raspi_cam.os.path.exists", MagicMock(return_value=False))
+    @patch("camguard.raspi_cam.os.mkdir")
+    def test_should_create_date_folder(self, mkdir_method_mock):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut = RaspiCam(HOME)
+        root = "/"
+        sut = RaspiCam(root)
 
-        date_str = datetime.date.today().strftime("%Y%m%d/")
-        record_path = os.path.join(HOME, date_str)
+        date_str = datetime.date.today().strftime("%Y%m%d")
+        record_path = f"{root}{date_str}/"
 
         # act
         sut.handle_motion()
@@ -95,13 +94,13 @@ class RaspiCamTest(TestCase):
 
         self.assertTrue(found, "Check if record called for specific date folder name")
 
-    @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
-    @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
-    @patch("os.mkdir", MagicMock(spec=os.mkdir))
+    @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=True))
+    @patch("camguard.raspi_cam.os.path.exists", MagicMock(return_value=False))
+    @patch("camguard.raspi_cam.os.mkdir", MagicMock())
     def test_should_trigger_motion_finished(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut: MotionHandler = RaspiCam(HOME)
+        sut: MotionHandler = RaspiCam("/")
         sut.after_handling = MagicMock()
 
         # act
@@ -110,13 +109,13 @@ class RaspiCamTest(TestCase):
         # assert
         sut.after_handling.assert_called_once()
 
-    @patch("os.path.isdir", MagicMock(spec=os.path.isdir, return_value=True))
-    @patch("os.path.exists", MagicMock(spec=os.path.isdir, return_value=False))
-    @patch.object(os, "mkdir")
-    def test_should_shutdown(self, _):
+    @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=True))
+    @patch("camguard.raspi_cam.os.path.exists", MagicMock(return_value=False))
+    @patch("camguard.raspi_cam.os.mkdir", MagicMock())
+    def test_should_shutdown(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut = RaspiCam(HOME)
+        sut = RaspiCam("/")
         sut.shutdown()
 
         # act

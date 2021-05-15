@@ -26,11 +26,12 @@ Features
 =======
 PENDING
 =======
-* test refactoring
-
 ====
 DONE
 ====
+* test refactoring
+    - test coverage
+
 * gdrive daemon: remove control thread
 * Implement a bridge to hide concrete handler/detector classes
     - this enables switching to a dummy implementation for testing without a raspi 

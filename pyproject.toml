@@ -10,5 +10,10 @@ isolated_build = True
 envlist = py37
 
 [testenv]
-commands = python -m unittest -v {posargs}
+deps = coverage 
+commands = 
+    coverage erase
+    coverage run --source={envsitepackagesdir}/camguard -m unittest -v {posargs}
+    coverage report -m
+    coverage html
 """
