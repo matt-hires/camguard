@@ -1,11 +1,9 @@
 import logging
-from threading import Lock
-
 from time import sleep
 from typing import List
 
-from .gdrive_storage import GDriveUploadDaemon
 from .bridge import FileStorageImpl
+from .gdrive_storage import GDriveUploadManager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,8 +18,8 @@ class GDriveDummyStorage(FileStorageImpl):
     def __init__(self) -> None:
         super().__init__()
         LOGGER.debug("Configuring gdrive dummy storage")
-        self._daemon: GDriveUploadDaemon = GDriveUploadDaemon(GDriveDummyStorage.upload,
-                                                              queue_size=30)
+        self._daemon = GDriveUploadManager(GDriveDummyStorage.upload,
+                                           queue_size=30)
 
     def authenticate(self) -> None:
         LOGGER.info(f"Simulating authentication (waiting {self._auth_sim_time} sec)")

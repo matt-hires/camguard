@@ -19,17 +19,19 @@ Features
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
-
-=======
-PENDING
-=======
 * general camguard-settings support
     - configurable cam-settings  
     - configurable settings file path (default /etc/camguard.d/camguard.yaml)
 
+=======
+PENDING
+=======
+* test refactoring
+
 ====
 DONE
 ====
+* gdrive daemon: remove control thread
 * Implement a bridge to hide concrete handler/detector classes
     - this enables switching to a dummy implementation for testing without a raspi 
     - create concrete implementations with abstract factory

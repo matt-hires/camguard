@@ -1,8 +1,8 @@
 import logging
 import time
 from sys import stderr, stdout, exit
-from argparse import ArgumentParser
-from signal import SIGINT, SIGTERM
+from argparse import ArgumentParser, Namespace
+from signal import SIGINT, SIGTERM, signal, sigwait
 
 from daemon.daemon import DaemonContext
 from pid import PidFile
@@ -11,39 +11,39 @@ __version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
 
 
-def _parse_args():
+def _parse_args() -> Namespace:
     parser = ArgumentParser(
         prog=__name__,
         description="A motion sensor controlled home surveillance system"
     )
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
-    group_rec = parser.add_argument_group(title="Camguard surveillance",
-                                          description="Detect motion with configured sensor "
-                                          "and record pictures")
-    group_rec.add_argument("-l", "--log", type=str, default="INFO",
-                           choices=["INFO", "DEBUG",
-                                    "WARN", "ERROR", "CRITICAL"],
-                           help="Define custom log level, default is INFO")
-    group_rec.add_argument("record_path", metavar="PATH",
-                           type=str, help="Root path for camera records")
-    group_rec.add_argument("gpio_pin", metavar="PIN", type=int,
-                           help="Raspberry GPIO motion sensor pin number")
-    group_rec.add_argument("-d", "--detach", default=False, action="store_true",
-                           help="Detach process from current terminal "
-                           "to run in the background as a daemon. "
-                           "Redundant if the process is started by the init system "
-                           "(sys-v, systemd, ...)")
+    parser.add_argument("-l", type=str, default="INFO", dest='log',
+                        choices=["INFO", "DEBUG",
+                                 "WARN", "ERROR", "CRITICAL"],
+                        help="Define custom log level, default is INFO")
+    parser.add_argument("record_path", metavar="PATH",
+                        type=str, help="Root path for camera records")
+    parser.add_argument("gpio_pin", metavar="PIN", type=int,
+                        help="Raspberry GPIO motion sensor pin number")
+    parser.add_argument("--daemonize", default=False, action="store_true",
+                        help="Run camguard as a unix daemon")
+    parser.add_argument("--detach", default=False, action="store_true",
+                        help="Detach process from current terminal "
+                        "to run in the background as a daemon. Therefore this is "
+                        "only useful when combined with --daemonize. "
+                        "Redundant if the process is started by the init system "
+                        "(sys-v, systemd, ...)")
+    parser.add_argument("--upload", default=False, action='store_true',
+                        help="Upload files to a configured google drive. "
+                        "Authenticates on first usage.")
 
-    group_gdrive = parser.add_argument_group(title="Optional google-drive storage upload",
-                                             description="For using the upload, "
-                                             "please configure the Google-OAuth "
-                                             "authentication with the google-oauth setup")
-    group_gdrive.add_argument("-u", "--upload", default=False, action='store_true',
-                              help="Upload files to a configured google drive, "
-                              "authenticates on first usage")
+    args = parser.parse_args()
 
-    return parser.parse_args()
+    if args.detach and not args.daemonize:
+        LOGGER.warn("Ignoring --detach argument as it is used without --daemonize")
+
+    return args
 
 
 def _configure_logger(loglevel: str) -> None:
@@ -56,8 +56,8 @@ def _configure_logger(loglevel: str) -> None:
 
 def _configure_daemon(detach: bool, camguard) -> DaemonContext:
     signal_map = {
-        SIGTERM: lambda sig, tb: _shutdown_daemon(camguard, sig, tb),
-        SIGINT: lambda sig, tb: _shutdown_daemon(camguard, sig, tb)
+        SIGTERM: lambda sig, tb: _shutdown(camguard, sig, tb),
+        SIGINT: lambda sig, tb: _shutdown(camguard, sig, tb)
     }
 
     # setup pid file context (/var/run/camguard.pid)
@@ -72,11 +72,33 @@ def _configure_daemon(detach: bool, camguard) -> DaemonContext:
                          working_directory=work_dir)
 
 
-def _shutdown_daemon(camguard, signal_number, stack_frame):
+def _shutdown(camguard, signal_number: int, stack_frame) -> None:
     LOGGER.info("Gracefully shutting down Camguard")
     if camguard:
         camguard.stop()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
+
+
+def _run_daemonized(args: Namespace, camguard) -> None:
+    daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
+    with daemon_context:
+        camguard.start()
+        if not args.detach:
+            LOGGER.info("Camguard running, press ctrl-c to quit")
+
+        # main loop
+        while True:
+            time.sleep(1.0)
+
+
+def _run(args: Namespace, camguard) -> None:
+    if args.daemonize:
+        return _run_daemonized(args, camguard)
+
+    camguard.start()
+    LOGGER.info("Camguard running, press ctrl-c to quit")
+    sigwait((SIGINT,))
+    _shutdown(camguard, SIGINT, None)
 
 
 def main():
@@ -89,24 +111,15 @@ def main():
 
         from camguard.camguard import CamGuard
         camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
-        # init camguard before starting daemon context
         camguard.init()
 
-        daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
-        with daemon_context:
-            camguard.start()
-            if not args.detach:
-                LOGGER.info("Camguard running, press ctrl-c to quit")
-
-            # main loop
-            while True:
-                time.sleep(10)
+        _run(args, camguard)
     except SystemExit as e:
         LOGGER.debug(e)
         LOGGER.info("Camguard shut down gracefully")
         rc = 0
     except Exception as e:
-        LOGGER.error("Unexpected error occured", exc_info=e) 
+        LOGGER.error("Unexpected error occured", exc_info=e)
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
     exit(rc)

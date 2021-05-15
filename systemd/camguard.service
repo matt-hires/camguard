@@ -3,7 +3,7 @@ Description=Camguard Test-Service
 
 [Service]
 Type=simple
-ExecStart=${PYTHON} -u -m camguard '${RECORD_PATH}' ${GPIO_PIN} ${ARGS}
+ExecStart=${PYTHON} -u -m camguard '${RECORD_PATH}' ${GPIO_PIN} --daemonize --upload ${ARGS}
 TimeoutStopSec=3
 
 [Install]

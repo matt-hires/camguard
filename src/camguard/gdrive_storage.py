@@ -5,8 +5,8 @@ from enum import Enum
 from os import path
 from queue import Empty, Full, Queue
 from random import uniform
-from threading import Event, Lock, Thread
-from typing import Callable, Dict, List, Sequence
+from threading import Event, Lock
+from typing import Callable, List, Sequence
 
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -14,7 +14,6 @@ from pydrive.files import GoogleDriveFile
 from pydrive.settings import InvalidConfigError
 
 from .bridge import FileStorageImpl
-
 from .exceptions import ConfigurationError, GDriveError
 
 LOGGER = logging.getLogger(__name__)
@@ -52,13 +51,14 @@ class GDriveStorageAuth:
                 cls._gauth.CommandLineAuth()
             except InvalidConfigError:
                 raise ConfigurationError("Cannot find client_secrets.json")
+        elif cls._gauth.access_token_expired:
+            raise GDriveError("GoogleDrive authentication token expired")
 
         return cls._gauth
 
 
-class GDriveUploadDaemon(Thread):
-    """Daemon for handling gdrive upload workers
-    filepath to uploaded are kept in a queue
+class GDriveUploadManager():
+    """handles gdrive upload management, enqueues files, start/stop workers,...
     """
     _MAX_WORKERS: int = 3
 
@@ -69,10 +69,13 @@ class GDriveUploadDaemon(Thread):
             upload_fn (Callable[[str], None]): function to upload file
             queue_size (int, optional): gdrive upload queue size. Defaults to 100.
         """
-        super().__init__(daemon=False)
         self._stop_event = Event()
-        self._queue: Queue[str] = Queue(maxsize=queue_size)
-        self._upload_fn: Callable[[str], None] = upload_fn
+        self._queue = Queue(maxsize=queue_size)
+        self._upload_fn = upload_fn
+        self._executor = ThreadPoolExecutor(
+            max_workers=self._MAX_WORKERS,
+            thread_name_prefix='UploadWorkerThread')
+        self._worker_futures = None
 
     def enqueue_files(self, files: List[str]) -> None:
         """enqueue files for upload.
@@ -91,19 +94,26 @@ class GDriveUploadDaemon(Thread):
             LOGGER.warn(f"maxium queue length of "
                         f"{self._MAX_WORKERS} reached. Loosing item {file_path}")
 
-    def run(self) -> None:
-        """start worker threads *and* wait for them to finish
-        """
-        self._stop_event.clear()
-        LOGGER.info(f"Daemon starting up")
-        # ThreadPoolExecutor ContextManager blocks till every worker is done
-        with ThreadPoolExecutor(max_workers=self._MAX_WORKERS,
-                                thread_name_prefix='UploadWorkerThread') as executor:
-            for _ in range(self._MAX_WORKERS):
-                executor.submit(self._upload_worker)
+    def start(self) -> None:
+        """fire up workers
 
-    def stop(self, timeout_sec: float = 10.0) -> None:
-        """stop daemon thread gracefully
+        Raises:
+            GDriveError: if upload workers already running
+        """
+        if self._worker_futures:
+            raise GDriveError("Upload workers already running")
+
+        LOGGER.info(f"Starting up workers")
+        # set up dictionary of worker futures
+        self._worker_futures = dict(
+            enumerate([
+                self._executor.submit(self._upload_worker)
+                for _ in range(self._MAX_WORKERS
+                               )]
+                      ))
+
+    def stop(self) -> None:
+        """stop workers gracefully
 
         Args:
             timeout_sec (float, optional): timeout seconds. Defaults to 10.0.
@@ -111,18 +121,23 @@ class GDriveUploadDaemon(Thread):
         Raises:
             GDriveError: if daemon failed to stop within timeout
         """
-        if not self.is_alive():
-            LOGGER.debug("Daemon has already been stopped")
+        if not self._worker_futures:
+            LOGGER.debug("Trying to stop workers, but none was running before")
             return
 
-        LOGGER.info("Daemon shutting down gracefully")
+        LOGGER.info("Shutting down workers")
         self._stop_event.set()
-        self.join(timeout_sec)
+        LOGGER.debug("Cancel futures")
+        for _, worker_future in self._worker_futures.items():
+            worker_future.cancel()
 
-        if self.is_alive():
-            msg = f"Daemon failed to stop within {timeout_sec}"
-            LOGGER.error(msg)
-            raise GDriveError(msg)
+        LOGGER.debug("Shutdown executor workers")
+        self._executor.shutdown(wait=True)
+
+        self._worker_futures = None
+        self._stop_event.clear()
+
+        LOGGER.info("Shutdown successful")
 
     def _upload_worker(self) -> None:
         LOGGER.info("Init")
@@ -155,30 +170,29 @@ class GDriveUploadDaemon(Thread):
 class GDriveStorage(FileStorageImpl):
     """ Manages GDrive file upload
     """
-    _lock: Lock = Lock()
-    _gauth: GoogleAuth = None
-    _upload_folder_title: str = "Camguard"
+    _lock = Lock()
+    _upload_folder_title = "Camguard"
 
     def __init__(self):
         super().__init__()
 
         LOGGER.debug("Configuring gdrive storage")
-        self._daemon: GDriveUploadDaemon = GDriveUploadDaemon(GDriveStorage.upload)
+        self._upload_man = GDriveUploadManager(GDriveStorage.upload)
 
     def authenticate(self) -> None:
         """authenticate to gdrive via cli
         """
-        self.__class__._gauth = GDriveStorageAuth.login()
+        GDriveStorageAuth.login()
 
     def start(self) -> None:
         """start the upload daemon thread
         """
-        self._daemon.start()
+        self._upload_man.start()
 
     def stop(self) -> None:
         """stop the upload daemon thread
         """
-        self._daemon.stop()
+        self._upload_man.stop()
 
     def enqueue_files(self, files: List[str]) -> None:
         """enqueue file paths for upload
@@ -186,7 +200,7 @@ class GDriveStorage(FileStorageImpl):
         Args:
             files (List[str]): files to enqueue 
         """
-        self._daemon.enqueue_files(files)
+        self._upload_man.enqueue_files(files)
 
     @classmethod
     def upload(cls, file: str) -> None:
@@ -199,25 +213,20 @@ class GDriveStorage(FileStorageImpl):
             GDriveError: on authentication failure
         """
 
-        if not cls._gauth:
-            raise GDriveError("GoogleDrive not authenticated")
-        elif cls._gauth.access_token_expired:
-            raise GDriveError("GoogleDrive authentication token expired")
-
-        gdrive = GoogleDrive(cls._gauth)
+        gdrive = GoogleDrive(GDriveStorageAuth.login())
 
         # mutex parent folder creation
         with cls._lock:
             # create the root folder
-            root_folder: GoogleDriveFile = cls._create_file(
+            root_folder = cls._create_file(
                 gdrive=gdrive,
                 name=cls._upload_folder_title,
                 mimetype=GDriveMimetype.FOLDER,
                 parent_id='root')
 
             # create directory with the current date
-            cur_date: str = date.today().strftime("%Y%m%d")
-            date_folder: GoogleDriveFile = cls._create_file(
+            cur_date = date.today().strftime("%Y%m%d")
+            date_folder = cls._create_file(
                 gdrive=gdrive,
                 name=cur_date,
                 mimetype=GDriveMimetype.FOLDER,
@@ -227,7 +236,7 @@ class GDriveStorage(FileStorageImpl):
 
         # check if file path is a file with os.path.isfile
         file_name = path.basename(file)
-        gdrive_file: GoogleDriveFile = cls._create_file(
+        gdrive_file = cls._create_file(
             gdrive=gdrive,
             name=file_name,
             mimetype=GDriveMimetype.JPEG,
@@ -261,21 +270,18 @@ class GDriveStorage(FileStorageImpl):
         Returns:
             GoogleDriveFile: representation of the created/found file  
         """
-        existing: Sequence[GoogleDriveFile] = cls._search_file(gdrive=gdrive,
-                                                               name=name,
-                                                               parent_id=parent_id,
-                                                               mimetype=mimetype)
+        existing_files = cls._search_file(gdrive, name, parent_id, mimetype) 
         file: GoogleDriveFile = None
-        if existing:
-            if len(existing) > 1:
+        if existing_files:
+            if len(existing_files) > 1:
                 raise GDriveError(f"Multiple files ('{name}') found under"
                                   f"given parent {parent_id}")
 
-            file = existing[0]
+            file = existing_files[0]
             LOGGER.debug(f"Found existing file, name: '{name}', id: '{file['id']}', "
                          f"parent: '{parent_id}'")
         else:
-            resource: Dict = {
+            resource = {
                 'title': name,
                 'mimeType': mimetype.value
             }
@@ -315,7 +321,7 @@ class GDriveStorage(FileStorageImpl):
         if not name:
             raise ValueError("name not set")
 
-        query: Dict = {
+        query = {
             'q': cls._build_query(title=name,
                                   mimetype=mimetype,
                                   parent_id=parent_id)

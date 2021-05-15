@@ -1,138 +1,134 @@
-from pydrive.auth import GoogleAuth
 import datetime
-import os
+from time import sleep
 from unittest import TestCase
 from unittest.mock import MagicMock, call, create_autospec, patch
 
-from camguard.exceptions import ConfigurationError
-from camguard.exceptions import GDriveError
+from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive, GoogleDriveFile
 from pydrive.settings import InvalidConfigError
-from camguard.gdrive_storage import GDriveMimetype, GDriveStorage, GDriveStorageAuth
+
+from camguard.exceptions import ConfigurationError, GDriveError
+from camguard.gdrive_storage import (GDriveMimetype, GDriveStorage,
+                                     GDriveStorageAuth)
+
+
+class GDriveStorageAuthTest(TestCase):
+    def test_should_raise_error_when_no_client_secrets(self):
+        # arrange
+        gauth_mock = create_autospec(spec=GoogleAuth, spec_set=True)
+        gauth_mock.CommandLineAuth.side_effect = InvalidConfigError("Test")
+
+        # act / assert
+        with patch("camguard.gdrive_storage.GoogleAuth", return_value=gauth_mock),\
+                self.assertRaises(ConfigurationError):
+            GDriveStorageAuth.login()
+
+        gauth_mock.CommandLineAuth.assert_called()
+
+    def test_should_authenticate(self):
+        # arrange
+        gauth_mock = create_autospec(spec=GoogleAuth, spec_set=True)
+
+        # act
+        with patch("camguard.gdrive_storage.GoogleAuth", return_value=gauth_mock):
+            GDriveStorageAuth.login()
+
+        # assert
+        gauth_mock.CommandLineAuth.assert_called()
+
+    def tearDown(self) -> None:
+        GDriveStorageAuth._gauth = None
 
 
 class GDriveStorageTest(TestCase):
 
-    @patch("os.path.exists", MagicMock(spec=os.path.exists, return_value=False))
-    # GDriveStorage has its own imported version of GoogleAuth,
-    # therefore it's necessary to patch this one
-    @patch("camguard.gdrive_storage.GoogleAuth")
-    def test_should_raise_error_when_no_client_secrets(self, gauth):
+    @patch("camguard.gdrive_storage.GDriveStorage._search_file",
+           MagicMock(return_value=[]))
+    @patch("camguard.gdrive_storage.GDriveStorageAuth.login", MagicMock())
+    def test_should_create_root(self):
         # arrange
-        gauth.CommandLineAuth.side_effect = InvalidConfigError("Test")
-        gauth.return_value=gauth # otherwise constructor call would return wrong mock 
-        self.sut: GDriveStorage = GDriveStorage()
-
-        # act / assert
-        with self.assertRaises(ConfigurationError):
-            self.sut.authenticate()
-
-        gauth.CommandLineAuth.assert_called()
-
-    @patch("camguard.gdrive_storage.GoogleAuth")
-    def test_should_authenticate(self, gauth):
-        # arrange
-        self.sut: GDriveStorage = GDriveStorage()
-        gauth.CommandLineAuth = MagicMock()
-        gauth.return_value=gauth # otherwise ctor call would return wrong mock 
-
-        # act
-        self.sut.authenticate()
-
-        # assert
-        gauth.CommandLineAuth.assert_called()
-
-    @patch("camguard.gdrive_storage.GoogleAuth")
-    @patch("camguard.gdrive_storage.GoogleDrive")
-    def test_should_create_root(self, gdrive, gauth):
-        # arrange
-        file = "capture1.jpeg"
-        gdrive.CreateFile = MagicMock()
-        gdrive.return_value = gdrive # otherwise ctor call would return wrong mock
-        gauth.access_token_expired = False
-        GDriveStorage._gauth = gauth
-
+        gdrive_mock = create_autospec(spec=GoogleDrive, spec_set=True)
         # mock root folder query
-        GDriveStorage._search_file = MagicMock(return_value=[])
-
         create_folder_dict = {
             'title': GDriveStorage._upload_folder_title,
             'mimeType': GDriveMimetype.FOLDER.value,
             'parents': [{'id': 'root'}]
         }
-
-        # act
-        GDriveStorage.upload(file)
-
-        # assert
-        gdrive.CreateFile.assert_has_calls([call(create_folder_dict)], any_order=True)
-
-    @patch("camguard.gdrive_storage.GoogleDrive")
-    def test_should_raise_error_when_more_than_one_root_found(self, gdrive):
-        # arrange
-        gdrive.CreateFile = MagicMock()
-        gdrive.return_value = gdrive # otherwise ctor call would return wrong mock
         file = "capture1.jpeg"
-        folder = MagicMock(spec=GoogleDriveFile)
-        GDriveStorage._search_file = MagicMock(return_value=[folder, folder])
 
         # act
-        with self.assertRaises(GDriveError):
+        with patch("camguard.gdrive_storage.GoogleDrive", return_value=gdrive_mock):
             GDriveStorage.upload(file)
 
         # assert
-        gdrive.CreateFile.assert_not_called()
+        gdrive_mock.CreateFile.assert_has_calls([call(create_folder_dict)], any_order=True)
 
-    @patch("camguard.gdrive_storage.GoogleAuth")
-    @patch("camguard.gdrive_storage.GoogleDrive")
-    def test_should_create_date_folder(self, gdrive, gauth):
+    @patch("camguard.gdrive_storage.GDriveStorage._search_file",
+           MagicMock(return_value=[MagicMock(), MagicMock()]))
+    @patch("camguard.gdrive_storage.GDriveStorageAuth.login", MagicMock())
+    def test_should_raise_error_when_more_than_one_root_found(self):
         # arrange
-        gdrive.CreateFile = MagicMock()
-        gdrive.return_value = gdrive # otherwise ctor call would return wrong mock
+        gdrive_mock = create_autospec(spec=GoogleDrive, spec_set=True)
         file = "capture1.jpeg"
-        gauth.access_token_expired = False
-        GDriveStorage._gauth = gauth
 
+        # act
+        with patch("camguard.gdrive_storage.GoogleDrive", return_value=gdrive_mock),\
+                self.assertRaises(GDriveError):
+            GDriveStorage.upload(file)
+
+        # assert
+        gdrive_mock.CreateFile.assert_not_called()
+
+    @patch("camguard.gdrive_storage.GDriveStorageAuth.login", MagicMock())
+    def test_should_create_date_folder(self):
+        # arrange
+        gdrive_mock = create_autospec(spec=GoogleDrive, spec_set=True)
+        file = "capture1.jpeg"
         # mock root folder query
         root_folder = MagicMock(spec=GoogleDriveFile)
         root_folder.__getitem__ = MagicMock(key="id", return_value="camguard_id")
-        GDriveStorage._search_file = MagicMock(side_effect=[
+        search_file_mock = MagicMock(side_effect=[
             [root_folder],  # root folder
             [],  # date folder
             []  # file
         ])
 
+        # act
+        with patch("camguard.gdrive_storage.GoogleDrive",
+                   MagicMock(return_value=gdrive_mock)),\
+                patch("camguard.gdrive_storage.GDriveStorage._search_file",
+                      search_file_mock):
+            GDriveStorage.upload(file)
+
+        # assert
         date_str = datetime.date.today().strftime("%Y%m%d")
         create_folder_dict = {
             'title': date_str,
             'mimeType': GDriveMimetype.FOLDER.value,
             'parents': [{'id': 'camguard_id'}]
         }
+        gdrive_mock.CreateFile.assert_has_calls([call(create_folder_dict)], any_order=True)
 
-        # act
-        GDriveStorage.upload(file)
-
-        # assert
-        gdrive.CreateFile.assert_has_calls([call(create_folder_dict)], any_order=True)
-
-    @patch("camguard.gdrive_storage.GoogleDrive")
-    def test_should_upload_file(self, gdrive):
+    @patch("camguard.gdrive_storage.GDriveStorageAuth.login", MagicMock())
+    def test_should_upload_file(self):
         # arrange
-        gdrive.CreateFile = MagicMock()
-        gdrive.return_value = gdrive # otherwise ctor call would return wrong mock
+        gdrive_mock = create_autospec(spec=GoogleDrive, spec_set=True)
         file = "capture1.jpeg"
-        gdrive_folder = MagicMock(spec=GoogleDriveFile)
-        gdrive_folder.__getitem__ = MagicMock(key="id", return_value="folder_id")
-
+        folder_mock = MagicMock(spec=GoogleDriveFile)
+        folder_mock.__getitem__ = MagicMock(key="id", return_value="folder_id")
         # mock search
-        GDriveStorage._search_file = MagicMock(side_effect=[
-            [gdrive_folder],  # root folder
-            [gdrive_folder],  # date folder
+        search_file_mock = MagicMock(side_effect=[
+            [folder_mock],  # root folder
+            [folder_mock],  # date folder
             []  # file
         ])
 
         # act
-        GDriveStorage.upload(file)
+        with patch("camguard.gdrive_storage.GoogleDrive",
+                   MagicMock(return_value=gdrive_mock)),\
+                patch("camguard.gdrive_storage.GDriveStorage._search_file",
+                      search_file_mock):
+            GDriveStorage.upload(file)
 
         # assert
         create_file_dict = {
@@ -140,7 +136,22 @@ class GDriveStorageTest(TestCase):
             'mimeType': GDriveMimetype.JPEG.value,
             'parents': [{'id': "folder_id"}]
         }
-        gdrive.CreateFile.assert_called_with(create_file_dict)
+        gdrive_mock.CreateFile.assert_called_with(create_file_dict)
 
-    def tearDown(self) -> None:
-        GDriveStorageAuth._gauth = None
+
+class GDriveUploadManagerTest(TestCase):
+    @patch("camguard.gdrive_storage.GDriveStorage.upload")
+    @patch("camguard.gdrive_storage.GDriveStorageAuth.login", MagicMock())
+    def test_should_enqueue_files(self, upload_mock):
+        # arrange
+        sut = GDriveStorage()
+        file = "capture1.jpeg"
+
+        # act
+        sut.start()
+        sut.enqueue_files([file])
+        sleep(1.0)  # worker stop event check is between 100ms and 500ms
+        sut.stop()
+
+        # assert
+        upload_mock.assert_called()
