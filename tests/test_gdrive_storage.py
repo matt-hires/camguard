@@ -124,8 +124,7 @@ class GDriveStorageTest(TestCase):
         ])
 
         # act
-        with patch("camguard.gdrive_storage.GoogleDrive",
-                   MagicMock(return_value=gdrive_mock)),\
+        with patch("camguard.gdrive_storage.GoogleDrive", return_value=gdrive_mock),\
                 patch("camguard.gdrive_storage.GDriveStorage._search_file",
                       search_file_mock):
             GDriveStorage.upload(file)

@@ -41,16 +41,16 @@ class MotionHandler:
     """
 
     def __init__(self, record_root_path: str) -> None:
-        self._record_root_path = record_root_path
+        self._record_root_path: str = record_root_path
         self._settings: MotionHandlerSettings = None
         self._impl: MotionHandlerImpl = None
 
+    def init(self) -> None:
+        self._settings = MotionHandlerSettings.load_settings()
+        self._get_impl()
+
     def handle_motion(self) -> None:
         self._get_impl().handle_motion()
-
-    def init(self) -> None:
-        self._settings: MotionHandlerSettings = MotionHandlerSettings.load_settings()
-        self._get_impl()
 
     def stop(self) -> None:
         self._get_impl().shutdown()
@@ -162,7 +162,7 @@ class FileStorage:
                 from .gdrive_dummy_storage import GDriveDummyStorage
                 self._impl = GDriveDummyStorage()
             else:
-                # defaults to raspi cam implementation
+                # defaults to gdrive implementation
                 from .gdrive_storage import GDriveStorage
                 self._impl = GDriveStorage()
 

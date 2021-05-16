@@ -5,13 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Debug unittests",
+            // custom config for testing
+            // see https://code.visualstudio.com/docs/python/testing#_debug-tests
+            "name": "Debug Tests",
             "type": "python",
-            "request": "launch",
-            "module": "unittest"
+            "request": "test",
+            "justMyCode": false
         },
         {
-            "name": "Python: Current File",
+            "name": "Current File",
             "type": "python",
             "request": "launch",
             "program": "${file}",
@@ -19,7 +21,7 @@
         },
         {
             // check https://code.visualstudio.com/docs/python/debugging
-            "name": "Python: Attach Remote Pi:5678",
+            "name": "Attach Remote Pi:5678",
             "type": "python",
             "request": "attach",
             "port": 5678,
