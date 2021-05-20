@@ -3,7 +3,7 @@ from typing import Dict
 from yaml import safe_load
 from yaml.error import YAMLError
 
-from camguard.exceptions import CamGuardError, ConfigurationError
+from .exceptions import CamGuardError, ConfigurationError
 from enum import Enum
 import logging
 
@@ -20,7 +20,7 @@ class ImplementationType(Enum):
         if value == 'raspi':
             LOGGER.debug(f"{cls.__name__} - parsed implemenation type: raspi")
             return cls.RASPI
-        if value == 'dummy':
+        elif value == 'dummy':
             LOGGER.debug(f"{cls.__name__} - parsed implemenation type: raspi")
             return cls.DUMMY
         else:
@@ -49,7 +49,7 @@ class Settings:
         instance = cls._create_instance()
 
         if not path.isfile(filepath):
-            return instance
+            raise CamGuardError(f"Given file path is not a file: {filepath}")
 
         try:
             with open(filepath, 'r') as stream:

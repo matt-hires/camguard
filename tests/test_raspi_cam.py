@@ -1,9 +1,8 @@
 import datetime
-import os
 import re
 from contextlib import AbstractContextManager
 from unittest import TestCase
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from camguard.exceptions import ConfigurationError
 from camguard.bridge import MotionHandler
@@ -44,8 +43,8 @@ class RaspiCamTest(TestCase):
     def test_should_raise_error_when_invalid_record_path(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        for path in [f"/non/existing/file.ext", None]:
-            with self.subTest(record_path=path):
+        for path in ["/non/existing/file.ext", None]:
+            with self.subTest(record_root_path=path):
                 # arrange
                 sut = RaspiCam(path)
 
