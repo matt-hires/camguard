@@ -49,7 +49,8 @@ class Settings:
         instance = cls._create_instance()
 
         if not path.isfile(filepath):
-            raise CamGuardError(f"Given file path is not a file: {filepath}")
+            LOGGER.debug(f"Ignore non existant settings: {filepath}")
+            return instance
 
         try:
             with open(filepath, 'r') as stream:

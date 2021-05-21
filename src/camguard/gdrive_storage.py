@@ -270,7 +270,7 @@ class GDriveStorage(FileStorageImpl):
         Returns:
             GoogleDriveFile: representation of the created/found file  
         """
-        existing_files = cls._search_file(gdrive, name, parent_id, mimetype) 
+        existing_files = cls._search_file(gdrive, name, mimetype, parent_id) 
         file: GoogleDriveFile = None
         if existing_files:
             if len(existing_files) > 1:
@@ -301,7 +301,7 @@ class GDriveStorage(FileStorageImpl):
         return file
 
     @classmethod
-    def _search_file(cls, *, gdrive: GoogleDrive, name: str, mimetype: GDriveMimetype = None,
+    def _search_file(cls, gdrive: GoogleDrive, name: str, mimetype: GDriveMimetype = None,
                      parent_id: str = None) -> Sequence[GoogleDriveFile]:
         """search for a file/folder on google drive with certain parameters
 

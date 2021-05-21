@@ -13,8 +13,6 @@ Bugs
 
 Features
 --------
-* email notification
-    - enable handler array in motiondetector
 * Recording/Upload subfolder {capture}_{count}
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
@@ -26,6 +24,8 @@ Features
 =======
 PENDING
 =======
+* email notification
+    - enable handler array in motiondetector
 ====
 DONE
 ====

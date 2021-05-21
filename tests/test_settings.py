@@ -55,11 +55,16 @@ class SettingsTest(TestCase):
         self.assertIsNotNone(settings)
 
     @patch("camguard.settings.path.isfile", MagicMock(return_value=False))
-    def test_should_raise_error_on_non_file(self):
+    def test_should_ignore_non_existant_file(self):
         # arrange
+        open_mock = MagicMock()
+
         # act
-        with self.assertRaises(CamGuardError):
+        with patch("camguard.settings.open", mock_open(mock=open_mock)):
             Settings.load_settings()
+
+        # assert
+        open_mock.assert_not_called()
 
     def mock_yaml_data() -> Dict:
         return {
