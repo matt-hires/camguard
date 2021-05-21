@@ -25,7 +25,7 @@ Features
 PENDING
 =======
 * email notification
-    - enable handler array in motiondetector
+    - refactor using gen-based coroutine pipes for motion handling (pre-requisite)
 ====
 DONE
 ====
