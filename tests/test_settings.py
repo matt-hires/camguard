@@ -66,6 +66,7 @@ class SettingsTest(TestCase):
         # assert
         open_mock.assert_not_called()
 
+    @staticmethod
     def mock_yaml_data() -> Dict:
         return {
             'motion_handler': {'implementation': 'dummy'},

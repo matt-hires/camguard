@@ -62,7 +62,6 @@ class RaspiCam(MotionHandlerImpl):
         """
         LOGGER.info(f"Shutting down")
         self._shutdown = True
-        self.after_handling = None
 
     def _record_picture(self, pi_camera) -> List[str]:
         """ record picture to given file_path
@@ -74,7 +73,8 @@ class RaspiCam(MotionHandlerImpl):
             Sequence[str]: list of recorded file paths
         """
         if self._shutdown:
-            return
+            # do not record if shutdown was triggered
+            return []
 
         LOGGER.info("Recording pictures")
 

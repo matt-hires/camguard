@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from camguard.exceptions import ConfigurationError
-from camguard.bridge import MotionHandler
+from camguard.bridge import MotionHandler, MotionHandlerImpl
 
 MODULES = "sys.modules"
 
@@ -33,8 +33,8 @@ class RaspiCamTest(TestCase):
         # setup mocks
         self.pi_camera_module = MagicMock()
         self.pi_camera_module.PiCamera = RaspiCamFakeContextManager
-        self.pi_camera_module.PiCamera.capture_continuous = MagicMock(
-            return_value=["capture1.jpg", "capture2.jpg"])
+        setattr(self.pi_camera_module.PiCamera, "capture_continuous",
+                MagicMock(return_value=["capture1.jpg", "capture2.jpg"]))
 
         self.patcher = patch.dict(MODULES, picamera=self.pi_camera_module)
         self.patcher.start()
@@ -99,7 +99,7 @@ class RaspiCamTest(TestCase):
     def test_should_trigger_motion_finished(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut: MotionHandler = RaspiCam("/")
+        sut: MotionHandlerImpl = RaspiCam("/")
         sut.after_handling = MagicMock()
 
         # act

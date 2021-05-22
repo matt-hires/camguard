@@ -31,8 +31,6 @@ class GDriveStorageAuth:
     """manages gdrive oauth authentication control
     """
 
-    _gauth: GoogleAuth = None
-
     @classmethod
     def login(cls, settings_file: str = "google-oauth-settings.yaml") -> GoogleAuth:
         """login via cli
@@ -44,7 +42,7 @@ class GDriveStorageAuth:
         Raises:
             ConfigurationError: raises configuration error in case of missing secrets
         """
-        if not cls._gauth:
+        if not hasattr(cls, "_gauth"):
             LOGGER.info("Authenticating to google")
             try:
                 cls._gauth = GoogleAuth(settings_file=settings_file)
@@ -270,14 +268,13 @@ class GDriveStorage(FileStorageImpl):
         Returns:
             GoogleDriveFile: representation of the created/found file  
         """
-        existing_files = cls._search_file(gdrive, name, mimetype, parent_id) 
-        file: GoogleDriveFile = None
+        existing_files = cls._search_file(gdrive, name, mimetype, parent_id)
         if existing_files:
             if len(existing_files) > 1:
                 raise GDriveError(f"Multiple files ('{name}') found under"
                                   f"given parent {parent_id}")
 
-            file = existing_files[0]
+            file: GoogleDriveFile = existing_files[0]
             LOGGER.debug(f"Found existing file, name: '{name}', id: '{file['id']}', "
                          f"parent: '{parent_id}'")
         else:
@@ -293,7 +290,7 @@ class GDriveStorage(FileStorageImpl):
                     }]
                 })
 
-            file = gdrive.CreateFile(resource)
+            file: GoogleDriveFile = gdrive.CreateFile(resource)
             file.Upload()
             LOGGER.debug(f"Created file, name: '{name}', id: '{file['id']}', "
                          f"parent: '{parent_id}'")

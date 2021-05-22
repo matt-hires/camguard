@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from camguard.settings import (FileStorageSettings, ImplementationType, MotionDetectorSettings,
                                MotionHandlerSettings)
@@ -11,9 +11,6 @@ class MotionHandlerImpl(ABC):
     """abstract base class for motion handler implementations
     """
 
-    def __init__(self) -> None:
-        self._after_handling = None
-
     @abstractmethod
     def handle_motion(self) -> None:
         pass
@@ -23,7 +20,9 @@ class MotionHandlerImpl(ABC):
         pass
 
     @property
-    def after_handling(self) -> Callable[[List[str]], None]:
+    def after_handling(self) -> Optional[Callable[[List[str]], None]]:
+        if not hasattr(self, "_after_handling"):
+            return None
         return self._after_handling
 
     @after_handling.setter
@@ -42,8 +41,7 @@ class MotionHandler:
 
     def __init__(self, record_root_path: str) -> None:
         self._record_root_path: str = record_root_path
-        self._settings: MotionHandlerSettings = None
-        self._impl: MotionHandlerImpl = None
+        self._settings = None
 
     def init(self) -> None:
         self._settings = MotionHandlerSettings.load_settings()
@@ -59,7 +57,7 @@ class MotionHandler:
         self._get_impl().after_handling = handler
 
     def _get_impl(self) -> MotionHandlerImpl:
-        if not self._impl:
+        if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_cam import DummyCam
                 self._impl = DummyCam(self._record_root_path)
@@ -92,8 +90,6 @@ class MotionDetector:
 
     def __init__(self, gpio_pin: int) -> None:
         self._gpio_pin: int = gpio_pin
-        self._settings: MotionDetectorSettings = None
-        self._impl: MotionDetectorImpl = None
 
     def init(self) -> None:
         self._settings: MotionDetectorSettings = MotionDetectorSettings.load_settings()
@@ -106,7 +102,7 @@ class MotionDetector:
         self._get_impl().shutdown()
 
     def _get_impl(self) -> MotionDetectorImpl:
-        if not self._impl:
+        if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gpio_sensor import DummyGpioSensor
                 self._impl = DummyGpioSensor(self._gpio_pin)
@@ -141,7 +137,6 @@ class FileStorageImpl(ABC):
 
 class FileStorage:
     def __init__(self) -> None:
-        self._impl: FileStorageImpl = None
         self._settings: FileStorageSettings = FileStorageSettings.load_settings()
 
     def authenticate(self) -> None:
@@ -157,7 +152,7 @@ class FileStorage:
         self._get_impl().enqueue_files(files)
 
     def _get_impl(self) -> FileStorageImpl:
-        if not self._impl:
+        if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .gdrive_dummy_storage import GDriveDummyStorage
                 self._impl = GDriveDummyStorage()

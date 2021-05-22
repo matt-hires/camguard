@@ -37,7 +37,7 @@ class GDriveStorageAuthTest(TestCase):
         gauth_mock.CommandLineAuth.assert_called()
 
     def tearDown(self) -> None:
-        GDriveStorageAuth._gauth = None
+        delattr(GDriveStorageAuth, "_gauth")
 
 
 class GDriveStorageTest(TestCase):
