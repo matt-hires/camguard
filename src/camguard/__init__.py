@@ -2,10 +2,12 @@ import logging
 import time
 from sys import stderr, stdout, exit
 from argparse import ArgumentParser, Namespace
-from signal import SIGINT, SIGTERM, signal, sigwait
+from signal import SIGINT, SIGTERM, Signals, sigwait
+from typing import Any, Dict, Optional
 
-from daemon.daemon import DaemonContext
-from pid import PidFile
+from daemon.daemon import DaemonContext  # type: ignore[reportMissingTypeStubs]
+from pid import PidFile  # type: ignore[reportMissingTypeStubs]
+
 
 __version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
@@ -54,14 +56,15 @@ def _configure_logger(loglevel: str) -> None:
     logging.logThreads = True
 
 
-def _configure_daemon(detach: bool, camguard) -> DaemonContext:
-    signal_map = {
-        SIGTERM: lambda sig, tb: _shutdown(camguard, sig, tb),
-        SIGINT: lambda sig, tb: _shutdown(camguard, sig, tb)
+def _configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
+    signal_map: Dict[Signals, Any] = {
+        # lambda type couldn't be inferred
+        SIGTERM: lambda sig, tb: _shutdown(camguard, sig, tb),  # type: ignore
+        SIGINT: lambda sig, tb: _shutdown(camguard, sig, tb)  # type: ignore
     }
 
     # setup pid file context (/var/run/camguard.pid)
-    pid_file: PidFile = PidFile(pidname="camguard") if detach else None
+    pid_file: Optional[PidFile] = PidFile(pidname="camguard") if detach else None
     work_dir: str = '/' if detach else '.'
 
     return DaemonContext(detach_process=detach,
@@ -72,14 +75,14 @@ def _configure_daemon(detach: bool, camguard) -> DaemonContext:
                          working_directory=work_dir)
 
 
-def _shutdown(camguard, signal_number: int, stack_frame) -> None:
+def _shutdown(camguard: Any, signal_number: Signals, stack_frame: Any) -> None:
     LOGGER.info("Gracefully shutting down Camguard")
     if camguard:
         camguard.stop()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
 
 
-def _run_daemonized(args: Namespace, camguard) -> None:
+def _run_daemonized(args: Namespace, camguard: Any) -> None:
     daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
     with daemon_context:
         camguard.start()
@@ -91,7 +94,7 @@ def _run_daemonized(args: Namespace, camguard) -> None:
             time.sleep(1.0)
 
 
-def _run(args: Namespace, camguard) -> None:
+def _run(args: Namespace, camguard: Any) -> None:
     if args.daemonize:
         return _run_daemonized(args, camguard)
 
@@ -102,14 +105,14 @@ def _run(args: Namespace, camguard) -> None:
 
 
 def main():
+    rc: int = 0
     try:
-        rc = 0
         args = _parse_args()
         _configure_logger(args.log)
 
         LOGGER.info(f"Starting up with args: {args}")
 
-        from camguard.camguard import CamGuard
+        from .camguard import CamGuard
         camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
         camguard.init()
 
@@ -117,7 +120,6 @@ def main():
     except SystemExit as e:
         LOGGER.debug(e)
         LOGGER.info("Camguard shut down gracefully")
-        rc = 0
     except Exception as e:
         LOGGER.error("Unexpected error occured", exc_info=e)
 

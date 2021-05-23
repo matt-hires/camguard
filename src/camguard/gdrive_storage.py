@@ -6,14 +6,14 @@ from os import path
 from queue import Empty, Full, Queue
 from random import uniform
 from threading import Event, Lock
-from typing import Callable, List, Sequence
+from typing import Callable, List, Optional, Sequence
 
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
-from pydrive.files import GoogleDriveFile
-from pydrive.settings import InvalidConfigError
+from pydrive.auth import GoogleAuth  # type: ignore
+from pydrive.drive import GoogleDrive  # type: ignore
+from pydrive.files import GoogleDriveFile  # type: ignore
+from pydrive.settings import InvalidConfigError  # type: ignore
 
-from .bridge import FileStorageImpl
+from .bridge_impl import FileStorageImpl
 from .exceptions import ConfigurationError, GDriveError
 
 LOGGER = logging.getLogger(__name__)
@@ -46,10 +46,10 @@ class GDriveStorageAuth:
             LOGGER.info("Authenticating to google")
             try:
                 cls._gauth = GoogleAuth(settings_file=settings_file)
-                cls._gauth.CommandLineAuth()
+                cls._gauth.CommandLineAuth()  # type: ignore
             except InvalidConfigError:
                 raise ConfigurationError("Cannot find client_secrets.json")
-        elif cls._gauth.access_token_expired:
+        elif cls._gauth.access_token_expired:  # type: ignore
             raise GDriveError("GoogleDrive authentication token expired")
 
         return cls._gauth
@@ -68,7 +68,7 @@ class GDriveUploadManager():
             queue_size (int, optional): gdrive upload queue size. Defaults to 100.
         """
         self._stop_event = Event()
-        self._queue = Queue(maxsize=queue_size)
+        self._queue: Queue[str] = Queue(maxsize=queue_size)
         self._upload_fn = upload_fn
         self._executor = ThreadPoolExecutor(
             max_workers=self._MAX_WORKERS,
@@ -228,7 +228,7 @@ class GDriveStorage(FileStorageImpl):
                 gdrive=gdrive,
                 name=cur_date,
                 mimetype=GDriveMimetype.FOLDER,
-                parent_id=root_folder['id']
+                parent_id=root_folder['id'] # type: ignore
             )
         # released lock with ctx manager
 
@@ -238,21 +238,21 @@ class GDriveStorage(FileStorageImpl):
             gdrive=gdrive,
             name=file_name,
             mimetype=GDriveMimetype.JPEG,
-            parent_id=date_folder['id']
+            parent_id=date_folder['id'] # type: ignore
         )
 
         LOGGER.info("Uploading file: "
                     f"'{cls._upload_folder_title}/{cur_date}/{file_name}'")
 
-        gdrive_file.SetContentFile(file)
-        gdrive_file.Upload()
+        gdrive_file.SetContentFile(file) # type: ignore
+        gdrive_file.Upload() # type: ignore
 
         LOGGER.info("Upload file finished: "
                     f"'{cls._upload_folder_title}/{cur_date}/{file_name}'")
 
     @classmethod
     def _create_file(cls, *, gdrive: GoogleDrive, name: str, mimetype: GDriveMimetype,
-                     parent_id: str = None) -> GoogleDriveFile:
+                     parent_id: Optional[str] = None) -> GoogleDriveFile:
         """create file or folder on gdrive storage if it's not already existing
 
         Args:
@@ -290,16 +290,17 @@ class GDriveStorage(FileStorageImpl):
                     }]
                 })
 
-            file: GoogleDriveFile = gdrive.CreateFile(resource)
-            file.Upload()
+            file: GoogleDriveFile = gdrive.CreateFile(resource)  # type: ignore
+            file.Upload()  # type: ignore
             LOGGER.debug(f"Created file, name: '{name}', id: '{file['id']}', "
                          f"parent: '{parent_id}'")
 
         return file
 
     @classmethod
-    def _search_file(cls, gdrive: GoogleDrive, name: str, mimetype: GDriveMimetype = None,
-                     parent_id: str = None) -> Sequence[GoogleDriveFile]:
+    def _search_file(cls, gdrive: GoogleDrive, name: str,
+                     mimetype: Optional[GDriveMimetype] = None,
+                     parent_id: Optional[str] = None) -> Sequence[GoogleDriveFile]:
         """search for a file/folder on google drive with certain parameters
 
         Args:
@@ -323,11 +324,11 @@ class GDriveStorage(FileStorageImpl):
                                   mimetype=mimetype,
                                   parent_id=parent_id)
         }
-        return gdrive.ListFile(query).GetList()
+        return gdrive.ListFile(query).GetList() # type: ignore
 
     @classmethod
-    def _build_query(cls, *, title: str, mimetype: GDriveMimetype = None,
-                     trashed: bool = False, parent_id: str = None) -> str:
+    def _build_query(cls, *, title: str, mimetype: Optional[GDriveMimetype] = None,
+                     trashed: bool = False, parent_id: Optional[str] = None) -> str:
         parent_filter = f"and '{parent_id}' in parents " if parent_id else ""
         mimetype_filter = f"and mimeType='{mimetype.value}' " if mimetype else ""
 

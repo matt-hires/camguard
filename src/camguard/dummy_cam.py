@@ -1,8 +1,9 @@
-from datetime import date, datetime
 import logging
 import time
+from datetime import date, datetime
 from typing import List
-from .bridge import MotionHandlerImpl
+
+from .bridge_impl import MotionHandlerImpl
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,7 +26,6 @@ class DummyCam(MotionHandlerImpl):
             record_count (int, optional): count of picture which should be recorded. 
             Defaults to 15.
         """
-        super().__init__()
         LOGGER.debug(f"Configuring dummy cam with params: "
                      f"record_root_path: {record_root_path}")
         self.record_root_path: str = record_root_path
@@ -50,7 +50,7 @@ class DummyCam(MotionHandlerImpl):
 
     def _record_picture(self) -> List[str]:
         if self._shutdown:
-            return
+            return []
 
         LOGGER.info("Recording pictures")
 
@@ -60,7 +60,7 @@ class DummyCam(MotionHandlerImpl):
 
         record_path = self.record_root_path + date_str
 
-        recorded = []
+        recorded: List[str] = []
         for i in range(1, self.record_picture_count + 1):
             filename = self.RECORD_FILE_FORMAT.format(counter=i,
                                                       filename=self.record_file_name,

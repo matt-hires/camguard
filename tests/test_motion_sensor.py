@@ -2,10 +2,11 @@ from time import sleep
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from gpiozero import Device
-from gpiozero.pins.mock import MockFactory, MockPin
+from gpiozero import Device  # type: ignore
+from gpiozero.pins.mock import MockFactory, MockPin  # type: ignore
 
 from camguard.raspi_gpio_sensor import RaspiGpioSensor
+
 
 class MotionSensorTest(TestCase):
     def setUp(self):
@@ -20,10 +21,10 @@ class MotionSensorTest(TestCase):
         the default sample wait time (1/10) configured in gpiozero/input_devices.py:612 (__init__)
         """
         # arrange
-        mock_callback = MagicMock() 
+        mock_callback = MagicMock()
         # gpiozero needs __name__ attribute
         mock_callback.__name__ = "handler"
-        pin: MockPin = Device.pin_factory.pin(self.gpio_pin)
+        pin: MockPin = Device.pin_factory.pin(self.gpio_pin)  # type: ignore
         # default is 1/10, waiting twice as long
         sample_wait_time_sec = (2 / 10)
 
@@ -43,4 +44,4 @@ class MotionSensorTest(TestCase):
         self.assertEqual(activations, mock_callback.call_count)
 
     def tearDown(self):
-        Device.pin_factory.release_pins(self.sut._motion_sensor, self.gpio_pin)
+        Device.pin_factory.release_pins(self.sut._motion_sensor, self.gpio_pin)  # type: ignore

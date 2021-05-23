@@ -3,18 +3,18 @@ import os
 import time
 from datetime import date
 from os import path
-from typing import List
+from typing import Any, List
 
 # picamera cannot be installed on a non-pi system
 from picamera import PiCamera  # type: ignore reportMissingImports
 
-from .bridge import MotionHandlerImpl
+from .bridge_impl import MotionHandlerImpl
 from .exceptions import ConfigurationError
 
 
 class RecordPathError(Exception):
 
-    def __init__(self, message) -> None:
+    def __init__(self, message: str) -> None:
         self.message = message
 
 
@@ -42,7 +42,6 @@ class RaspiCam(MotionHandlerImpl):
                      f"record_file_name: {record_file_name} "
                      f"record_interval_sec: {record_interval_sec} "
                      f"record_count: {record_count}")
-        super().__init__()
 
         self.record_root_path: str = record_root_path
         self.record_file_name: str = record_file_name
@@ -52,7 +51,7 @@ class RaspiCam(MotionHandlerImpl):
 
     def handle_motion(self) -> None:
         LOGGER.debug(f"Triggered by motion")
-        with PiCamera() as pi_camera:
+        with PiCamera() as pi_camera:  # type: ignore
             recorded_pics: List[str] = self._record_picture(pi_camera)
             if self.after_handling:
                 self.after_handling(recorded_pics)
@@ -62,8 +61,9 @@ class RaspiCam(MotionHandlerImpl):
         """
         LOGGER.info(f"Shutting down")
         self._shutdown = True
+        self.after_handling = None
 
-    def _record_picture(self, pi_camera) -> List[str]:
+    def _record_picture(self, pi_camera: Any) -> List[str]:
         """ record picture to given file_path
 
         Raises:
@@ -88,7 +88,7 @@ class RaspiCam(MotionHandlerImpl):
         if not path.exists(record_path):
             os.mkdir(record_path)
 
-        recorded = []
+        recorded: List[str] = []
         for i, filename in enumerate(
                 pi_camera.capture_continuous(f"{record_path}" +
                                              "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_" +

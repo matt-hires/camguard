@@ -1,39 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import Callable, List, Optional
-
-from camguard.settings import (FileStorageSettings, ImplementationType, MotionDetectorSettings,
+from typing import Callable, List
+from .bridge_impl import FileStorageImpl, MotionDetectorImpl, MotionHandlerImpl
+from .settings import (FileStorageSettings, ImplementationType, MotionDetectorSettings,
                                MotionHandlerSettings)
 
 """ Handler Bridge """
-
-
-class MotionHandlerImpl(ABC):
-    """abstract base class for motion handler implementations
-    """
-
-    @abstractmethod
-    def handle_motion(self) -> None:
-        pass
-
-    @abstractmethod
-    def shutdown(self) -> None:
-        pass
-
-    @property
-    def after_handling(self) -> Optional[Callable[[List[str]], None]]:
-        if not hasattr(self, "_after_handling"):
-            return None
-        return self._after_handling
-
-    @after_handling.setter
-    def after_handling(self, handler: Callable[[List[str]], None]) -> None:
-        """set after handling callback
-
-        Args:
-            handler (Callable[[List[str]], None]): callback function
-        """
-        self._after_handling = handler
-
 
 class MotionHandler:
     """ representation of the motion handler implementation abstraction
@@ -41,7 +11,6 @@ class MotionHandler:
 
     def __init__(self, record_root_path: str) -> None:
         self._record_root_path: str = record_root_path
-        self._settings = None
 
     def init(self) -> None:
         self._settings = MotionHandlerSettings.load_settings()
@@ -72,18 +41,6 @@ class MotionHandler:
 """ Detector Bridge """
 
 
-class MotionDetectorImpl(ABC):
-    """abstract base class for motion detector implementations
-    """
-    @abstractmethod
-    def on_motion(self, handler: Callable) -> None:
-        pass
-
-    @abstractmethod
-    def shutdown(self) -> None:
-        pass
-
-
 class MotionDetector:
     """ representation of the motion detector implementation abstraction
     """
@@ -95,7 +52,7 @@ class MotionDetector:
         self._settings: MotionDetectorSettings = MotionDetectorSettings.load_settings()
         self._get_impl()
 
-    def on_motion(self, handler: Callable) -> None:
+    def on_motion(self, handler: Callable[[], None]) -> None:
         self._get_impl().on_motion(handler)
 
     def stop(self) -> None:
@@ -115,24 +72,6 @@ class MotionDetector:
 
 
 """ FileStorage Bridge """
-
-
-class FileStorageImpl(ABC):
-    @abstractmethod
-    def authenticate(self) -> None:
-        pass
-
-    @abstractmethod
-    def start(self) -> None:
-        pass
-
-    @abstractmethod
-    def stop(self) -> None:
-        pass
-
-    @abstractmethod
-    def enqueue_files(self, files: List[str]) -> None:
-        pass
 
 
 class FileStorage:

@@ -3,9 +3,9 @@ from time import sleep
 from unittest import TestCase
 from unittest.mock import MagicMock, call, create_autospec, patch
 
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive, GoogleDriveFile
-from pydrive.settings import InvalidConfigError
+from pydrive.auth import GoogleAuth # type: ignore
+from pydrive.drive import GoogleDrive, GoogleDriveFile # type: ignore
+from pydrive.settings import InvalidConfigError # type: ignore
 
 from camguard.exceptions import ConfigurationError, GDriveError
 from camguard.gdrive_storage import (GDriveMimetype, GDriveStorage,
@@ -50,7 +50,7 @@ class GDriveStorageTest(TestCase):
         gdrive_mock = create_autospec(spec=GoogleDrive, spec_set=True)
         # mock root folder query
         create_folder_dict = {
-            'title': GDriveStorage._upload_folder_title,
+            'title': GDriveStorage._upload_folder_title, # type: ignore
             'mimeType': GDriveMimetype.FOLDER.value,
             'parents': [{'id': 'root'}]
         }
@@ -141,7 +141,7 @@ class GDriveStorageTest(TestCase):
 class GDriveUploadManagerTest(TestCase):
     @patch("camguard.gdrive_storage.GDriveStorage.upload")
     @patch("camguard.gdrive_storage.GDriveStorageAuth.login", MagicMock())
-    def test_should_enqueue_files(self, upload_mock):
+    def test_should_enqueue_files(self, upload_mock: MagicMock):
         # arrange
         sut = GDriveStorage()
         file = "capture1.jpeg"

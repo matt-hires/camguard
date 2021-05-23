@@ -2,7 +2,7 @@ import logging
 from time import sleep
 from typing import List
 
-from .bridge import FileStorageImpl
+from .bridge_impl import FileStorageImpl
 from .gdrive_storage import GDriveUploadManager
 
 LOGGER = logging.getLogger(__name__)

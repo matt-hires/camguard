@@ -2,11 +2,11 @@
 import logging
 from random import uniform
 from threading import Event, Lock, Thread
-from typing import Callable
+from typing import Callable, Optional
 
-from camguard.exceptions import CamGuardError
+from .exceptions import CamGuardError
 
-from .bridge import MotionDetectorImpl
+from .bridge_impl import MotionDetectorImpl
 
 LOGGER = logging.getLogger(__name__)
 
@@ -16,18 +16,19 @@ class DummySensorThread(Thread):
     """
     _lock: Lock = Lock()
 
-    def __init__(self, handler: Callable = None) -> None:
+    def __init__(self) -> None:
         super().__init__(daemon=True)
         self._stop_event = Event()
-        self._handler = handler
 
     @property
-    def handler(self) -> Callable:
+    def handler(self) -> Optional[Callable[[], None]]:
         with DummySensorThread._lock:
+            if not hasattr(self, "_handler"):
+                return None
             return self._handler
 
     @handler.setter
-    def handler(self, value: Callable) -> None:
+    def handler(self, value: Callable[[], None]) -> None:
         with DummySensorThread._lock:
             self._handler = value
 
@@ -36,8 +37,9 @@ class DummySensorThread(Thread):
         try:
             while not self._stop_event.wait(round(uniform(1, 3), 1)):
                 LOGGER.debug(f"Simulating motion detection")
-                if self.handler:
-                    self.handler()
+                if hasattr(self, "_handler"):
+                    if self.handler:
+                        self.handler()
         except Exception as e:
             LOGGER.error("Unrecoverable error in dummy gpio sensor thread", exc_info=e)
 
@@ -63,7 +65,7 @@ class DummyGpioSensor(MotionDetectorImpl):
         self._sensor_thread = DummySensorThread()
         self._sensor_thread.start()
 
-    def on_motion(self, handler: Callable) -> None:
+    def on_motion(self, handler: Callable[[], None]) -> None:
         self._sensor_thread.handler = handler
 
     def shutdown(self) -> None:

@@ -1,9 +1,9 @@
 import logging
 from typing import Callable
 
-from gpiozero import MotionSensor as GPIOMotionSensor
+from gpiozero import MotionSensor as GPIOMotionSensor # type: ignore
 
-from .bridge import MotionDetectorImpl
+from .bridge_impl import MotionDetectorImpl
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class RaspiGpioSensor(MotionDetectorImpl):
         LOGGER.debug(f"Configuring motion sensor on pin {gpio_pin}")
         self._motion_sensor = GPIOMotionSensor(gpio_pin)
 
-    def on_motion(self, handler: Callable) -> None:
+    def on_motion(self, handler: Callable[[], None]) -> None:
         """abstract base method for calling on motion callback
 
         Args:

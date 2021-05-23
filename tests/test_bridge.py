@@ -1,9 +1,8 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
 
-from camguard.bridge import (FileStorage, FileStorageImpl, MotionDetector,
-                             MotionDetectorImpl, MotionHandler,
-                             MotionHandlerImpl)
+from camguard.bridge_api import (FileStorage, MotionDetector, MotionHandler)
+from camguard.bridge_impl import FileStorageImpl, MotionDetectorImpl, MotionHandlerImpl
 from camguard.settings import (FileStorageSettings, ImplementationType,
                                MotionDetectorSettings, MotionHandlerSettings,
                                Settings)
@@ -28,12 +27,12 @@ class MotionHandlerTest(TestCase):
         dummy_cam_mock.DummyCam = MagicMock()
 
         # act
-        with patch("camguard.bridge.MotionHandlerSettings", settings_mock), \
+        with patch("camguard.bridge_api.MotionHandlerSettings", settings_mock), \
                 patch.dict("sys.modules", {"camguard.dummy_cam": dummy_cam_mock}):
             self.sut.init()
 
         # assert
-        dummy_cam_mock.DummyCam.assert_called_with(self.record_root_path)
+        dummy_cam_mock.DummyCam.assert_called_with(self.record_root_path)  # type: ignore
         settings_mock.load_settings.assert_called()
 
     def test_should_load_raspi_settings_on_init(self):
@@ -49,12 +48,12 @@ class MotionHandlerTest(TestCase):
         raspi_cam_mock.RaspiCam = MagicMock()
 
         # act
-        with patch("camguard.bridge.MotionHandlerSettings", settings_mock), \
+        with patch("camguard.bridge_api.MotionHandlerSettings", settings_mock), \
                 patch.dict("sys.modules", {"camguard.raspi_cam": raspi_cam_mock}):
             self.sut.init()
 
         # assert
-        raspi_cam_mock.RaspiCam.assert_called_with(self.record_root_path)
+        raspi_cam_mock.RaspiCam.assert_called_with(self.record_root_path)  # type: ignore
         settings_mock.load_settings.assert_called()
 
     def test_should_handle_motion(self):
@@ -62,7 +61,7 @@ class MotionHandlerTest(TestCase):
         get_impl_mock = create_autospec(spec=MotionHandlerImpl, spec_set=True)
 
         # act
-        with patch("camguard.bridge.MotionHandler._get_impl",
+        with patch("camguard.bridge_api.MotionHandler._get_impl",
                    return_value=get_impl_mock):
             self.sut.handle_motion()
 
@@ -74,7 +73,7 @@ class MotionHandlerTest(TestCase):
         get_impl_mock = create_autospec(spec=MotionHandlerImpl, spec_set=True)
 
         # act
-        with patch("camguard.bridge.MotionHandler._get_impl",
+        with patch("camguard.bridge_api.MotionHandler._get_impl",
                    return_value=get_impl_mock):
             self.sut.stop()
 
@@ -87,7 +86,7 @@ class MotionHandlerTest(TestCase):
         after_handling_mock = MagicMock()
 
         # act
-        with patch("camguard.bridge.MotionHandler._get_impl",
+        with patch("camguard.bridge_api.MotionHandler._get_impl",
                    return_value=get_impl_mock):
             self.sut.after_handling(after_handling_mock)
 
@@ -113,12 +112,12 @@ class MotionDetectorTest(TestCase):
         dummy_sensor_mock.DummyGpioSensor = MagicMock()
 
         # act
-        with patch("camguard.bridge.MotionDetectorSettings", settings_mock), \
+        with patch("camguard.bridge_api.MotionDetectorSettings", settings_mock), \
                 patch.dict("sys.modules", {"camguard.dummy_gpio_sensor": dummy_sensor_mock}):
             self.sut.init()
 
         # assert
-        dummy_sensor_mock.DummyGpioSensor.assert_called_with(self.gpio_pin)
+        dummy_sensor_mock.DummyGpioSensor.assert_called_with(self.gpio_pin)  # type: ignore
         settings_mock.load_settings.assert_called()
 
     def test_should_load_raspi_settings_on_init(self):
@@ -134,12 +133,12 @@ class MotionDetectorTest(TestCase):
         gpio_sensor_mock.RaspiGpioSensor = MagicMock()
 
         # act
-        with patch("camguard.bridge.MotionDetectorSettings", settings_mock), \
+        with patch("camguard.bridge_api.MotionDetectorSettings", settings_mock), \
                 patch.dict("sys.modules", {"camguard.raspi_gpio_sensor": gpio_sensor_mock}):
             self.sut.init()
 
         # assert
-        gpio_sensor_mock.RaspiGpioSensor.assert_called_with(self.gpio_pin)
+        gpio_sensor_mock.RaspiGpioSensor.assert_called_with(self.gpio_pin) # type: ignore
         settings_mock.load_settings.assert_called()
 
     def test_should_shutdown_on_stop(self):
@@ -147,7 +146,7 @@ class MotionDetectorTest(TestCase):
         get_impl_mock = create_autospec(spec=MotionDetectorImpl, spec_set=True)
 
         # act
-        with patch("camguard.bridge.MotionDetector._get_impl",
+        with patch("camguard.bridge_api.MotionDetector._get_impl",
                    return_value=get_impl_mock):
             self.sut.stop()
 
@@ -160,7 +159,7 @@ class MotionDetectorTest(TestCase):
         on_motion_mock = MagicMock()
 
         # act
-        with patch("camguard.bridge.MotionDetector._get_impl",
+        with patch("camguard.bridge_api.MotionDetector._get_impl",
                    return_value=get_impl_mock):
             self.sut.on_motion(on_motion_mock)
 
@@ -182,12 +181,12 @@ class FileStorageTest(TestCase):
         dummy_storage_mock.GDriveDummyStorage = MagicMock()
 
         # act
-        with patch("camguard.bridge.FileStorageSettings", settings_mock), \
+        with patch("camguard.bridge_api.FileStorageSettings", settings_mock), \
                 patch.dict("sys.modules", {"camguard.gdrive_dummy_storage": dummy_storage_mock}):
-            FileStorage()._get_impl()
+            FileStorage()._get_impl() # type: ignore
 
         # assert
-        dummy_storage_mock.GDriveDummyStorage.assert_called()
+        dummy_storage_mock.GDriveDummyStorage.assert_called() # type: ignore
         settings_mock.load_settings.assert_called()
 
     def test_should_load_gdrive_settings(self):
@@ -203,62 +202,62 @@ class FileStorageTest(TestCase):
         gdrive_storage_mock.GDriveStorage = MagicMock()
 
         # act
-        with patch("camguard.bridge.FileStorageSettings", settings_mock), \
+        with patch("camguard.bridge_api.FileStorageSettings", settings_mock), \
                 patch.dict("sys.modules",
                            {"camguard.gdrive_storage": gdrive_storage_mock}):
-            FileStorage()._get_impl()
+            FileStorage()._get_impl() # type: ignore
 
         # assert
-        gdrive_storage_mock.GDriveStorage.assert_called()
+        gdrive_storage_mock.GDriveStorage.assert_called() # type: ignore
         settings_mock.load_settings.assert_called()
 
-    @patch("camguard.bridge.FileStorageSettings.load_settings", MagicMock())
+    @patch("camguard.bridge_api.FileStorageSettings.load_settings", MagicMock())
     def test_should_authenticate(self):
         # arrange
         get_impl_mock = create_autospec(spec=FileStorageImpl, spec_set=True)
 
         # act
-        with patch("camguard.bridge.FileStorage._get_impl",
+        with patch("camguard.bridge_api.FileStorage._get_impl",
                    return_value=get_impl_mock):
             FileStorage().authenticate()
 
         # assert
         get_impl_mock.authenticate.assert_called()
 
-    @patch("camguard.bridge.FileStorageSettings.load_settings", MagicMock())
+    @patch("camguard.bridge_api.FileStorageSettings.load_settings", MagicMock())
     def test_should_start(self):
         # arrange
         get_impl_mock = create_autospec(spec=FileStorageImpl, spec_set=True)
 
         # act
-        with patch("camguard.bridge.FileStorage._get_impl",
+        with patch("camguard.bridge_api.FileStorage._get_impl",
                    return_value=get_impl_mock):
             FileStorage().start()
 
         # assert
         get_impl_mock.start.assert_called()
 
-    @patch("camguard.bridge.FileStorageSettings.load_settings", MagicMock())
+    @patch("camguard.bridge_api.FileStorageSettings.load_settings", MagicMock())
     def test_should_stop(self):
         # arrange
         get_impl_mock = create_autospec(spec=FileStorageImpl, spec_set=True)
 
         # act
-        with patch("camguard.bridge.FileStorage._get_impl",
+        with patch("camguard.bridge_api.FileStorage._get_impl",
                    return_value=get_impl_mock):
             FileStorage().stop()
 
         # assert
         get_impl_mock.stop.assert_called()
 
-    @patch("camguard.bridge.FileStorageSettings.load_settings", MagicMock())
+    @patch("camguard.bridge_api.FileStorageSettings.load_settings", MagicMock())
     def test_should_enqueue_files(self):
         # arrange
         get_impl_mock = create_autospec(spec=FileStorageImpl, spec_set=True)
         files = ["file1", "file2"]
 
         # act
-        with patch("camguard.bridge.FileStorage._get_impl",
+        with patch("camguard.bridge_api.FileStorage._get_impl",
                    return_value=get_impl_mock):
             FileStorage().enqueue_files(files)
 

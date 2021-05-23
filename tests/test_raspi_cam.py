@@ -5,12 +5,12 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from camguard.exceptions import ConfigurationError
-from camguard.bridge import MotionHandler, MotionHandlerImpl
+from camguard.bridge_impl import MotionHandlerImpl
 
 MODULES = "sys.modules"
 
 
-class RaspiCamFakeContextManager(AbstractContextManager):
+class RaspiCamFakeContextManager(AbstractContextManager): # type: ignore
     """
     fake object for the pi camera context manager
     otherwise i don't know how to track the methodcalls to capture_continuous
@@ -19,7 +19,7 @@ class RaspiCamFakeContextManager(AbstractContextManager):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
         return False
 
 
@@ -33,7 +33,7 @@ class RaspiCamTest(TestCase):
         # setup mocks
         self.pi_camera_module = MagicMock()
         self.pi_camera_module.PiCamera = RaspiCamFakeContextManager
-        setattr(self.pi_camera_module.PiCamera, "capture_continuous",
+        setattr(self.pi_camera_module.PiCamera, "capture_continuous",  # type: ignore
                 MagicMock(return_value=["capture1.jpg", "capture2.jpg"]))
 
         self.patcher = patch.dict(MODULES, picamera=self.pi_camera_module)
@@ -43,7 +43,7 @@ class RaspiCamTest(TestCase):
     def test_should_raise_error_when_invalid_record_path(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        for path in ["/non/existing/file.ext", None]:
+        for path in ["/non/existing/file.ext"]:
             with self.subTest(record_root_path=path):
                 # arrange
                 sut = RaspiCam(path)
@@ -53,7 +53,7 @@ class RaspiCamTest(TestCase):
                     sut.handle_motion()
 
                 # assert
-                self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()
+                self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()  # type: ignore
 
     @patch("camguard.raspi_cam.os.mkdir", MagicMock())
     def test_should_call_capture(self):
@@ -65,12 +65,12 @@ class RaspiCamTest(TestCase):
         sut.handle_motion()
 
         # assert
-        self.pi_camera_module.PiCamera.capture_continuous.assert_called()
+        self.pi_camera_module.PiCamera.capture_continuous.assert_called()  # type: ignore
 
     @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=True))
     @patch("camguard.raspi_cam.os.path.exists", MagicMock(return_value=False))
     @patch("camguard.raspi_cam.os.mkdir")
-    def test_should_create_date_folder(self, mkdir_method_mock):
+    def test_should_create_date_folder(self, mkdir_method_mock: MagicMock):
         # arrange
         from camguard.raspi_cam import RaspiCam
         root = "/"
@@ -84,11 +84,11 @@ class RaspiCamTest(TestCase):
 
         # assert
         mkdir_method_mock.assert_called_with(record_path)
-        self.pi_camera_module.PiCamera.capture_continuous.assert_called_once()
+        self.pi_camera_module.PiCamera.capture_continuous.assert_called_once()  # type: ignore
 
         found = False
-        for arg in self.pi_camera_module.PiCamera.capture_continuous.call_args:
-            if arg and re.match(f"{record_path}.*", arg[0]):
+        for arg in self.pi_camera_module.PiCamera.capture_continuous.call_args:  # type: ignore
+            if arg and re.match(f"{record_path}.*", arg[0]):  # type: ignore
                 found = True
 
         self.assertTrue(found, "Check if record called for specific date folder name")
@@ -121,8 +121,8 @@ class RaspiCamTest(TestCase):
         sut.handle_motion()
 
         # assert
-        self.assertTrue(sut._shutdown)
-        self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()
+        self.assertTrue(sut._shutdown)  # type: ignore
+        self.pi_camera_module.PiCamera.capture_continuous.assert_not_called()  # type: ignore
 
     def tearDown(self):
         self.patcher.stop()
