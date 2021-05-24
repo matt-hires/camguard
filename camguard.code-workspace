@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"python.analysis.typeCheckingMode": "strict"
+		"python.analysis.typeCheckingMode": "strict",
+		"vim.textwidth": 120
 	}
 }
