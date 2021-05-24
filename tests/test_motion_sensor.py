@@ -29,7 +29,7 @@ class MotionSensorTest(TestCase):
         sample_wait_time_sec = (2 / 10)
 
         # act
-        self.sut.on_motion(mock_callback)
+        self.sut.register_handler(mock_callback)
         sleep(sample_wait_time_sec)
         activations = 2
         # activate sensor two times

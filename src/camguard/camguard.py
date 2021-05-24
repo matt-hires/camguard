@@ -1,4 +1,5 @@
 import logging
+from typing import Generator, List
 
 from .exceptions import CamGuardError
 
@@ -50,9 +51,20 @@ class CamGuard:
             raise CamGuardError("Equipment has not been initialized before start")
 
         LOGGER.info("Starting camguard")
+
+        # build handler pipeline
         if self._file_storage:
-            self._handler.after_handling(self._file_storage.enqueue_files)
-        self._detector.on_motion(self._handler.handle_motion)
+            _pipeline = [
+                self._handler.on_motion([ # 1. trigger handler
+                    self._file_storage.enqueue_files() # 2. enqueue files to upload
+                    ])
+            ]
+        else:
+            _pipeline: List[Generator[None, "MotionDetector", None]] = [
+                self._handler.on_motion([]) #1. trigger handler
+            ]
+
+        self._detector.register_handlers(_pipeline)
 
     def stop(self):
         """stop camguard

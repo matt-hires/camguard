@@ -49,19 +49,16 @@ class RaspiCam(MotionHandlerImpl):
         self.record_picture_count: int = record_count
         self._shutdown: bool = False
 
-    def handle_motion(self) -> None:
+    def handle_motion(self) -> Any:
         LOGGER.debug(f"Triggered by motion")
         with PiCamera() as pi_camera:  # type: ignore
-            recorded_pics: List[str] = self._record_picture(pi_camera)
-            if self.after_handling:
-                self.after_handling(recorded_pics)
+            return self._record_picture(pi_camera)
 
     def shutdown(self) -> None:
         """shutdown picam recording 
         """
         LOGGER.info(f"Shutting down")
         self._shutdown = True
-        self.after_handling = None
 
     def _record_picture(self, pi_camera: Any) -> List[str]:
         """ record picture to given file_path
@@ -70,7 +67,7 @@ class RaspiCam(MotionHandlerImpl):
             ConfigurationError: if record_root_path is :None: or not an directory
 
         Returns:
-            Sequence[str]: list of recorded file paths
+            List[str]: list of recorded file paths
         """
         if self._shutdown:
             # do not record if shutdown was triggered

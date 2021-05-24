@@ -5,7 +5,6 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 from camguard.exceptions import ConfigurationError
-from camguard.bridge_impl import MotionHandlerImpl
 
 MODULES = "sys.modules"
 
@@ -92,21 +91,6 @@ class RaspiCamTest(TestCase):
                 found = True
 
         self.assertTrue(found, "Check if record called for specific date folder name")
-
-    @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=True))
-    @patch("camguard.raspi_cam.os.path.exists", MagicMock(return_value=False))
-    @patch("camguard.raspi_cam.os.mkdir", MagicMock())
-    def test_should_trigger_motion_finished(self):
-        # arrange
-        from camguard.raspi_cam import RaspiCam
-        sut: MotionHandlerImpl = RaspiCam("/")
-        sut.after_handling = MagicMock()
-
-        # act
-        sut.handle_motion()
-
-        # assert
-        sut.after_handling.assert_called_once()
 
     @patch("camguard.raspi_cam.os.path.isdir", MagicMock(return_value=True))
     @patch("camguard.raspi_cam.os.path.exists", MagicMock(return_value=False))

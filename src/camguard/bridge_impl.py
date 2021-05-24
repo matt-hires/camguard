@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, List, Optional
+from typing import Any, Callable, List
 
 """ Handler Bridge """
 
@@ -9,27 +9,12 @@ class MotionHandlerImpl(ABC):
     """
 
     @abstractmethod
-    def handle_motion(self) -> None:
+    def handle_motion(self) -> Any:
         pass
 
     @abstractmethod
     def shutdown(self) -> None:
         pass
-
-    @property
-    def after_handling(self) -> Optional[Callable[[List[str]], None]]:
-        if not hasattr(self, "_after_handling"):
-            return None
-        return self._after_handling
-
-    @after_handling.setter
-    def after_handling(self, handler: Optional[Callable[[List[str]], None]]) -> None:
-        """set after handling callback
-
-        Args:
-            handler (Callable[[List[str]], None]): callback function
-        """
-        self._after_handling = handler
 
 
 """ Detector Bridge """
@@ -39,7 +24,7 @@ class MotionDetectorImpl(ABC):
     """abstract base class for motion detector implementations
     """
     @abstractmethod
-    def on_motion(self, handler: Callable[[], None]) -> None:
+    def register_handler(self, handler: Callable[..., None]) -> None:
         pass
 
     @abstractmethod
@@ -47,11 +32,12 @@ class MotionDetectorImpl(ABC):
         pass
 
 
-
 """ FileStorage Bridge """
 
 
 class FileStorageImpl(ABC):
+    """abstract base class for file storage implementations
+    """
     @abstractmethod
     def authenticate(self) -> None:
         pass

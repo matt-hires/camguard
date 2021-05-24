@@ -21,14 +21,14 @@ class DummySensorThread(Thread):
         self._stop_event = Event()
 
     @property
-    def handler(self) -> Optional[Callable[[], None]]:
+    def handler(self) -> Optional[Callable[..., None]]:
         with DummySensorThread._lock:
             if not hasattr(self, "_handler"):
                 return None
             return self._handler
 
     @handler.setter
-    def handler(self, value: Callable[[], None]) -> None:
+    def handler(self, value: Callable[..., None]) -> None:
         with DummySensorThread._lock:
             self._handler = value
 
@@ -65,7 +65,7 @@ class DummyGpioSensor(MotionDetectorImpl):
         self._sensor_thread = DummySensorThread()
         self._sensor_thread.start()
 
-    def on_motion(self, handler: Callable[[], None]) -> None:
+    def register_handler(self, handler: Callable[..., None]) -> None:
         self._sensor_thread.handler = handler
 
     def shutdown(self) -> None:

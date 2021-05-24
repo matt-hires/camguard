@@ -1,7 +1,7 @@
 import logging
 import time
 from datetime import date, datetime
-from typing import List
+from typing import Any, List
 
 from .bridge_impl import MotionHandlerImpl
 
@@ -34,19 +34,15 @@ class DummyCam(MotionHandlerImpl):
         self.record_picture_count: int = record_count
         self._shutdown: bool = False
 
-    def handle_motion(self) -> None:
+    def handle_motion(self) -> Any:
         LOGGER.debug(f"Triggered by motion")
-        recorded_pics = self._record_picture()
-
-        if self.after_handling:
-            self.after_handling(recorded_pics)
+        return self._record_picture()
 
     def shutdown(self) -> None:
         """shutdown picam recording 
         """
         LOGGER.info(f"Shutting down")
         self._shutdown = True
-        self.after_handling = None
 
     def _record_picture(self) -> List[str]:
         if self._shutdown:
