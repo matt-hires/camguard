@@ -12,11 +12,5 @@
     "restructuredtext.confPath": "",
     "search.exclude": {
         "**/.vscode": true
-    },
-    "editor.wordWrap": "wordWrapColumn",
-    "editor.wordWrapColumn": 120,
-    "editor.minimap.maxColumn": 120,
-    "editor.rulers": [
-        120
-    ]
+    }
 }

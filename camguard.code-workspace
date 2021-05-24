@@ -6,6 +6,11 @@
 	],
 	"settings": {
 		"python.analysis.typeCheckingMode": "strict",
-		"vim.textwidth": 120
+		"vim.textwidth": 120,
+        "editor.wordWrapColumn": 120,
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.rulers": [
+            120
+        ]
 	}
 }
