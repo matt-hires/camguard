@@ -1,11 +1,8 @@
 TODO for camguard cli/daemon
 ############################
 
-:Updated: 2021-05-02
-
 Wishlist
 --------
-* Add makefiles for easy build
 
 Bugs
 ----
@@ -17,18 +14,20 @@ Features
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
-* general camguard-settings support
-    - configurable cam-settings  
-    - configurable settings file path (default /etc/camguard.d/camguard.yaml)
+* email notification
+    - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
 
 =======
 PENDING
 =======
-* email notification
-    - refactor using gen-based coroutine pipes for motion handling (pre-requisite)
+* general camguard-settings support
+    - configurable cam-settings  
+    - configurable settings file path (default /etc/camguard.d/camguard.yaml)
+
 ====
 DONE
 ====
+* Add makefiles for easy build
 * test refactoring
     - test coverage
 
