@@ -3,7 +3,7 @@ from typing import Any, Callable, Generator, List
 
 from .bridge_impl import FileStorageImpl, MotionDetectorImpl, MotionHandlerImpl
 from .dummy_gpio_sensor import LOGGER
-from .settings import (DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, GDriveDummyStorageSettings, GDriveStorageSettings, ImplementationType,
+from .settings import (DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, DummyGDriveStorageSettings, GDriveStorageSettings, ImplementationType,
                        MotionDetectorSettings, MotionHandlerSettings, RaspiCamSettings, RaspiGpioSensorSettings)
 
 
@@ -170,8 +170,8 @@ class FileStorage:
     def _get_impl(self) -> FileStorageImpl:
         if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
-                from .gdrive_dummy_storage import GDriveDummyStorage
-                self._impl = GDriveDummyStorage(GDriveDummyStorageSettings.load_settings(self._config_path))
+                from .dummy_gdrive_storage import DummyGDriveStorage
+                self._impl = DummyGDriveStorage(DummyGDriveStorageSettings.load_settings(self._config_path))
             else:
                 # defaults to gdrive implementation
                 from .gdrive_storage import GDriveStorage

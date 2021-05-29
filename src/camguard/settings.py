@@ -316,7 +316,7 @@ class GDriveStorageSettings(FileStorageSettings):
     def _parse_data(self, data: Dict[Any, Any]):
         """parse settings data for gpio gdrive storage settings
         take care: in here self._KEY is used for key, this can be a different value than GDriveStorageSettings._KEY,
-        especially when using GDriveDummyStorageSettings where this value will be overwritten
+        especially when using DummyGDriveStorageSettings where this value will be overwritten
         """
         super()._parse_data(data)
 
@@ -328,7 +328,7 @@ class GDriveStorageSettings(FileStorageSettings):
                 data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._UPLOAD_FOLDER_NAME]
 
 
-class GDriveDummyStorageSettings(GDriveStorageSettings):
+class DummyGDriveStorageSettings(GDriveStorageSettings):
     """specialized gdrive dummy storage setting
     """
-    _KEY: ClassVar[str] = "gdrive_dummy_storage"
+    _KEY: ClassVar[str] = "dummy_gdrive_storage"

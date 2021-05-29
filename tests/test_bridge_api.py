@@ -5,7 +5,7 @@ from camguard.bridge_api import FileStorage, MotionDetector, MotionHandler
 from camguard.bridge_impl import (FileStorageImpl, MotionDetectorImpl,
                                   MotionHandlerImpl)
 from camguard.settings import (DummyCamSettings, DummyGpioSensorSettings,
-                               FileStorageSettings, GDriveDummyStorageSettings,
+                               FileStorageSettings, DummyGDriveStorageSettings,
                                GDriveStorageSettings, ImplementationType,
                                MotionDetectorSettings, MotionHandlerSettings,
                                RaspiCamSettings, RaspiGpioSensorSettings)
@@ -200,13 +200,13 @@ class FileStorageTest(TestCase):
         # settings should return FileStorageSettings mock on load_settings
         self._fs_settings_mock.load_settings = MagicMock(return_value=self._fs_settings_mock)
 
-        # GDriveDummyStorageSettings
-        self._dummy_storage_settings_mock = create_autospec(spec=GDriveDummyStorageSettings, spec_set=True)
+        # DummyGDriveStorageSettings
+        self._dummy_storage_settings_mock = create_autospec(spec=DummyGDriveStorageSettings, spec_set=True)
         self._dummy_storage_settings_mock.load_settings = MagicMock(return_value=self._dummy_storage_settings_mock)
 
         self._patcher = patch.multiple("camguard.bridge_api",
                                       FileStorageSettings=self._fs_settings_mock,
-                                      GDriveDummyStorageSettings=self._dummy_storage_settings_mock)
+                                      DummyGDriveStorageSettings=self._dummy_storage_settings_mock)
         self._patcher.start()
         self._config_path = "." 
         # file storage mocked with dummy gdrive storage settings by default
@@ -216,14 +216,14 @@ class FileStorageTest(TestCase):
         # arrange
         # Dummy storage mock
         dummy_storage_mock = MagicMock()
-        dummy_storage_mock.GDriveDummyStorage = MagicMock()
+        dummy_storage_mock.DummyGDriveStorage = MagicMock()
 
         # act
-        with patch.dict("sys.modules", {"camguard.gdrive_dummy_storage": dummy_storage_mock}):
+        with patch.dict("sys.modules", {"camguard.dummy_gdrive_storage": dummy_storage_mock}):
             FileStorage(self._config_path)
 
         # assert
-        dummy_storage_mock.GDriveDummyStorage.assert_called()  # type: ignore
+        dummy_storage_mock.DummyGDriveStorage.assert_called()  # type: ignore
         self._fs_settings_mock.load_settings.assert_called_with(self._config_path)
         self._dummy_storage_settings_mock.load_settings.assert_called_with(self._config_path)
 
