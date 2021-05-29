@@ -6,7 +6,7 @@ from os import path
 from queue import Empty, Full, Queue
 from random import uniform
 from threading import Event, Lock
-from typing import Callable, List, Optional, Sequence
+from typing import Callable, ClassVar, List, Optional, Sequence
 
 from pydrive.auth import GoogleAuth  # type: ignore
 from pydrive.drive import GoogleDrive  # type: ignore
@@ -15,6 +15,7 @@ from pydrive.settings import InvalidConfigError  # type: ignore
 
 from .bridge_impl import FileStorageImpl
 from .exceptions import ConfigurationError, GDriveError
+from .settings import GDriveStorageSettings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class GDriveStorageAuth:
 class GDriveUploadManager():
     """handles gdrive upload management, enqueues files, start/stop workers,...
     """
-    _MAX_WORKERS: int = 3
+    _MAX_WORKERS: ClassVar[int] = 3
 
     def __init__(self, upload_fn: Callable[[str], None], queue_size: int = 100) -> None:
         """ctor
@@ -70,9 +71,7 @@ class GDriveUploadManager():
         self._stop_event = Event()
         self._queue: Queue[str] = Queue(maxsize=queue_size)
         self._upload_fn = upload_fn
-        self._executor = ThreadPoolExecutor(
-            max_workers=self._MAX_WORKERS,
-            thread_name_prefix='UploadWorkerThread')
+        self._executor = ThreadPoolExecutor( max_workers=self._MAX_WORKERS, thread_name_prefix='UploadWorkerThread')
         self._worker_futures = None
 
     def enqueue_files(self, files: List[str]) -> None:
@@ -89,8 +88,7 @@ class GDriveUploadManager():
         try:
             self._queue.put_nowait(file_path)
         except Full:
-            LOGGER.warn(f"maxium queue length of "
-                        f"{self._MAX_WORKERS} reached. Loosing item {file_path}")
+            LOGGER.warn(f"maxium queue length of {self._MAX_WORKERS} reached. Loosing item {file_path}")
 
     def start(self) -> None:
         """fire up workers
@@ -168,14 +166,13 @@ class GDriveUploadManager():
 class GDriveStorage(FileStorageImpl):
     """ Manages GDrive file upload
     """
-    _lock = Lock()
-    _upload_folder_title = "Camguard"
+    _LOCK: ClassVar[Lock] = Lock()
+    _id: ClassVar[int] = 0
 
-    def __init__(self):
-        super().__init__()
-
-        LOGGER.debug("Configuring gdrive storage")
-        self._upload_man = GDriveUploadManager(GDriveStorage.upload)
+    def __init__(self, settings: GDriveStorageSettings):
+        self._upload_folder_name = settings.upload_folder_name
+        self._upload_man = GDriveUploadManager(self.upload)
+        GDriveStorage._id += 1
 
     def authenticate(self) -> None:
         """authenticate to gdrive via cli
@@ -200,8 +197,7 @@ class GDriveStorage(FileStorageImpl):
         """
         self._upload_man.enqueue_files(files)
 
-    @classmethod
-    def upload(cls, file: str) -> None:
+    def upload(self, file: str) -> None:
         """upload given file to gdrive
 
         Args:
@@ -214,41 +210,41 @@ class GDriveStorage(FileStorageImpl):
         gdrive = GoogleDrive(GDriveStorageAuth.login())
 
         # mutex parent folder creation
-        with cls._lock:
+        with GDriveStorage._LOCK:
             # create the root folder
-            root_folder = cls._create_file(
+            root_folder = GDriveStorage._create_file(
                 gdrive=gdrive,
-                name=cls._upload_folder_title,
+                name=self._upload_folder_name,
                 mimetype=GDriveMimetype.FOLDER,
                 parent_id='root')
 
             # create directory with the current date
             cur_date = date.today().strftime("%Y%m%d")
-            date_folder = cls._create_file(
+            date_folder = GDriveStorage._create_file(
                 gdrive=gdrive,
                 name=cur_date,
                 mimetype=GDriveMimetype.FOLDER,
-                parent_id=root_folder['id'] # type: ignore
+                parent_id=root_folder['id']  # type: ignore
             )
         # released lock with ctx manager
 
         # check if file path is a file with os.path.isfile
         file_name = path.basename(file)
-        gdrive_file = cls._create_file(
+        gdrive_file = GDriveStorage._create_file(
             gdrive=gdrive,
             name=file_name,
             mimetype=GDriveMimetype.JPEG,
-            parent_id=date_folder['id'] # type: ignore
+            parent_id=date_folder['id']  # type: ignore
         )
 
         LOGGER.info("Uploading file: "
-                    f"'{cls._upload_folder_title}/{cur_date}/{file_name}'")
+                    f"'{self._upload_folder_name}/{cur_date}/{file_name}'")
 
-        gdrive_file.SetContentFile(file) # type: ignore
-        gdrive_file.Upload() # type: ignore
+        gdrive_file.SetContentFile(file)  # type: ignore
+        gdrive_file.Upload()  # type: ignore
 
         LOGGER.info("Upload file finished: "
-                    f"'{cls._upload_folder_title}/{cur_date}/{file_name}'")
+                    f"'{self._upload_folder_name}/{cur_date}/{file_name}'")
 
     @classmethod
     def _create_file(cls, *, gdrive: GoogleDrive, name: str, mimetype: GDriveMimetype,
@@ -324,7 +320,7 @@ class GDriveStorage(FileStorageImpl):
                                   mimetype=mimetype,
                                   parent_id=parent_id)
         }
-        return gdrive.ListFile(query).GetList() # type: ignore
+        return gdrive.ListFile(query).GetList()  # type: ignore
 
     @classmethod
     def _build_query(cls, *, title: str, mimetype: Optional[GDriveMimetype] = None,
@@ -336,3 +332,7 @@ class GDriveStorage(FileStorageImpl):
             f"{mimetype_filter}" \
             f"{parent_filter}" \
             f"and trashed={str(trashed).lower()}"
+
+    @property
+    def id(self) -> int:
+        return GDriveStorage._id

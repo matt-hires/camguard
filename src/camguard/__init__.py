@@ -21,15 +21,11 @@ def _parse_args() -> Namespace:
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
     parser.add_argument("-l", type=str, default="INFO", dest='log',
-                        choices=["INFO", "DEBUG",
-                                 "WARN", "ERROR", "CRITICAL"],
+                        choices=["INFO", "DEBUG", "WARN", "ERROR", "CRITICAL"],
                         help="Define custom log level, default is INFO")
-    parser.add_argument("record_path", metavar="PATH",
-                        type=str, help="Root path for camera records")
-    parser.add_argument("gpio_pin", metavar="PIN", type=int,
-                        help="Raspberry GPIO motion sensor pin number")
-    parser.add_argument("--daemonize", default=False, action="store_true",
-                        help="Run camguard as a unix daemon")
+    parser.add_argument("-c", metavar="CONFIG_PATH", type=str, default=".", dest="config_path",
+                        help="Define custom config path, defaults to the current directory")
+    parser.add_argument("--daemonize", default=False, action="store_true", help="Run camguard as a unix daemon")
     parser.add_argument("--detach", default=False, action="store_true",
                         help="Detach process from current terminal "
                         "to run in the background as a daemon. Therefore this is "
@@ -50,9 +46,7 @@ def _parse_args() -> Namespace:
 
 def _configure_logger(loglevel: str) -> None:
     logging.basicConfig(format="%(asctime)s - %(threadName)s - %(name)s - %(levelname)s"
-                        " - %(message)s",
-                        handlers=[logging.StreamHandler()],
-                        level=loglevel)
+                        " - %(message)s", handlers=[logging.StreamHandler()], level=loglevel)
     logging.logThreads = True
 
 
@@ -113,7 +107,7 @@ def main():
         LOGGER.info(f"Starting up with args: {args}")
 
         from .camguard import CamGuard
-        camguard = CamGuard(args.gpio_pin, args.record_path, args.upload)
+        camguard = CamGuard(args.config_path, args.upload)
         camguard.init()
 
         _run(args, camguard)

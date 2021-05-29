@@ -23,6 +23,8 @@ PENDING
 * general camguard-settings support
     - configurable cam-settings  
     - configurable settings file path (default /etc/camguard.d/camguard.yaml)
+    - rename GDriveDummyStorage -> DummyGDriveStorage
+
 
 ====
 DONE

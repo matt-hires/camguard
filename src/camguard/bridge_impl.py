@@ -16,6 +16,11 @@ class MotionHandlerImpl(ABC):
     def shutdown(self) -> None:
         pass
 
+    @property
+    @abstractmethod
+    def id(self) -> int:
+        pass
+
 
 """ Detector Bridge """
 
@@ -31,6 +36,10 @@ class MotionDetectorImpl(ABC):
     def shutdown(self) -> None:
         pass
 
+    @property
+    @abstractmethod
+    def id(self) -> int:
+        pass
 
 """ FileStorage Bridge """
 
@@ -53,3 +62,9 @@ class FileStorageImpl(ABC):
     @abstractmethod
     def enqueue_files(self, files: List[str]) -> None:
         pass
+
+    @property
+    @abstractmethod
+    def id(self) -> int:
+        pass
+

@@ -1,6 +1,8 @@
 import logging
 from time import sleep
-from typing import List
+from typing import ClassVar, List
+
+from camguard.settings import GDriveDummyStorageSettings
 
 from .bridge_impl import FileStorageImpl
 from .gdrive_storage import GDriveUploadManager
@@ -12,18 +14,18 @@ class GDriveDummyStorage(FileStorageImpl):
     """dummy implementation for gdrive upload
     can be used for running camguard in a dummy mode 
     """
-    _auth_sim_time: float = 1.0
-    _upload_sim_time: float = 1.0
+    _AUTH_SIM_TIME: ClassVar[float] = 1.0
+    _UPLOAD_SIM_TIME: ClassVar[float] = 1.0
+    _id: ClassVar[int] = 0
 
-    def __init__(self) -> None:
-        super().__init__()
-        LOGGER.debug("Configuring gdrive dummy storage")
-        self._daemon = GDriveUploadManager(GDriveDummyStorage.upload,
-                                           queue_size=30)
+    def __init__(self, settings: GDriveDummyStorageSettings) -> None:
+        self._daemon = GDriveUploadManager(GDriveDummyStorage.upload, queue_size=30)
+        self._settings = settings
+        GDriveDummyStorage._id += 1
 
     def authenticate(self) -> None:
-        LOGGER.info(f"Simulating authentication (waiting {self._auth_sim_time} sec)")
-        sleep(self._auth_sim_time)
+        LOGGER.info(f"Simulating authentication (waiting {self._AUTH_SIM_TIME} sec)")
+        sleep(self._AUTH_SIM_TIME)
 
     def start(self) -> None:
         self._daemon.start()
@@ -39,8 +41,12 @@ class GDriveDummyStorage(FileStorageImpl):
         """
         self._daemon.enqueue_files(files)
 
+    @property
+    def id(self) -> int:
+        return GDriveDummyStorage._id
+
     @classmethod
     def upload(cls, file: str) -> None:
-        LOGGER.info(f"Simulating upload (waiting {cls._upload_sim_time} sec)"
+        LOGGER.info(f"Simulating upload (waiting {cls._UPLOAD_SIM_TIME} sec)"
                     f"for: {file}")
-        sleep(cls._upload_sim_time)
+        sleep(cls._UPLOAD_SIM_TIME)

@@ -1,18 +1,20 @@
 from time import sleep
 from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock, create_autospec
 
 from gpiozero import Device  # type: ignore
 from gpiozero.pins.mock import MockFactory, MockPin  # type: ignore
 
 from camguard.raspi_gpio_sensor import RaspiGpioSensor
+from camguard.settings import RaspiGpioSensorSettings
 
 
 class MotionSensorTest(TestCase):
     def setUp(self):
         Device.pin_factory = MockFactory()
-        self.gpio_pin = 13
-        self.sut = RaspiGpioSensor(self.gpio_pin)
+        self._sensor_settings_mock = create_autospec(spec=RaspiGpioSensorSettings, spec_set=True)
+        type(self._sensor_settings_mock).gpio_pin_number = PropertyMock(return_value=13)
+        self.sut = RaspiGpioSensor(self._sensor_settings_mock)
 
     def test_should_trigger_callback(self):
         """
@@ -24,7 +26,7 @@ class MotionSensorTest(TestCase):
         mock_callback = MagicMock()
         # gpiozero needs __name__ attribute
         mock_callback.__name__ = "handler"
-        pin: MockPin = Device.pin_factory.pin(self.gpio_pin)  # type: ignore
+        pin: MockPin = Device.pin_factory.pin(self._sensor_settings_mock.gpio_pin_number)  # type: ignore
         # default is 1/10, waiting twice as long
         sample_wait_time_sec = (2 / 10)
 
@@ -44,4 +46,5 @@ class MotionSensorTest(TestCase):
         self.assertEqual(activations, mock_callback.call_count)
 
     def tearDown(self):
-        Device.pin_factory.release_pins(self.sut._motion_sensor, self.gpio_pin)  # type: ignore
+        Device.pin_factory.release_pins(self.sut._motion_sensor, # type: ignore
+                                        self._sensor_settings_mock.gpio_pin_number)

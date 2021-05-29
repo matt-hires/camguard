@@ -3,8 +3,8 @@ from typing import Any, Callable, Generator, List
 
 from .bridge_impl import FileStorageImpl, MotionDetectorImpl, MotionHandlerImpl
 from .dummy_gpio_sensor import LOGGER
-from .settings import (FileStorageSettings, ImplementationType,
-                       MotionDetectorSettings, MotionHandlerSettings)
+from .settings import (DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, GDriveDummyStorageSettings, GDriveStorageSettings, ImplementationType,
+                       MotionDetectorSettings, MotionHandlerSettings, RaspiCamSettings, RaspiGpioSensorSettings)
 
 
 def pipelinestep(func: Callable[..., Any]):
@@ -28,16 +28,19 @@ class MotionHandler:
     """ motion handler api which supports handler pipeline 
     """
 
-    def __init__(self, record_root_path: str) -> None:
-        self._record_root_path: str = record_root_path
+    def __init__(self, config_path: str) -> None:
+        """default ctor
 
-    def init(self) -> None:
-        self._settings = MotionHandlerSettings.load_settings()
-        self._get_impl()
+        Args:
+            record_root_path (str): root path where to record files
+            config_path (str): settings configuration path
+        """
+        self._config_path = config_path
+        self._settings = MotionHandlerSettings.load_settings(config_path)
+        self._get_impl()  # create impl objects
 
     @pipelinestep
-    def on_motion(self, pipeline: List[Generator[None, Any, None]]
-                  ) -> Generator[None, "MotionDetector", None]:
+    def on_motion(self, pipeline: List[Generator[None, Any, None]]) -> Generator[None, "MotionDetector", None]:
         """ motion handler pipeline step: on_motion
         handle current motion event in handler and sends return value to sink pipeline
 
@@ -46,7 +49,7 @@ class MotionHandler:
         """
         while True:
             detector: MotionDetector = (yield)
-            LOGGER.info(f"Detected motion on gpio pin: {detector.gpio_pin}")
+            LOGGER.info(f"Detected motion on gpio sensor: {detector.id}")
             ret_val = self._get_impl().handle_motion()
             for step in pipeline:
                 step.send(ret_val)
@@ -54,15 +57,19 @@ class MotionHandler:
     def stop(self) -> None:
         self._get_impl().shutdown()
 
+    @property
+    def id(self) -> int:
+        return self._get_impl().id 
+
     def _get_impl(self) -> MotionHandlerImpl:
         if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_cam import DummyCam
-                self._impl = DummyCam(self._record_root_path)
+                self._impl = DummyCam(DummyCamSettings.load_settings(self._config_path))
             else:
                 # defaults to raspi cam implementation
                 from .raspi_cam import RaspiCam
-                self._impl = RaspiCam(self._record_root_path)
+                self._impl = RaspiCam(RaspiCamSettings.load_settings(self._config_path))
 
         return self._impl
 
@@ -74,15 +81,16 @@ class MotionDetector:
     """ motion detector api, which supports handler pipeline 
     """
 
-    def __init__(self, gpio_pin: int) -> None:
-        self._gpio_pin: int = gpio_pin
-        self._pipeline: List[Generator[None, "MotionDetector", None]] = []
+    def __init__(self, config_path: str) -> None:
+        """default ctor
 
-    def init(self) -> None:
-        """initialize motion detector and construct implementation depending on settings
+        Args:
+            config_path (str): settings configuration path
         """
-        self._settings: MotionDetectorSettings = MotionDetectorSettings.load_settings()
-        self._get_impl()
+        self._pipeline: List[Generator[None, "MotionDetector", None]] = []
+        self._config_path = config_path
+        self._settings: MotionDetectorSettings = MotionDetectorSettings.load_settings(config_path)
+        self._get_impl()  # create impl objects
 
     def register_handlers(self, pipeline: List[Generator[None, "MotionDetector", None]]
                           ) -> None:
@@ -101,8 +109,8 @@ class MotionDetector:
         self._get_impl().shutdown()
 
     @property
-    def gpio_pin(self) -> int:
-        return self._gpio_pin
+    def id(self) -> int:
+        return self._get_impl().id 
 
     def _on_motion(self) -> None:
         for step in self._pipeline:
@@ -112,11 +120,11 @@ class MotionDetector:
         if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gpio_sensor import DummyGpioSensor
-                self._impl = DummyGpioSensor(self._gpio_pin)
+                self._impl = DummyGpioSensor(DummyGpioSensorSettings.load_settings(self._config_path))
             else:
                 # defaults to raspi cam implementation
                 from .raspi_gpio_sensor import RaspiGpioSensor
-                self._impl = RaspiGpioSensor(self._gpio_pin)
+                self._impl = RaspiGpioSensor(RaspiGpioSensorSettings.load_settings(self._config_path))
 
         return self._impl
 
@@ -128,8 +136,10 @@ class FileStorage:
     """ file storage api, which supports handler pipeline 
     """
 
-    def __init__(self) -> None:
-        self._settings: FileStorageSettings = FileStorageSettings.load_settings()
+    def __init__(self, config_path: str) -> None:
+        self._config_path = config_path
+        self._settings: FileStorageSettings = FileStorageSettings.load_settings(self._config_path)
+        self._get_impl()  # create impl objects
 
     def authenticate(self) -> None:
         """authenticate to storage
@@ -161,10 +171,10 @@ class FileStorage:
         if not hasattr(self, "_impl"):
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .gdrive_dummy_storage import GDriveDummyStorage
-                self._impl = GDriveDummyStorage()
+                self._impl = GDriveDummyStorage(GDriveDummyStorageSettings.load_settings(self._config_path))
             else:
                 # defaults to gdrive implementation
                 from .gdrive_storage import GDriveStorage
-                self._impl = GDriveStorage()
+                self._impl = GDriveStorage(GDriveStorageSettings.load_settings(self._config_path))
 
         return self._impl

@@ -41,8 +41,6 @@
             "justMyCode": false,
             "module": "camguard",
             "args": [
-                "./record",
-                "23",
                 "-l",
                 "DEBUG",
                 "--upload"

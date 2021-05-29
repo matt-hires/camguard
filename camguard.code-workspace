@@ -1,16 +1,20 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"python.analysis.typeCheckingMode": "strict",
-		"vim.textwidth": 120,
-        "editor.wordWrapColumn": 120,
-        "editor.wordWrap": "wordWrapColumn",
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "python.analysis.typeCheckingMode": "strict",
+        "python.formatting.autopep8Args": [
+            "--max-line-length=120"
+        ],
         "editor.rulers": [
             120
-        ]
-	}
+        ],
+        "vim.textwidth": 120,
+        "editor.wordWrapColumn": 120,
+        "editor.minimap.maxColumn": 120,
+        "editor.wordWrap": "wordWrapColumn"
+    }
 }

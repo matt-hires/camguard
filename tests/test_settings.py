@@ -47,7 +47,7 @@ class SettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = Settings.load_settings()
+            settings = Settings.load_settings(".")
 
         # assert
         self.assertIsNotNone(settings)
@@ -59,7 +59,7 @@ class SettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.open", mock_open(mock=open_mock)):
-            Settings.load_settings()
+            Settings.load_settings(".")
 
         # assert
         open_mock.assert_not_called()
@@ -84,7 +84,7 @@ class MotionHandlerSettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = MotionHandlerSettings.load_settings()
+            settings = MotionHandlerSettings.load_settings(".")
 
         # assert
         self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
@@ -101,7 +101,7 @@ class MotionDetectorSettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = MotionDetectorSettings.load_settings()
+            settings = MotionDetectorSettings.load_settings(".")
 
         # assert
         self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
@@ -118,7 +118,7 @@ class FileStorageSettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = FileStorageSettings.load_settings()
+            settings = FileStorageSettings.load_settings(".")
 
         # assert
         self.assertEqual(ImplementationType.DUMMY, settings.impl_type)

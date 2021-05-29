@@ -4,6 +4,8 @@ from random import uniform
 from threading import Event, Lock, Thread
 from typing import Callable, Optional
 
+from camguard.settings import DummyGpioSensorSettings
+
 from .exceptions import CamGuardError
 
 from .bridge_impl import MotionDetectorImpl
@@ -59,14 +61,17 @@ class DummySensorThread(Thread):
 
 
 class DummyGpioSensor(MotionDetectorImpl):
-    def __init__(self, gpio_pin: int) -> None:
-        super().__init__()
-        LOGGER.debug(f"Configuring dummy motion sensor on pin {gpio_pin}")
+    def __init__(self, settings: DummyGpioSensorSettings) -> None:
         self._sensor_thread = DummySensorThread()
         self._sensor_thread.start()
+        self._settings = settings
 
     def register_handler(self, handler: Callable[..., None]) -> None:
         self._sensor_thread.handler = handler
 
     def shutdown(self) -> None:
         self._sensor_thread.stop()
+
+    @property
+    def id(self) -> int:
+        return self._settings.gpio_pin_number

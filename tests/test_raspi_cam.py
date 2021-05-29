@@ -2,14 +2,15 @@ import datetime
 import re
 from contextlib import AbstractContextManager
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
 
 from camguard.exceptions import ConfigurationError
+from camguard.settings import RaspiCamSettings
 
 MODULES = "sys.modules"
 
 
-class RaspiCamFakeContextManager(AbstractContextManager): # type: ignore
+class RaspiCamFakeContextManager(AbstractContextManager):  # type: ignore
     """
     fake object for the pi camera context manager
     otherwise i don't know how to track the methodcalls to capture_continuous
@@ -35,6 +36,7 @@ class RaspiCamTest(TestCase):
         setattr(self.pi_camera_module.PiCamera, "capture_continuous",  # type: ignore
                 MagicMock(return_value=["capture1.jpg", "capture2.jpg"]))
 
+        self._raspi_cam_settings = create_autospec(spec=RaspiCamSettings, spec_set=True)
         self.patcher = patch.dict(MODULES, picamera=self.pi_camera_module)
         self.patcher.start()
 
@@ -45,7 +47,8 @@ class RaspiCamTest(TestCase):
         for path in ["/non/existing/file.ext"]:
             with self.subTest(record_root_path=path):
                 # arrange
-                sut = RaspiCam(path)
+                type(self._raspi_cam_settings).record_path = PropertyMock(return_value=path)
+                sut = RaspiCam(self._raspi_cam_settings)
 
                 # act
                 with self.assertRaises(ConfigurationError):
@@ -58,7 +61,8 @@ class RaspiCamTest(TestCase):
     def test_should_call_capture(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut = RaspiCam("/")
+        type(self._raspi_cam_settings).record_path = PropertyMock(return_value="/")
+        sut = RaspiCam(self._raspi_cam_settings)
 
         # act
         sut.handle_motion()
@@ -73,7 +77,10 @@ class RaspiCamTest(TestCase):
         # arrange
         from camguard.raspi_cam import RaspiCam
         root = "/"
-        sut = RaspiCam(root)
+        type(self._raspi_cam_settings).record_path = PropertyMock(return_value=root)
+        type(self._raspi_cam_settings).record_file_format = PropertyMock(
+            return_value="{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg")
+        sut = RaspiCam(self._raspi_cam_settings)
 
         date_str = datetime.date.today().strftime("%Y%m%d")
         record_path = f"{root}{date_str}/"
@@ -98,7 +105,8 @@ class RaspiCamTest(TestCase):
     def test_should_shutdown(self):
         # arrange
         from camguard.raspi_cam import RaspiCam
-        sut = RaspiCam("/")
+        type(self._raspi_cam_settings).record_path = PropertyMock(return_value="/")
+        sut = RaspiCam(self._raspi_cam_settings)
         sut.shutdown()
 
         # act
