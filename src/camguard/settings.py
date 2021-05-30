@@ -48,20 +48,21 @@ class Settings:
             Settings: an initialized Settings object 
         """
         settings_path: str = path.join(config_path, settings_file)
-        LOGGER.info(f"Loading settings from: {settings_path}")
+        LOGGER.info(f"{cls.__name__}: Loading settings from {settings_path}")
 
         instance = cls._create_instance()
+        # altough every settings instance is pre-configured with default settings,
+        # it's still necessary to have a settings file (for pin configuration, etc...)
         if not path.isfile(settings_path):
-            LOGGER.debug(f"Ignore non existant settings: {settings_path}")
-            return instance
+            raise ConfigurationError(f"{cls.__name__}: Settings path not found: {settings_path}")
 
         try:
             with open(settings_file, 'r') as stream:
                 data = safe_load(stream)
         except OSError as ose:
-            raise CamGuardError(f"Cannot open settings file {settings_file}: {ose}")
+            raise CamGuardError(f"{cls.__name__}: Cannot open settings file {settings_file}: {ose}")
         except YAMLError as yamle:
-            raise ConfigurationError(f"Error in settings file {settings_file}: {yamle}")
+            raise ConfigurationError(f"{cls.__name__}: Error in settings file {settings_file}: {yamle}")
         else:
             instance._parse_data(data)
 
@@ -270,20 +271,20 @@ class DummyGpioSensorSettings(RaspiGpioSensorSettings):
 class FileStorageSettings(Settings):
     """specialized file storage settings class
     """
-    _IMPL: ClassVar[str] = "implementation"
+    _DUMMY_IMPL: ClassVar[str] = "dummy_implementation"
     _KEY: ClassVar[str] = "file_storage"
 
     @property
-    def impl_type(self) -> ImplementationType:
-        return self._impl_type
+    def dummy_impl(self) -> bool:
+        return self._dummy_impl
 
-    @impl_type.setter
-    def impl_type(self, value: ImplementationType):
-        self._impl_type = value
+    @dummy_impl.setter
+    def dummy_impl(self, value: bool):
+        self._dummy_impl = value
 
     def _default(self):
         super()._default()
-        self.impl_type = ImplementationType.RASPI
+        self.dummy_impl = False 
 
     def _parse_data(self, data: Dict[Any, Any]):
         super()._parse_data(data)
@@ -291,8 +292,8 @@ class FileStorageSettings(Settings):
         if not FileStorageSettings._KEY in data:
             raise ConfigurationError(f"Mandatory settings key not found: {FileStorageSettings._KEY}")
 
-        if FileStorageSettings._IMPL in data[FileStorageSettings._KEY]:
-            self.impl_type = ImplementationType.parse(data[FileStorageSettings._KEY][FileStorageSettings._IMPL])
+        if FileStorageSettings._DUMMY_IMPL in data[FileStorageSettings._KEY]:
+            self.dummy_impl = data[FileStorageSettings._KEY][FileStorageSettings._DUMMY_IMPL]
 
 
 class GDriveStorageSettings(FileStorageSettings):

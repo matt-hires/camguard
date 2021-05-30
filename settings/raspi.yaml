@@ -1,0 +1,109 @@
+###########################
+# Camguard settings.yaml
+########################### 
+
+# main camguard configuration file, which also shows possible values, types and the default value 
+# if a valu
+
+# motion handler settings node
+# type: node
+# required: yes
+motion_handler:
+    # implementation type for camguard equipment
+    # type: enumeration
+    # required: no
+    # values: [raspi, dummy]
+    # default: raspi
+    implementation: raspi
+
+    # implementation settings node 
+    # type: node
+    # required: no
+    # values: [raspi_cam, dummy_cam]
+    raspi_cam:
+        # path where files should be saved
+        # type: string
+        # required: no 
+        # default: "./record"
+        record_path: "/home/pi/camguard/records"
+
+        # picture count per motion detection
+        # type: integer
+        # required: no
+        # default: 15
+        record_count: 15
+
+        # interval between taking pictures in seconds 
+        # type: float
+        # required: no 
+        # default: 1.0
+        record_interval_seconds: 1.0
+
+        # file name format where,
+        # counter = 3 Digit Number from 1..record_count
+        # timestamp = current date format
+        # type: string
+        # required: no
+        # default: "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"
+        record_file_format: "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"
+
+    # for dummy settings are the same as for raspi
+    # type: node 
+    # required: no
+    #dummy_cam:
+        # settings properties the same as for raspi_cam
+
+# motion detector settings node
+# type: node
+# required: yes
+motion_detector:
+    # implementation type for camguard equipment
+    # type: enumeration
+    # required: no
+    # values: [raspi, dummy]
+    # default: raspi
+    implementation: raspi
+
+    # implementation settings node 
+    # type: node
+    # required: yes
+    # values: [raspi_gpio_sensor, dummy_gpio_sensor]
+    raspi_gpio_sensor: 
+
+        # raspi gpio pin number where motion sensor is connected
+        # type: integer
+        # required: yes
+        gpio_pin_number: 23 
+
+    # dummy gpio sensor settings node
+    # type: node
+    # required: yes
+    #dummy_gpio_sensor:
+        # settings properties are the same as for raspi_gpio_sensor
+
+# file storage settings node
+# type: node
+# required: yes
+file_storage:
+    # switch file storage to dummy/offline mode (simulate gdrive upload) 
+    # type: boolean [0, 1, True, False]
+    # required: no
+    # default: False
+    #dummy_implementation: False
+
+    # implementation settings node 
+    # type: node
+    # required: yes
+    # values: [gdrive_storage, dummy_gdrive_storage]
+    gdrive_storage:
+        # name of the upload folder in gdrive root 
+        # type: string
+        # required: no
+        # default: "Camguard"
+        #upload_folder_name: "Camguard"
+
+    # dummy storage settings node
+    # type: node
+    # required: yes
+    #dummy_gdrive_storage:
+        # settings properties are the same as for raspi_gpio_sensor

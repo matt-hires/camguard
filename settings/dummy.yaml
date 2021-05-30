@@ -1,8 +1,14 @@
 motion_handler:
     implementation: dummy
+    dummy_cam:
+        record_path: "./record_dummy"
+        record_count: 5
+        record_interval_seconds: 0.5
 
 motion_detector:
     implementation: dummy
+    dummy_gpio_sensor: 
+        gpio_pin_number: 10
 
 file_storage:
-    implementation: dummy
+    dummy_implementation: True

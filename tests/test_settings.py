@@ -53,12 +53,13 @@ class SettingsTest(TestCase):
         self.assertIsNotNone(settings)
 
     @patch("camguard.settings.path.isfile", MagicMock(return_value=False))
-    def test_should_ignore_non_existant_file(self):
+    def test_should_raise_error_when_non_existant_file(self):
         # arrange
         open_mock = MagicMock()
 
         # act
-        with patch("camguard.settings.open", mock_open(mock=open_mock)):
+        with patch("camguard.settings.open", mock_open(mock=open_mock)), \
+                self.assertRaises(ConfigurationError):
             Settings.load_settings(".")
 
         # assert
@@ -121,4 +122,4 @@ class FileStorageSettingsTest(TestCase):
             settings = FileStorageSettings.load_settings(".")
 
         # assert
-        self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
+        self.assertEqual(False, settings.dummy_impl)
