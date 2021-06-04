@@ -6,29 +6,38 @@ Wishlist
 
 Bugs
 ----
-* Gdrive refresh token not working
+* Gdrive refresh token not working 
 
 Features
 --------
 * Recording/Upload subfolder {capture}_{count}
+
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
+
 * email notification
     - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
+
+* deactivation when specific mac addr is present in network
+    - Sample code for searching:
+
+    .. code-block:: 
+
+        sudo nmap -sn 192.168.1.0/24 --dns-server 192.168.1.1 | grep "MAC-ADDR"
 
 =======
 PENDING
 =======
-* general camguard-settings support
-    - configurable cam-settings  
-    - configurable settings file path (default /etc/camguard/camguard.yaml)
-    - rename GDriveDummyStorage -> DummyGDriveStorage
-
 
 ====
 DONE
 ====
+* general camguard-settings support
+    - configurable cam-settings  
+    - configurable settings file path (default $HOME/.config/camguard/settings.yaml)
+    - rename GDriveDummyStorage -> DummyGDriveStorage
+
 * Add makefiles for easy build
 * test refactoring
     - test coverage
