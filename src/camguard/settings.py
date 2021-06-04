@@ -47,7 +47,8 @@ class Settings:
         Returns:
             Settings: an initialized Settings object 
         """
-        settings_path: str = path.join(config_path, settings_file)
+        resolved_path = path.expandvars(path.expanduser(config_path))
+        settings_path = path.join(resolved_path, settings_file)
         LOGGER.info(f"{cls.__name__}: Loading settings from {settings_path}")
 
         instance = cls._create_instance()
@@ -168,7 +169,7 @@ class RaspiCamSettings(MotionHandlerSettings):
 
     def _default(self):
         super()._default()
-        self.record_path = "./record"
+        self.record_path = "~/.camguard/records"
         self.record_interval_sec = 1.0
         self.record_count = 15
         self.record_file_format = "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"

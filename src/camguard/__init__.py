@@ -1,7 +1,7 @@
 import logging
 import time
 from sys import stderr, stdout, exit
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from signal import SIGINT, SIGTERM, Signals, sigwait
 from typing import Any, Dict, Optional
 
@@ -16,15 +16,16 @@ LOGGER = logging.getLogger(__name__)
 def _parse_args() -> Namespace:
     parser = ArgumentParser(
         prog=__name__,
-        description="A motion sensor controlled home surveillance system"
+        description="A motion sensor controlled home surveillance system",
+        formatter_class=ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
 
     parser.add_argument("-l", type=str, default="INFO", dest='log',
                         choices=["INFO", "DEBUG", "WARN", "ERROR", "CRITICAL"],
-                        help="Define custom log level, default is INFO")
-    parser.add_argument("-c", metavar="CONFIG_PATH", type=str, default="/etc/camguard/camguard.yaml", dest="config_path",
-                        help="Define custom config path, defaults to the current directory")
+                        help="Define custom log level")
+    parser.add_argument("-c", metavar="CONFIG_PATH", type=str, default="$HOME/.config/camguard", dest="config_path",
+                        help="Define custom config path, '~' and env variables will be resolved.")
     parser.add_argument("--daemonize", default=False, action="store_true", help="Run camguard as a unix daemon")
     parser.add_argument("--detach", default=False, action="store_true",
                         help="Detach process from current terminal "

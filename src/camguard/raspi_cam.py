@@ -58,12 +58,15 @@ class RaspiCam(MotionHandlerImpl):
 
         LOGGER.info("Recording pictures")
 
-        if self._settings.record_path is None or not path.isdir(self._settings.record_path):
+        # expand env variables and '~' in path
+        resolved_path = path.expandvars(path.expanduser(self._settings.record_path))
+
+        if resolved_path is None or not path.isdir(resolved_path):
             raise ConfigurationError("Record root path invalid")
 
         # create directory with the current date
-        date_str: str = date.today().strftime("%Y%m%d/")
-        record_path: str = os.path.join(self._settings.record_path, date_str)
+        date_str = date.today().strftime("%Y%m%d/")
+        record_path = path.join(resolved_path, date_str)
 
         if not path.exists(record_path):
             os.mkdir(record_path)

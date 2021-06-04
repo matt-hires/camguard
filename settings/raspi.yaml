@@ -21,11 +21,11 @@ motion_handler:
     # required: no
     # values: [raspi_cam, dummy_cam]
     raspi_cam:
-        # path where files should be saved
+        # path where files should be saved, '~' and env variables will be resolved
         # type: string
         # required: no 
-        # default: "./record"
-        record_path: "/home/pi/camguard/records"
+        # default: "~/.camguard/records"
+        # record_path: "~/.camguard/records"
 
         # picture count per motion detection
         # type: integer

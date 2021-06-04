@@ -1,7 +1,6 @@
 motion_handler:
     implementation: dummy
     dummy_cam:
-        record_path: "./record_dummy"
         record_count: 5
         record_interval_seconds: 0.5
 
