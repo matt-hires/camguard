@@ -1,9 +1,8 @@
 import logging
-from typing import Generator, List
 
 from .exceptions import CamGuardError
 
-from .bridge_api import FileStorage, MotionDetector, MotionHandler
+from .bridge_api import FileStorage, MailClient, MotionDetector, MotionHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +23,7 @@ class CamGuard:
         self._config_path = config_path
         self._detector = MotionDetector(self._config_path)
         self._handler = MotionHandler(self._config_path)
+        self._mail_client = MailClient(self._config_path)
         self._upload = upload
 
     def init(self):
@@ -53,13 +53,16 @@ class CamGuard:
         # build handler pipeline
         if self._upload:
             _pipeline = [
-                self._handler.on_motion([  # 1. trigger handler
-                    self._file_storage.enqueue_files()  # 2. enqueue files to upload
+                self._handler.on_motion([                # 1. trigger handler
+                    self._file_storage.enqueue_files(),  # 2. enqueue files to upload
+                    self._mail_client.send_mail()        # 3. send notification mail
                 ])
             ]
         else:
-            _pipeline: List[Generator[None, "MotionDetector", None]] = [
-                self._handler.on_motion([])  # 1. trigger handler
+            _pipeline = [
+                self._handler.on_motion([           # 1. trigger handler
+                    self._mail_client.send_mail()   # 2. send notification mail
+                ]) 
             ]
 
         self._detector.register_handlers(_pipeline)

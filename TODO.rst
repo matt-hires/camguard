@@ -16,9 +16,6 @@ Features
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
 
-* email notification
-    - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
-
 * deactivation when specific mac addr is present in network
     - Sample code for searching:
 
@@ -26,9 +23,28 @@ Features
 
         sudo nmap -sn 192.168.1.0/24 --dns-server 192.168.1.1 | grep "MAC-ADDR"
 
+* email notification
+    - enable gmail oauth, therefore remove pydrive and use google-api-python-client with oauth2client instead 
+    - make mail client optional
+
+Refactoring
+-----------
+* FileStorage-Settings: Use implementation setting the same way as for motion detector. This is the same for the mail client
+
+    .. code-block::
+
+        implementation: dummy
+
 =======
 PENDING
 =======
+
+* email notification
+    - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
+    - implement first solution check️ ✔
+    - write unit/integration tests
+    - test 
+
 
 ====
 DONE

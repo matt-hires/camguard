@@ -68,3 +68,12 @@ class FileStorageImpl(ABC):
     def id(self) -> int:
         pass
 
+
+class MailClientImpl(ABC):
+    """abstract base class for mail notification implementations
+    """
+
+    @abstractmethod
+    def send_mail(self, files: List[str]) -> None:
+        pass
+

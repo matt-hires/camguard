@@ -11,3 +11,13 @@ motion_detector:
 
 file_storage:
     dummy_implementation: True
+
+mail_client:
+    dummy_implementation: True
+    username: camguard 
+    password: dummy
+    receiver_mail: dummy-receiver@camguard.at
+    sender_mail: dummy-sender@camguard.at
+    hostname: localhost
+
+

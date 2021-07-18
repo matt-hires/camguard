@@ -70,7 +70,7 @@ class Settings:
         return instance
 
     @classmethod
-    def _create_instance(cls) -> Any:
+    def _create_instance(cls) -> Any: 
         """create settings instance of given class and load default settings
 
         Returns:
@@ -79,7 +79,7 @@ class Settings:
         _instance = cls.__new__(cls)
         if isinstance(_instance, cls):
             # call initializer
-            cls.__init__(_instance)
+            cls.__init__(_instance) # type: ignore reportGeneralTypeIssues
         _instance._default()
 
         return _instance
@@ -334,3 +334,110 @@ class DummyGDriveStorageSettings(GDriveStorageSettings):
     """specialized gdrive dummy storage setting
     """
     _KEY: ClassVar[str] = "dummy_gdrive_storage"
+
+class MailClientSettings(Settings):
+    """specialized mail notificationsettings class
+    """
+    _DUMMY_IMPL: ClassVar[str] = "dummy_implementation"
+    _KEY: ClassVar[str] = "mail_client"
+    _USER: ClassVar[str] = "username"
+    _PASSWORD: ClassVar[str] = "password"
+    _RECEIVER_MAIL: ClassVar[str] = "receiver_mail"
+    _SENDER_MAIL: ClassVar[str] = "sender_mail"
+    _HOSTNAME: ClassVar[str] = "hostname"
+
+    @property
+    def dummy_impl(self) -> bool:
+        return self._dummy_impl
+
+    @dummy_impl.setter
+    def dummy_impl(self, value: bool):
+        self._dummy_impl = value
+
+    @property
+    def user(self) -> str:
+        return self._user
+
+    @user.setter
+    def user(self, username: str) -> None:
+        self._user = username
+
+    @property
+    def password(self) -> str:
+        return self._password
+
+    @password.setter
+    def password(self, password: str) -> None:
+        self._password = password
+
+    @property
+    def receiver_mail(self) -> str:
+        return self._receiver_mail
+
+    @receiver_mail.setter
+    def receiver_mail(self, receiver: str) -> None:
+        self._receiver_mail = receiver
+
+    @property
+    def sender_mail(self) -> str:
+        return self._sender_mail
+
+    @sender_mail.setter
+    def sender_mail(self, sender: str) -> None:
+        self._sender_mail = sender
+
+    @property
+    def hostname(self) -> str:
+        return self._hostname
+
+    @hostname.setter
+    def hostname(self, hostname: str) -> None:
+        self._hostname = hostname
+
+    def _default(self):
+        super()._default()
+        self.dummy_impl = False 
+
+    def _parse_data(self, data: Dict[Any, Any]):
+        super()._parse_data(data)
+
+        if not MailClientSettings._KEY in data:
+            raise ConfigurationError(f"Mandatory settings key not found: {MailClientSettings._KEY}")
+
+        if MailClientSettings._DUMMY_IMPL in data[MailClientSettings._KEY]:
+            self.dummy_impl = data[MailClientSettings._KEY][MailClientSettings._DUMMY_IMPL]
+
+        if not MailClientSettings._USER in data[MailClientSettings._KEY]:
+            raise ConfigurationError("Mandatory settings key not found: "
+                                     f"{MailClientSettings._KEY}.{MailClientSettings._USER}")
+        self.user = data[MailClientSettings._KEY][MailClientSettings._USER]
+
+        if not MailClientSettings._PASSWORD in data[MailClientSettings._KEY]:
+            raise ConfigurationError("Mandatory settings key not found: "
+                                     f"{MailClientSettings._KEY}.{MailClientSettings._PASSWORD}")
+        self.password = data[MailClientSettings._KEY][MailClientSettings._PASSWORD]
+
+        if not MailClientSettings._RECEIVER_MAIL in data[MailClientSettings._KEY]:
+            raise ConfigurationError("Mandatory settings key not found: "
+                                     f"{MailClientSettings._KEY}.{MailClientSettings._RECEIVER_MAIL}")
+        self.receiver_mail = data[MailClientSettings._KEY][MailClientSettings._RECEIVER_MAIL]
+
+        if not MailClientSettings._SENDER_MAIL in data[MailClientSettings._KEY]:
+            raise ConfigurationError("Mandatory settings key not found: "
+                                     f"{MailClientSettings._KEY}.{MailClientSettings._SENDER_MAIL}")
+        self.sender_mail = data[MailClientSettings._KEY][MailClientSettings._SENDER_MAIL]
+
+        if not MailClientSettings._HOSTNAME in data[MailClientSettings._KEY]:
+            raise ConfigurationError("Mandatory settings key not found: "
+                                     f"{MailClientSettings._KEY}.{MailClientSettings._HOSTNAME}")
+        self.hostname = data[MailClientSettings._KEY][MailClientSettings._HOSTNAME]
+
+class GenericMailClientSettings(MailClientSettings):
+    """specialized mail notification settings for a common mail client implementation 
+    """
+    _KEY: ClassVar[str] = "generic_mail_client"
+class DummyMailClientSettings(MailClientSettings):
+    """specialized mail notification settings for dummy implementation 
+    """
+    _KEY: ClassVar[str] = "dummy_mail_client"
+

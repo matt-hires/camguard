@@ -1,16 +1,18 @@
 from functools import wraps
 from typing import Any, Callable, Generator, List
 
-from .bridge_impl import FileStorageImpl, MotionDetectorImpl, MotionHandlerImpl
+from camguard.exceptions import CamGuardError
+
+from .bridge_impl import FileStorageImpl, MailClientImpl, MotionDetectorImpl, MotionHandlerImpl
 from .dummy_gpio_sensor import LOGGER
-from .settings import (DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, DummyGDriveStorageSettings, GDriveStorageSettings, ImplementationType,
+from .settings import (DummyMailClientSettings, DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, DummyGDriveStorageSettings, GDriveStorageSettings, ImplementationType, MailClientSettings,
                        MotionDetectorSettings, MotionHandlerSettings, RaspiCamSettings, RaspiGpioSensorSettings)
 
 
 def pipelinestep(func: Callable[..., Any]):
     """interceptor function for priming coroutines 
     before first usage. In this context it is used to declare a motion handler
-    pipeline step. Simply put @motionhandler above function 
+    pipeline step. Simply put @pipelinestep above function 
     to use it
     """
     @wraps(func)  # make it look like the wrapped 'func'
@@ -59,7 +61,7 @@ class MotionHandler:
 
     @property
     def id(self) -> int:
-        return self._get_impl().id 
+        return self._get_impl().id
 
     def _get_impl(self) -> MotionHandlerImpl:
         if not hasattr(self, "_impl"):
@@ -92,8 +94,7 @@ class MotionDetector:
         self._settings: MotionDetectorSettings = MotionDetectorSettings.load_settings(config_path)
         self._get_impl()  # create impl objects
 
-    def register_handlers(self, pipeline: List[Generator[None, "MotionDetector", None]]
-                          ) -> None:
+    def register_handlers(self, pipeline: List[Generator[None, "MotionDetector", None]]) -> None:
         """register handler pipe
 
         Args:
@@ -110,7 +111,7 @@ class MotionDetector:
 
     @property
     def id(self) -> int:
-        return self._get_impl().id 
+        return self._get_impl().id
 
     def _on_motion(self) -> None:
         for step in self._pipeline:
@@ -175,5 +176,36 @@ class FileStorage:
             else:
                 from .gdrive_storage import GDriveStorage
                 self._impl = GDriveStorage(GDriveStorageSettings.load_settings(self._config_path))
+
+        return self._impl
+
+
+class MailClient:
+    """mail notification api, which supports handler pipeline
+    """
+
+    def __init__(self, config_path: str) -> None:
+        self._config_path = config_path
+        self._settings: MailClientSettings = MailClientSettings.load_settings(self._config_path)
+        self._get_impl()  # create impl objects
+
+    @pipelinestep
+    def send_mail(self) -> Generator[None, List[str], None]:
+        """motion handler pipeline step: send notification mail
+
+        Yields:
+            Generator[None, str, None]: gdrive link to folder which will be included in mail
+        """
+        while True:
+            files: List[str] = (yield)
+            self._get_impl().send_mail(files)
+
+    def _get_impl(self) -> MailClientImpl:
+        if not hasattr(self, "_impl"):
+            if self._settings.dummy_impl:
+                from .dummy_mail_client import DummyMailClient
+                self._impl = DummyMailClient(DummyMailClientSettings.load_settings(self._config_path))
+            else:
+                raise CamGuardError("Not yet implemented")
 
         return self._impl

@@ -107,3 +107,38 @@ file_storage:
     # required: yes
     #dummy_gdrive_storage:
         # settings properties are the same as for raspi_gpio_sensor
+
+# mail notification settings node
+# type: node
+# required: yes
+mail_client:
+    # switch mail client to dummy/offline mode (simulate mail sending) 
+    # type: boolean [0, 1, True, False]
+    # required: no
+    # default: False
+    #dummy_implementation: False
+
+    # username for smtp authentication
+    # type: string
+    # required: yes
+    #username: 
+    
+    # password for smtp authentication
+    # type: string
+    # required: yes
+    #password:
+
+    # sender mail address of the notification mail
+    # type: string
+    # required: yes
+    #sender_mail:
+
+    # receiver mail address of the notification mail 
+    # type: string
+    # required: yes
+    #receiver_mail:
+
+    # mail server hostname
+    # type: string
+    # required: yes
+    #hostname:

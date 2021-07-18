@@ -37,7 +37,8 @@ class DummySensorThread(Thread):
     def run(self) -> None:
         self._stop_event.clear()
         try:
-            while not self._stop_event.wait(round(uniform(1, 3), 1)):
+            # randomize trigger between 5 and 10 seconds
+            while not self._stop_event.wait(round(uniform(5, 10), 1)):
                 LOGGER.debug(f"Simulating motion detection")
                 if hasattr(self, "_handler"):
                     if self.handler:
