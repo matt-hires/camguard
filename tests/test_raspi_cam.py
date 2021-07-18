@@ -1,6 +1,7 @@
 import datetime
 import re
-from contextlib import AbstractContextManager
+from types import TracebackType
+from typing import ContextManager, Optional, Type
 from unittest import TestCase
 from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
 
@@ -10,16 +11,17 @@ from camguard.settings import RaspiCamSettings
 MODULES = "sys.modules"
 
 
-class RaspiCamFakeContextManager(AbstractContextManager):  # type: ignore
+class RaspiCamFakeContextManager(ContextManager["RaspiCamFakeContextManager"]):
     """
     fake object for the pi camera context manager
     otherwise i don't know how to track the methodcalls to capture_continuous
     """
 
-    def __enter__(self):
+    def __enter__(self) -> "RaspiCamFakeContextManager":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
+    def __exit__(self, __exc_type: Optional[Type[BaseException]], __exc_value: Optional[BaseException],
+                 __traceback: Optional[TracebackType]) -> bool:
         return False
 
 
