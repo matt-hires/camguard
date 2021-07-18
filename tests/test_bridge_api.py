@@ -1,14 +1,14 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
 
-from camguard.bridge_api import FileStorage, MotionDetector, MotionHandler
-from camguard.bridge_impl import (FileStorageImpl, MotionDetectorImpl,
+from camguard.bridge_api import FileStorage, MailClient, MotionDetector, MotionHandler
+from camguard.bridge_impl import (FileStorageImpl, MailClientImpl, MotionDetectorImpl,
                                   MotionHandlerImpl)
-from camguard.settings import (DummyCamSettings, DummyGpioSensorSettings,
+from camguard.settings import (DummyCamSettings, DummyGpioSensorSettings, DummyMailClientSettings,
                                FileStorageSettings, DummyGDriveStorageSettings,
                                GDriveStorageSettings, ImplementationType,
                                MotionDetectorSettings, MotionHandlerSettings,
-                               RaspiCamSettings, RaspiGpioSensorSettings)
+                               RaspiCamSettings, RaspiGpioSensorSettings, MailClientSettings)
 
 
 class MotionHandlerTest(TestCase):
@@ -297,3 +297,43 @@ class FileStorageTest(TestCase):
 
         # assert
         get_impl_mock.enqueue_files.assert_called_with(files)
+
+    def tearDown(self) -> None:
+        self._patcher.stop()
+
+
+class MailClientTest(TestCase):
+
+    def setUp(self) -> None:
+        # MailClientSettings
+        self._mail_settings_mock = create_autospec(spec=MailClientSettings, spec_set=True)
+        type(self._mail_settings_mock).dummy_impl = PropertyMock(return_value=True)
+        # settings should return MailClientSettings mock on load_settings
+        self._mail_settings_mock.load_settings = MagicMock(return_value=self._mail_settings_mock)
+
+        # DummyGDriveStorageSettings
+        self._dummy_mail_settings_mock = create_autospec(spec=DummyMailClientSettings, spec_set=True)
+        self._dummy_mail_settings_mock.load_settings = MagicMock(return_value=self._dummy_mail_settings_mock)
+
+        self._patcher = patch.multiple("camguard.bridge_api",
+                                      MailClientSettings=self._mail_settings_mock,
+                                      DummyMailClientSettings=self._dummy_mail_settings_mock)
+        self._patcher.start()
+        self._config_path = "." 
+        self.sut = MailClient(self._config_path)
+
+    def test_should_send_mail(self) -> None:
+        # arrange
+        get_impl_mock = create_autospec(spec=MailClientImpl, spec_set=True)
+
+        # act
+        with patch("camguard.bridge_api.MailClient._get_impl", return_value=get_impl_mock):
+            self.sut.send_mail()
+
+        # assert
+        get_impl_mock.send_mail.assert_called()
+
+    def tearDown(self) -> None:
+        self._patcher.stop()
+
+
