@@ -1,6 +1,7 @@
 
 import logging
 import ssl
+from os import path
 from email.message import EmailMessage
 from smtplib import SMTP as Client
 from smtplib import SMTPConnectError
@@ -38,9 +39,9 @@ class GenericMailClient(MailClientImpl):
 
     def _create_msg(self, sender: str, receiver: str, files: List[str]) -> EmailMessage:
         msg: EmailMessage = EmailMessage()
-        msg.add_header("Subject", GenericMailClient._MAIL_MSG)
+        msg.add_header("Subject", GenericMailClient._MAIL_SUBJECT)
         msg.add_header("From", sender)
         msg.add_header("To", receiver)
-        msg.set_content(GenericMailClient._MAIL_MSG.format(files=files))
+        msg.set_content(GenericMailClient._MAIL_MSG.format(files=[path.basename(file) for file in files]))
 
         return msg

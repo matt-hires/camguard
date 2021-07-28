@@ -1,11 +1,9 @@
 from functools import wraps
 from typing import Any, Callable, Generator, List
 
-from camguard.exceptions import CamGuardError
-
 from .bridge_impl import FileStorageImpl, MailClientImpl, MotionDetectorImpl, MotionHandlerImpl
 from .dummy_gpio_sensor import LOGGER
-from .settings import (DummyMailClientSettings, DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, DummyGDriveStorageSettings, GDriveStorageSettings, ImplementationType, MailClientSettings,
+from .settings import (DummyMailClientSettings, DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, DummyGDriveStorageSettings, GDriveStorageSettings, GenericMailClientSettings, ImplementationType, MailClientSettings,
                        MotionDetectorSettings, MotionHandlerSettings, RaspiCamSettings, RaspiGpioSensorSettings)
 
 
@@ -206,6 +204,7 @@ class MailClient:
                 from .dummy_mail_client import DummyMailClient
                 self._impl = DummyMailClient(DummyMailClientSettings.load_settings(self._config_path))
             else:
-                raise CamGuardError("Not yet implemented")
+                from .generic_mail_client import GenericMailClient
+                self._impl = GenericMailClient(GenericMailClientSettings.load_settings(self._config_path))
 
         return self._impl

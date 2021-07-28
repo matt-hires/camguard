@@ -46,7 +46,7 @@ class Settings:
 
         Returns:
             Settings: an initialized Settings object 
-        """
+        """ 
         resolved_path = path.expandvars(path.expanduser(config_path))
         settings_path = path.join(resolved_path, settings_file)
         LOGGER.info(f"{cls.__name__}: Loading settings from {settings_path}")
@@ -58,12 +58,12 @@ class Settings:
             raise ConfigurationError(f"{cls.__name__}: Settings path not found: {settings_path}")
 
         try:
-            with open(settings_file, 'r') as stream:
+            with open(settings_path, 'r') as stream:
                 data = safe_load(stream)
         except OSError as ose:
-            raise CamGuardError(f"{cls.__name__}: Cannot open settings file {settings_file}: {ose}")
+            raise CamGuardError(f"{cls.__name__}: Cannot open settings file {settings_path}: {ose}")
         except YAMLError as yamle:
-            raise ConfigurationError(f"{cls.__name__}: Error in settings file {settings_file}: {yamle}")
+            raise ConfigurationError(f"{cls.__name__}: Error in settings file {settings_path}: {yamle}")
         else:
             instance._parse_data(data)
 
