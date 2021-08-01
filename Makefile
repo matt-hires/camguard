@@ -101,6 +101,7 @@ install-systemd:
 	cp ${SYSTEMD_CONF} ${SYSTEMD_INSTALL_PATH}
 	sed -i 's/$${PYTHON}/${subst /,\/,${PYTHON}}/g' ${SYSTEMD_INSTALL_PATH} 
 	sed -i 's/$${SETTINGS}/${subst /,\/,${SETTINGS_ARGS}}/g' ${SYSTEMD_INSTALL_PATH} 
+	sed -i 's/$${ARGS}//g' ${SYSTEMD_INSTALL_PATH} 
 
 install-systemd-debug: install-systemd
 	sed -i 's/$${ARGS}/${DEBUG_ARGS}/g' ${SYSTEMD_INSTALL_PATH} 
