@@ -34,7 +34,7 @@ class Settings:
     """
 
     @classmethod
-    def load_settings(cls, config_path: str, *, settings_file: str = "settings.yaml"):
+    def load_settings(cls, config_path: str, *, settings_file: str = "settings.yaml") -> Any:
         """load settings from yaml file path
 
         Args:
@@ -46,7 +46,7 @@ class Settings:
 
         Returns:
             Settings: an initialized Settings object 
-        """ 
+        """
         resolved_path = path.expandvars(path.expanduser(config_path))
         settings_path = path.join(resolved_path, settings_file)
         LOGGER.info(f"{cls.__name__}: Loading settings from {settings_path}")
@@ -70,7 +70,7 @@ class Settings:
         return instance
 
     @classmethod
-    def _create_instance(cls) -> Any: 
+    def _create_instance(cls) -> Any:
         """create settings instance of given class and load default settings
 
         Returns:
@@ -79,7 +79,7 @@ class Settings:
         _instance = cls.__new__(cls)
         if isinstance(_instance, cls):
             # call initializer
-            cls.__init__(_instance) # type: ignore reportGeneralTypeIssues
+            cls.__init__(_instance)  # type: ignore reportGeneralTypeIssues
         _instance._default()
 
         return _instance
@@ -90,7 +90,8 @@ class Settings:
         Args:
             data (Dict): yaml data dictionary
         """
-        pass
+        if not data:
+            raise ConfigurationError("No configuration found")
 
     def _default(self):
         """generate default settings
@@ -119,8 +120,8 @@ class MotionHandlerSettings(Settings):
     def _parse_data(self, data: Dict[Any, Any]):
         super()._parse_data(data)
 
-        if not MotionHandlerSettings._KEY in data:
-            raise ConfigurationError(f"Mandatory settings key not found: {MotionHandlerSettings._KEY}")
+        if not MotionHandlerSettings._KEY in data or not data[MotionHandlerSettings._KEY]:
+            raise ConfigurationError(f"Mandatory settings key not found or empty: {MotionHandlerSettings._KEY}")
 
         if MotionHandlerSettings._IMPL in data[MotionHandlerSettings._KEY]:
             self.impl_type = ImplementationType.parse(data[MotionHandlerSettings._KEY][MotionHandlerSettings._IMPL])
@@ -181,8 +182,8 @@ class RaspiCamSettings(MotionHandlerSettings):
         """
         super()._parse_data(data)
 
-        if not self._KEY in data[MotionHandlerSettings._KEY]:
-            return # no mandatory values
+        if not self._KEY in data[MotionHandlerSettings._KEY] or not data[MotionHandlerSettings._KEY][self._KEY]:
+            return  # no mandatory values
 
         if RaspiCamSettings._RECORD_PATH in data[MotionHandlerSettings._KEY][self._KEY]:
             self.record_path = data[MotionHandlerSettings._KEY][self._KEY][RaspiCamSettings._RECORD_PATH]
@@ -223,8 +224,8 @@ class MotionDetectorSettings(Settings):
         self.impl_type = ImplementationType.RASPI
 
     def _parse_data(self, data: Dict[Any, Any]):
-        if not MotionDetectorSettings._KEY in data:
-            raise ConfigurationError(f"Mandatory settings key not found: {MotionDetectorSettings._KEY}")
+        if not MotionDetectorSettings._KEY in data or not data[MotionDetectorSettings._KEY]:
+            raise ConfigurationError(f"Mandatory settings key not found or empty: {MotionDetectorSettings._KEY}")
 
         if MotionDetectorSettings._IMPL in data[MotionDetectorSettings._KEY]:
             MotionDetectorSettings.impl_type = ImplementationType.parse(
@@ -252,8 +253,9 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
         """
         super()._parse_data(data)
 
-        if not self._KEY in data[MotionDetectorSettings._KEY]:
-            raise ConfigurationError(f"Mandatory settings key not found: {MotionDetectorSettings._KEY}.{self._KEY}")
+        if not self._KEY in data[MotionDetectorSettings._KEY] or not data[MotionDetectorSettings._KEY][self._KEY]:
+            raise ConfigurationError("Mandatory settings key not found or empty: "
+                                     f"{MotionDetectorSettings._KEY}.{self._KEY}")
 
         if not RaspiGpioSensorSettings._GPIO_PIN_NUMBER in data[MotionDetectorSettings._KEY][self._KEY]:
             raise ConfigurationError("Mandatory settings key not found: "
@@ -285,13 +287,13 @@ class FileStorageSettings(Settings):
 
     def _default(self):
         super()._default()
-        self.dummy_impl = False 
+        self.dummy_impl = False
 
     def _parse_data(self, data: Dict[Any, Any]):
         super()._parse_data(data)
 
-        if not FileStorageSettings._KEY in data:
-            raise ConfigurationError(f"Mandatory settings key not found: {FileStorageSettings._KEY}")
+        if not FileStorageSettings._KEY in data or not data[FileStorageSettings._KEY]:
+            raise ConfigurationError(f"Mandatory settings key not found or empty: {FileStorageSettings._KEY}")
 
         if FileStorageSettings._DUMMY_IMPL in data[FileStorageSettings._KEY]:
             self.dummy_impl = data[FileStorageSettings._KEY][FileStorageSettings._DUMMY_IMPL]
@@ -322,8 +324,8 @@ class GDriveStorageSettings(FileStorageSettings):
         """
         super()._parse_data(data)
 
-        if not self._KEY in data[FileStorageSettings._KEY]:
-            return # no mandator values
+        if not self._KEY in data[FileStorageSettings._KEY] or not data[FileStorageSettings._KEY][self._KEY]:
+            return  # no mandator values
 
         if GDriveStorageSettings._UPLOAD_FOLDER_NAME in data[FileStorageSettings._KEY][self._KEY]:
             self.upload_folder_name = \
@@ -334,6 +336,7 @@ class DummyGDriveStorageSettings(GDriveStorageSettings):
     """specialized gdrive dummy storage setting
     """
     _KEY: ClassVar[str] = "dummy_gdrive_storage"
+
 
 class MailClientSettings(Settings):
     """specialized mail notificationsettings class
@@ -396,13 +399,13 @@ class MailClientSettings(Settings):
 
     def _default(self):
         super()._default()
-        self.dummy_impl = False 
+        self.dummy_impl = False
 
     def _parse_data(self, data: Dict[Any, Any]):
         super()._parse_data(data)
 
-        if not MailClientSettings._KEY in data:
-            raise ConfigurationError(f"Mandatory settings key not found: {MailClientSettings._KEY}")
+        if not MailClientSettings._KEY in data or not data[MailClientSettings._KEY]:
+            raise ConfigurationError(f"Mandatory settings key not found or empty: {MailClientSettings._KEY}")
 
         if MailClientSettings._DUMMY_IMPL in data[MailClientSettings._KEY]:
             self.dummy_impl = data[MailClientSettings._KEY][MailClientSettings._DUMMY_IMPL]
@@ -432,12 +435,14 @@ class MailClientSettings(Settings):
                                      f"{MailClientSettings._KEY}.{MailClientSettings._HOSTNAME}")
         self.hostname = data[MailClientSettings._KEY][MailClientSettings._HOSTNAME]
 
+
 class GenericMailClientSettings(MailClientSettings):
     """specialized mail notification settings for a common mail client implementation 
     """
     _KEY: ClassVar[str] = "generic_mail_client"
+
+
 class DummyMailClientSettings(MailClientSettings):
     """specialized mail notification settings for dummy implementation 
     """
     _KEY: ClassVar[str] = "dummy_mail_client"
-
