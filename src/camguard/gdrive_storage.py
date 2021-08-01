@@ -42,9 +42,12 @@ class GDriveStorageAuth:
         Raises:
             ConfigurationError: raises configuration error in case of missing secrets
         """
+        resolved_settings_path = path.expandvars(path.expanduser(settings_file))
+        LOGGER.debug(f"Oauth settings path: {resolved_settings_path}")
+
         if not hasattr(cls, "_gauth"):
             LOGGER.info("Authenticating to google")
-            cls._gauth = GoogleAuth(settings_file=settings_file)
+            cls._gauth = GoogleAuth(settings_file=resolved_settings_path)
             cls._gauth.CommandLineAuth()
         elif cls._gauth.access_token_expired:  # type: ignore
             raise GDriveError("GoogleDrive authentication token expired")
@@ -84,7 +87,7 @@ class GDriveUploadManager():
         try:
             self._queue.put_nowait(file_path)
         except Full:
-            LOGGER.warn(f"maxium queue length of {self._MAX_WORKERS} reached. Loosing item {file_path}")
+            LOGGER.warn(f"maxium queue length of {self._queue.maxsize} reached. Loosing item {file_path}")
 
     def start(self) -> None:
         """fire up workers
@@ -168,12 +171,13 @@ class GDriveStorage(FileStorageImpl):
     def __init__(self, settings: GDriveStorageSettings):
         self._upload_folder_name = settings.upload_folder_name
         self._upload_man = GDriveUploadManager(self.upload)
+        self._oauth_settings_path = settings.oauth_settings_path
         GDriveStorage._id += 1
 
     def authenticate(self) -> None:
         """authenticate to gdrive via cli
         """
-        GDriveStorageAuth.login()
+        GDriveStorageAuth.login(self._oauth_settings_path)
 
     def start(self) -> None:
         """start the upload daemon thread
@@ -203,7 +207,7 @@ class GDriveStorage(FileStorageImpl):
             GDriveError: on authentication failure
         """
 
-        gdrive = GoogleDrive(GDriveStorageAuth.login())
+        gdrive = GoogleDrive(GDriveStorageAuth.login(self._oauth_settings_path))
 
         # mutex parent folder creation
         with GDriveStorage._LOCK:

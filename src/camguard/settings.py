@@ -304,6 +304,7 @@ class GDriveStorageSettings(FileStorageSettings):
     """
     _UPLOAD_FOLDER_NAME: ClassVar[str] = "upload_folder_name"
     _KEY: ClassVar[str] = "gdrive_storage"
+    _OAUTH_SETTINGS_PATH: ClassVar[str] = "oauth_settings_path"
 
     @property
     def upload_folder_name(self) -> str:
@@ -313,9 +314,18 @@ class GDriveStorageSettings(FileStorageSettings):
     def upload_folder_name(self, value: str) -> None:
         self._upload_folder_name = value
 
+    @property
+    def oauth_settings_path(self) -> str:
+        return self._oauth_settings_path
+
+    @oauth_settings_path.setter
+    def oauth_settings_path(self, value: str) -> None:
+        self._oauth_settings_path = value
+
     def _default(self):
         super()._default()
         self.upload_folder_name = "Camguard"
+        self.oauth_settings_path = "google-oauth-settings.yaml"
 
     def _parse_data(self, data: Dict[Any, Any]):
         """parse settings data for gpio gdrive storage settings
@@ -330,6 +340,10 @@ class GDriveStorageSettings(FileStorageSettings):
         if GDriveStorageSettings._UPLOAD_FOLDER_NAME in data[FileStorageSettings._KEY][self._KEY]:
             self.upload_folder_name = \
                 data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._UPLOAD_FOLDER_NAME]
+
+        if GDriveStorageSettings._OAUTH_SETTINGS_PATH in data[FileStorageSettings._KEY][self._KEY]:
+            self.oauth_settings_path = \
+                data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._OAUTH_SETTINGS_PATH]
 
 
 class DummyGDriveStorageSettings(GDriveStorageSettings):

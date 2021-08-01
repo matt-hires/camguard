@@ -102,6 +102,12 @@ file_storage:
         # default: "Camguard"
         #upload_folder_name: "Camguard"
 
+        # path file of the google auth settings yaml
+        # type: string
+        # required: no 
+        # default: "google-oauth-settings.yaml"
+        #oauth_settings_path: "google-oauth-settings.yaml"
+
     # dummy storage settings node
     # type: node
     # required: yes
