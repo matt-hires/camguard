@@ -8,9 +8,9 @@ from random import uniform
 from threading import Event, Lock
 from typing import Callable, ClassVar, List, Optional, Sequence
 
-from pydrive.auth import GoogleAuth  # type: ignore
-from pydrive.drive import GoogleDrive  # type: ignore
-from pydrive.files import GoogleDriveFile  # type: ignore
+from pydrive2.auth import GoogleAuth  # type: ignore
+from pydrive2.drive import GoogleDrive  # type: ignore
+from pydrive2.files import GoogleDriveFile  # type: ignore
 
 from .bridge_impl import FileStorageImpl
 from .exceptions import GDriveError
@@ -45,7 +45,7 @@ class GDriveStorageAuth:
         if not hasattr(cls, "_gauth"):
             LOGGER.info("Authenticating to google")
             cls._gauth = GoogleAuth(settings_file=settings_file)
-            cls._gauth.CommandLineAuth()  # type: ignore
+            cls._gauth.CommandLineAuth()
         elif cls._gauth.access_token_expired:  # type: ignore
             raise GDriveError("GoogleDrive authentication token expired")
 

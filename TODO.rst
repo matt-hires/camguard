@@ -24,7 +24,7 @@ Features
         sudo nmap -sn 192.168.1.0/24 --dns-server 192.168.1.1 | grep "MAC-ADDR"
 
 * email notification
-    - enable gmail oauth, therefore remove pydrive and use google-api-python-client with oauth2client instead 
+    - enable gmail oauth, therefore remove pydrive2 and use google-api-python-client with oauth2client instead 
     - make mail client optional
 
 Refactoring
