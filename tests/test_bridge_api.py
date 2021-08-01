@@ -325,13 +325,14 @@ class MailClientTest(TestCase):
     def test_should_send_mail(self) -> None:
         # arrange
         get_impl_mock = create_autospec(spec=MailClientImpl, spec_set=True)
+        files = ["file1", "file2"]
 
         # act
         with patch("camguard.bridge_api.MailClient._get_impl", return_value=get_impl_mock):
-            self.sut.send_mail()
+            self.sut.send_mail().send(files)
 
         # assert
-        get_impl_mock.send_mail.assert_called()
+        get_impl_mock.send_mail.assert_called_with(files)
 
     def tearDown(self) -> None:
         self._patcher.stop()
