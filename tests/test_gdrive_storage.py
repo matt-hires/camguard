@@ -5,26 +5,14 @@ from unittest.mock import MagicMock, PropertyMock, call, create_autospec, patch
 
 from pydrive2.auth import GoogleAuth  # type: ignore
 from pydrive2.drive import GoogleDrive, GoogleDriveFile  # type: ignore
-from pydrive2.settings import InvalidConfigError  # type: ignore
 
-from camguard.exceptions import ConfigurationError, GDriveError
+from camguard.exceptions import GDriveError
 from camguard.gdrive_storage import (GDriveMimetype, GDriveStorage,
                                      GDriveStorageAuth)
 from camguard.settings import GDriveStorageSettings
 
 
 class GDriveStorageAuthTest(TestCase):
-    def test_should_raise_error_when_no_client_secrets(self):
-        # arrange
-        gauth_mock = create_autospec(spec=GoogleAuth, spec_set=True)
-        gauth_mock.CommandLineAuth.side_effect = InvalidConfigError("Test")
-
-        # act / assert
-        with patch("camguard.gdrive_storage.GoogleAuth", return_value=gauth_mock),\
-                self.assertRaises(ConfigurationError):
-            GDriveStorageAuth.login()
-
-        gauth_mock.CommandLineAuth.assert_called()
 
     def test_should_authenticate(self):
         # arrange
