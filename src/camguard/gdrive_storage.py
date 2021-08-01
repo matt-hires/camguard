@@ -11,10 +11,9 @@ from typing import Callable, ClassVar, List, Optional, Sequence
 from pydrive.auth import GoogleAuth  # type: ignore
 from pydrive.drive import GoogleDrive  # type: ignore
 from pydrive.files import GoogleDriveFile  # type: ignore
-from pydrive.settings import InvalidConfigError  # type: ignore
 
 from .bridge_impl import FileStorageImpl
-from .exceptions import ConfigurationError, GDriveError
+from .exceptions import GDriveError
 from .settings import GDriveStorageSettings
 
 LOGGER = logging.getLogger(__name__)
@@ -45,11 +44,8 @@ class GDriveStorageAuth:
         """
         if not hasattr(cls, "_gauth"):
             LOGGER.info("Authenticating to google")
-            try:
-                cls._gauth = GoogleAuth(settings_file=settings_file)
-                cls._gauth.CommandLineAuth()  # type: ignore
-            except InvalidConfigError:
-                raise ConfigurationError("Cannot find client_secrets.json")
+            cls._gauth = GoogleAuth(settings_file=settings_file)
+            cls._gauth.CommandLineAuth()  # type: ignore
         elif cls._gauth.access_token_expired:  # type: ignore
             raise GDriveError("GoogleDrive authentication token expired")
 
