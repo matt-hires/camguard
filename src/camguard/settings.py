@@ -20,10 +20,10 @@ class ImplementationType(Enum):
     @classmethod
     def parse(cls, value: str):
         if value == 'raspi':
-            LOGGER.debug(f"{cls.__name__} - parsed implemenation type: raspi")
+            LOGGER.debug(f"{cls.__name__} - parsed implementation type: raspi")
             return cls.RASPI
         elif value == 'dummy':
-            LOGGER.debug(f"{cls.__name__} - parsed implemenation type: raspi")
+            LOGGER.debug(f"{cls.__name__} - parsed implementation type: dummy")
             return cls.DUMMY
         else:
             raise ConfigurationError(f"Implementation type {value} not allowed")

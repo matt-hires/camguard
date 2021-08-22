@@ -1,11 +1,12 @@
 from functools import wraps
+import logging
 from typing import Any, Callable, Generator, List
 
 from .bridge_impl import FileStorageImpl, MailClientImpl, MotionDetectorImpl, MotionHandlerImpl
-from .dummy_gpio_sensor import LOGGER
 from .settings import (DummyMailClientSettings, DummyCamSettings, DummyGpioSensorSettings, FileStorageSettings, DummyGDriveStorageSettings, GDriveStorageSettings, GenericMailClientSettings, ImplementationType, MailClientSettings,
                        MotionDetectorSettings, MotionHandlerSettings, RaspiCamSettings, RaspiGpioSensorSettings)
 
+LOGGER = logging.getLogger(__name__)
 
 def pipelinestep(func: Callable[..., Any]):
     """interceptor function for priming coroutines 
@@ -49,7 +50,8 @@ class MotionHandler:
         """
         while True:
             detector: MotionDetector = (yield)
-            LOGGER.info(f"Detected motion on gpio sensor: {detector.id}")
+            LOGGER.info(f"Detected motion on detector with id: {detector.id}")
+            LOGGER.debug("Forwarding event to pipeline")
             ret_val = self._get_impl().handle_motion()
             for step in pipeline:
                 step.send(ret_val)
@@ -112,6 +114,7 @@ class MotionDetector:
         return self._get_impl().id
 
     def _on_motion(self) -> None:
+        LOGGER.debug("Forwarding event to motion handler pipeline")
         for step in self._pipeline:
             step.send(self)
 
@@ -164,6 +167,7 @@ class FileStorage:
         """
         while True:
             files: List[str] = (yield)
+            LOGGER.debug("Retrieving files from pipeline")
             self._get_impl().enqueue_files(files)
 
     def _get_impl(self) -> FileStorageImpl:
@@ -196,6 +200,7 @@ class MailClient:
         """
         while True:
             files: List[str] = (yield)
+            LOGGER.debug("Retrieving files from pipeline")
             self._get_impl().send_mail(files)
 
     def _get_impl(self) -> MailClientImpl:

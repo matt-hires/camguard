@@ -46,8 +46,8 @@ def _parse_args() -> Namespace:
 
 
 def _configure_logger(loglevel: str) -> None:
-    logging.basicConfig(format="%(asctime)s - %(threadName)s - %(name)s - %(levelname)s"
-                        " - %(message)s", handlers=[logging.StreamHandler()], level=loglevel)
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(threadName)s - %(name)s - %(message)s",
+                        handlers=[logging.StreamHandler()], level=loglevel)
     logging.logThreads = True
 
 
