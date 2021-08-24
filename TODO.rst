@@ -6,10 +6,11 @@ Wishlist
 
 Bugs
 ----
-* Gdrive refresh token not working 
 
 Features
 --------
+* Write documentation 
+
 * Recording/Upload subfolder {capture}_{count}
 
 * gdrive persist queue
@@ -37,13 +38,18 @@ Refactoring
 =======
 PENDING
 =======
-
 * gdrive - google oauth
-  - enable gmail oauth, therefore remove pydrive2 and use google-api-python-client with oauth2client instead 
+    - describe new settings
+* motionsensor
+    - settings for notification LED
 
 ====
 DONE
 ====
+* gdrive - google python api instead of pydrive2
+  - enable gmail oauth, therefore remove pydrive2 and use google-api-python-client with oauth2client instead 
+  - upgrade fixes bug with refresh token
+
 * email notification
     - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
     - implement first solution check️ ✔
