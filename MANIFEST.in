@@ -1,3 +1,3 @@
-include settings.yaml
+graft src/camguard/certs
 graft tests
 global-exclude *.pyc

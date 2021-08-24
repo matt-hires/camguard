@@ -36,7 +36,7 @@ GENERATED_FILES += ${CURDIR}/__pycache__
 GENERATED_FILES += ${MODULE_DIR}/__pycache__
 GENERATED_FILES += ${TESTS_DIR}/__pycache__
 GENERATED_FILES += ${CURDIR}/.tox
-GENERATED_FILES += ${CURDIR}/client_secrets.json
+GENERATED_FILES += ${CURDIR}/token.json
 GENERATED_FILES += ${CURDIR}/.coverage
 GENERATED_FILES += ${CURDIR}/htmlcov
 
