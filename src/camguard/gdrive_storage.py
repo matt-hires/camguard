@@ -285,7 +285,7 @@ class GDriveStorage(FileStorageImpl):
             if parent_id:
                 file_metadata.update({'parents': [parent_id]})
 
-            with build('drive', 'v3', credentials=creds) as gdrive_service:
+            with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:
                 response = gdrive_service.files().create(body=file_metadata,  # type: ignore
                                                          fields='id, name, parents').execute()
                 folder: Dict[str, Any] = {'id': response['id'],
@@ -332,8 +332,8 @@ class GDriveStorage(FileStorageImpl):
             if parent_id:
                 file_metadata.update({'parents': [parent_id]})
 
-            media = MediaFileUpload(file_path, mimetype.value)
-            with build('drive', 'v3', credentials=creds) as gdrive_service:
+            media = MediaFileUpload(filename=file_path, mimetype=mimetype.value)
+            with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:
                 response = gdrive_service.files().create(body=file_metadata,  # type: ignore
                                                          media_body=media,
                                                          fields='id, name, parents').execute()
@@ -368,7 +368,7 @@ class GDriveStorage(FileStorageImpl):
 
         query = cls._build_query(name=file_name, mimetype=mimetype, parent_id=parent_id)
         found_files: List[Dict[str, Any]] = []
-        with build('drive', 'v3', credentials=creds) as gdrive_service:
+        with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:
             page_token = None
             while True:
                 response = gdrive_service.files().list(q=query,  # type: ignore

@@ -10,7 +10,8 @@ rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__" \
 "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/" \
 "--exclude=credentials.json" "--exclude=record/" "--exclude=**/*.tmp" \
 "--exclude=settings.yaml" "--exclude=.coverage" "--exclude=htmlcov/" \
-"--exclude=client_secrets.json")
+"--exclude=client_secrets.json" \
+"--exclude=record_dummy")
 
 inotify_excludes="(\.idea)|(.*~)|(venv)|(\.python-version)|(__pycache__)|(\.git)|(\.vscode)|(\.tox)|(camguard-.*)|(.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)"
 

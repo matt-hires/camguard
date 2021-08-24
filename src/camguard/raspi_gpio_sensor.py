@@ -36,11 +36,11 @@ class RaspiGpioSensor(MotionDetectorImpl):
         return self._settings.gpio_pin_number
 
     def _when_activated(self) -> None:
-       LOGGER.info(f"Sensor activated, active time: {self._motion_sensor.active_time}")
+       LOGGER.info(f"Sensor activated, active time: {self._motion_sensor.active_time}") # type: ignore
        self._led.on()
        if self._handler: 
            self._handler()
 
     def _when_deactivated(self) -> None:
-       LOGGER.info(f"Sensor activated, inactive time: {self._motion_sensor.active_time}")
+       LOGGER.info(f"Sensor activated, inactive time: {self._motion_sensor.active_time}") # type: ignore
        self._led.off()
