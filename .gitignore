@@ -21,6 +21,7 @@ sdist/
 var/
 wheels/
 pip-wheel-metadata/
+record_dummy/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -132,8 +133,8 @@ dmypy.json
 .idea/
 
 # pydrive excludes
-client_secrets.json
 credentials.json
+token.json
 
 # exclude camguard settings
 settings.yaml

@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import date, datetime
 from typing import Any, ClassVar, List
+from os import path, makedirs
 
 from .bridge_impl import MotionHandlerImpl
 from .settings import DummyCamSettings
@@ -43,16 +44,20 @@ class DummyCam(MotionHandlerImpl):
 
         date_str = date.today().strftime("%Y%m%d/")
         record_path = self._settings.record_path
-        if not record_path.endswith("/"):
-            record_path += "/"
-        record_path += date_str
+        record_path = path.join(record_path, date_str)
+        makedirs(record_path, exist_ok=True)
 
         recorded: List[str] = []
         for i in range(1, self._settings.record_count + 1):
             filename = self._settings.record_file_format.format(counter=i, timestamp=datetime.today())
-            recorded.append(filename)
+            file_path = path.join(record_path, filename)
+            LOGGER.info(f"Recorded picture to {file_path}")
 
-            LOGGER.info(f"Recorded picture to {record_path + filename}")
+            with open(file_path, 'w') as stream:
+                stream.write("dummy-mode")
+
+            recorded.append(file_path)
+
             if self._shutdown:
                 LOGGER.debug("Record interrupted by shutdown")
                 break

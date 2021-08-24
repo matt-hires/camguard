@@ -2,7 +2,6 @@ import logging
 import os
 import time
 from datetime import date
-from os import path
 from typing import Any, ClassVar, List
 from camguard.settings import RaspiCamSettings
 
@@ -59,16 +58,16 @@ class RaspiCam(MotionHandlerImpl):
         LOGGER.info("Recording pictures")
 
         # expand env variables and '~' in path
-        resolved_path = path.expandvars(path.expanduser(self._settings.record_path))
+        resolved_path = os.path.expandvars(os.path.expanduser(self._settings.record_path))
 
-        if resolved_path is None or not path.isdir(resolved_path):
+        if resolved_path is None or not os.path.isdir(resolved_path):
             raise ConfigurationError("Record root path invalid")
 
         # create directory with the current date
         date_str = date.today().strftime("%Y%m%d/")
-        record_path = path.join(resolved_path, date_str)
+        record_path = os.path.join(resolved_path, date_str)
 
-        if not path.exists(record_path):
+        if not os.path.exists(record_path):
             os.mkdir(record_path)
 
         recorded: List[str] = []

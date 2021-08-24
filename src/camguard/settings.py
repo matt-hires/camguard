@@ -304,10 +304,13 @@ class GDriveStorageSettings(FileStorageSettings):
     """
     _UPLOAD_FOLDER_NAME: ClassVar[str] = "upload_folder_name"
     _KEY: ClassVar[str] = "gdrive_storage"
-    _OAUTH_SETTINGS_PATH: ClassVar[str] = "oauth_settings_path"
+    _OAUTH_TOKEN_PATH: ClassVar[str] = "oauth_token_path"
+    _OAUTH_CREDENTIALS_PATH: ClassVar[str] = "oauth_credentials_path"
 
     @property
     def upload_folder_name(self) -> str:
+        """gdrive folder name for the upload, defaults to 'Camguard'
+        """
         return self._upload_folder_name
 
     @upload_folder_name.setter
@@ -315,17 +318,30 @@ class GDriveStorageSettings(FileStorageSettings):
         self._upload_folder_name = value
 
     @property
-    def oauth_settings_path(self) -> str:
-        return self._oauth_settings_path
+    def oauth_token_path(self) -> str:
+        """oauth token root path for the 'token.json' file, defaults to the current directory
+        """
+        return self._oauth_token_path
 
-    @oauth_settings_path.setter
-    def oauth_settings_path(self, value: str) -> None:
-        self._oauth_settings_path = value
+    @oauth_token_path.setter
+    def oauth_token_path(self, value: str) -> None:
+        self._oauth_token_path = value
+
+    @property
+    def oauth_credentials_path(self) -> str:
+        """oauth credentials root path for the 'credentials.json' file, defaults to current directory
+        """
+        return self._oauth_credentials_path
+
+    @oauth_credentials_path.setter
+    def oauth_credentials_path(self, value: str) -> None:
+        self._oauth_credentials_path = value
 
     def _default(self):
         super()._default()
         self.upload_folder_name = "Camguard"
-        self.oauth_settings_path = "google-oauth-settings.yaml"
+        self.oauth_token_path = "."
+        self.oauth_credentials_path = "."
 
     def _parse_data(self, data: Dict[Any, Any]):
         """parse settings data for gpio gdrive storage settings
@@ -341,9 +357,14 @@ class GDriveStorageSettings(FileStorageSettings):
             self.upload_folder_name = \
                 data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._UPLOAD_FOLDER_NAME]
 
-        if GDriveStorageSettings._OAUTH_SETTINGS_PATH in data[FileStorageSettings._KEY][self._KEY]:
-            self.oauth_settings_path = \
-                data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._OAUTH_SETTINGS_PATH]
+        if GDriveStorageSettings._OAUTH_TOKEN_PATH in data[FileStorageSettings._KEY][self._KEY]:
+            self.oauth_token_path = \
+                data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._OAUTH_TOKEN_PATH]
+
+        if GDriveStorageSettings._OAUTH_CREDENTIALS_PATH in data[FileStorageSettings._KEY][self._KEY]:
+            self.oauth_credentials_path = \
+                data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._OAUTH_CREDENTIALS_PATH]
+
 
 
 class DummyGDriveStorageSettings(GDriveStorageSettings):

@@ -24,7 +24,6 @@ Features
         sudo nmap -sn 192.168.1.0/24 --dns-server 192.168.1.1 | grep "MAC-ADDR"
 
 * email notification
-    - enable gmail oauth, therefore remove pydrive2 and use google-api-python-client with oauth2client instead 
     - make mail client optional
 
 Refactoring
@@ -39,16 +38,17 @@ Refactoring
 PENDING
 =======
 
-* email notification
-    - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
-    - implement first solution check️ ✔
-    - write unit/integration tests
-    - test 
-
+* gdrive - google oauth
+  - enable gmail oauth, therefore remove pydrive2 and use google-api-python-client with oauth2client instead 
 
 ====
 DONE
 ====
+* email notification
+    - refactor using gen-based coroutine pipes for motion handling (pre-requisite) ✔️ 
+    - implement first solution check️ ✔
+    - write unit/integration tests (currently not necessary)
+
 * general camguard-settings support
     - configurable cam-settings  
     - configurable settings file path (default $HOME/.config/camguard/settings.yaml)
