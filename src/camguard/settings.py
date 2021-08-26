@@ -236,6 +236,7 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
     """Specialized motion detector settings for raspi gpio sensor
     """
     _GPIO_PIN_NUMBER: ClassVar[str] = "gpio_pin_number"
+    _NOTIFICATION_LED_GPIO_PIN_NUMBER: ClassVar[str] = "notification_led_gpio_pin_number"
     _KEY: ClassVar[str] = "raspi_gpio_sensor"
 
     @property
@@ -245,6 +246,19 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
     @gpio_pin_number.setter
     def gpio_pin_number(self, value: int) -> None:
         self._gpio_pin_number = value
+
+    @property
+    def led_gpio_pin_number(self) -> int:
+        return self._led_gpio_pin_number
+
+    @led_gpio_pin_number.setter
+    def led_gpio_pin_number(self, value: int) -> None:
+        self._led_gpio_pin_number = value
+
+    def _default(self):
+        super()._default()
+        # 0 == not set
+        self.led_gpio_pin_number = 0 
 
     def _parse_data(self, data: Dict[Any, Any]):
         """parse settings data for raspi gpio sensor settings
@@ -263,6 +277,10 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
                                      f"{RaspiGpioSensorSettings._GPIO_PIN_NUMBER}")
 
         self.gpio_pin_number = data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._GPIO_PIN_NUMBER]
+
+        if RaspiGpioSensorSettings._NOTIFICATION_LED_GPIO_PIN_NUMBER in data[MotionDetectorSettings._KEY][self._KEY]:
+            self.led_gpio_pin_number = \
+            data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._NOTIFICATION_LED_GPIO_PIN_NUMBER]
 
 
 class DummyGpioSensorSettings(RaspiGpioSensorSettings):
@@ -364,7 +382,6 @@ class GDriveStorageSettings(FileStorageSettings):
         if GDriveStorageSettings._OAUTH_CREDENTIALS_PATH in data[FileStorageSettings._KEY][self._KEY]:
             self.oauth_credentials_path = \
                 data[FileStorageSettings._KEY][self._KEY][GDriveStorageSettings._OAUTH_CREDENTIALS_PATH]
-
 
 
 class DummyGDriveStorageSettings(GDriveStorageSettings):

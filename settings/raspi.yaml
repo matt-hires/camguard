@@ -3,7 +3,6 @@
 ########################### 
 
 # main camguard configuration file, which also shows possible values, types and the default value 
-# if a valu
 
 # motion handler settings node
 # type: node
@@ -75,6 +74,12 @@ motion_detector:
         # required: yes
         gpio_pin_number: 23 
 
+        # raspi gpio pin number for a optional notification led 
+        # type: integer
+        # required: no
+        # default: 0, which means it is disabled
+        #notification_led_gpio_pin_number: 0
+
     # dummy gpio sensor settings node
     # type: node
     # required: yes
@@ -102,11 +107,17 @@ file_storage:
         # default: "Camguard"
         #upload_folder_name: "Camguard"
 
-        # path file of the google auth settings yaml
+        # root folder path for saving google oauth 'token.json'
         # type: string
-        # required: no 
-        # default: "google-oauth-settings.yaml"
-        #oauth_settings_path: "google-oauth-settings.yaml"
+        # required: no
+        # default: "."
+        #oauth_token_path: "."
+
+        # root folder path for loading google oauth 'credentials.json'
+        # type: string
+        # required: no
+        # default: "."
+        #oauth_credentials_path: "."
 
     # dummy storage settings node
     # type: node

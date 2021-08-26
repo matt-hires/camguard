@@ -35,17 +35,20 @@ Refactoring
 
         implementation: dummy
 
+* Refactor settings - reuse a code refragment for getting settings and throwing a mandatory exception
+
 =======
 PENDING
 =======
+
+====
+DONE
+====
 * gdrive - google oauth
     - describe new settings
 * motionsensor
     - settings for notification LED
 
-====
-DONE
-====
 * gdrive - google python api instead of pydrive2
   - enable gmail oauth, therefore remove pydrive2 and use google-api-python-client with oauth2client instead 
   - upgrade fixes bug with refresh token
