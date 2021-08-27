@@ -19,11 +19,13 @@ class RaspiGpioSensor(MotionDetectorImpl):
                                                queue_len=settings.queue_length,
                                                sample_rate=settings.sample_wait,
                                                threshold=settings.threshold)
+
+        self._settings = settings
         self._motion_sensor.when_activated = self._when_activated
         self._motion_sensor.when_deactivated = self._when_deactivated
+
         if settings.led_gpio_pin_number > 0:
             self._led = LED(settings.led_gpio_pin_number)
-        self._settings = settings
 
     def register_handler(self, handler: Callable[..., None]) -> None:
         LOGGER.debug("Registering motion_sensor callback")
@@ -40,10 +42,15 @@ class RaspiGpioSensor(MotionDetectorImpl):
 
     def _when_activated(self) -> None:
         LOGGER.debug(f"Sensor activated, active time: {self._motion_sensor.active_time}")  # type: ignore
-        self._led.on()
-        if self._handler:
+
+        if hasattr(self, "_led"):
+            self._led.on()
+
+        if hasattr(self, "_handler"):
             self._handler()
 
     def _when_deactivated(self) -> None:
         LOGGER.debug(f"Sensor deactivated, inactive time: {self._motion_sensor.active_time}")  # type: ignore
-        self._led.off()
+
+        if hasattr(self, "_led"):
+            self._led.off()

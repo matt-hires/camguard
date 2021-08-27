@@ -16,6 +16,9 @@ class MotionSensorTest(TestCase):
         Device.pin_factory = MockFactory()
         self._sensor_settings_mock = create_autospec(spec=RaspiGpioSensorSettings, spec_set=True)
         type(self._sensor_settings_mock).gpio_pin_number = PropertyMock(return_value=13)
+        type(self._sensor_settings_mock).queue_length = PropertyMock(return_value=1)
+        type(self._sensor_settings_mock).sample_wait = PropertyMock(return_value=10.0)
+        type(self._sensor_settings_mock).threshold = PropertyMock(return_value=0.5)
         type(self._sensor_settings_mock).led_gpio_pin_number = PropertyMock(return_value=16)
         self.sut = RaspiGpioSensor(self._sensor_settings_mock)
         self._led_mock = led_mock

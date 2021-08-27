@@ -286,8 +286,9 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
         super()._default()
         # 0 == not set
         self.led_gpio_pin_number = 0
-        self.sample_wait = 10
+        self.sample_wait = 10.0
         self.queue_length = 1
+        self.threshold = 0.5
 
     def _parse_data(self, data: Dict[Any, Any]):
         """parse settings data for raspi gpio sensor settings
