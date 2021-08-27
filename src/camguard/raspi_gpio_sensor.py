@@ -15,7 +15,10 @@ class RaspiGpioSensor(MotionDetectorImpl):
 
     def __init__(self, settings: RaspiGpioSensorSettings) -> None:
         LOGGER.info(f"Using motion sensor on pin {settings.gpio_pin_number}")
-        self._motion_sensor = GPIOMotionSensor(settings.gpio_pin_number)
+        self._motion_sensor = GPIOMotionSensor(pin=settings.gpio_pin_number,
+                                               queue_len=settings.queue_length,
+                                               sample_rate=settings.sample_wait,
+                                               threshold=settings.threshold)
         self._motion_sensor.when_activated = self._when_activated
         self._motion_sensor.when_deactivated = self._when_deactivated
         if settings.led_gpio_pin_number > 0:
@@ -36,11 +39,11 @@ class RaspiGpioSensor(MotionDetectorImpl):
         return self._settings.gpio_pin_number
 
     def _when_activated(self) -> None:
-       LOGGER.debug(f"Sensor activated, active time: {self._motion_sensor.active_time}") # type: ignore
-       self._led.on()
-       if self._handler: 
-           self._handler()
+        LOGGER.debug(f"Sensor activated, active time: {self._motion_sensor.active_time}")  # type: ignore
+        self._led.on()
+        if self._handler:
+            self._handler()
 
     def _when_deactivated(self) -> None:
-       LOGGER.debug(f"Sensor deactivated, inactive time: {self._motion_sensor.active_time}") # type: ignore
-       self._led.off()
+        LOGGER.debug(f"Sensor deactivated, inactive time: {self._motion_sensor.active_time}")  # type: ignore
+        self._led.off()

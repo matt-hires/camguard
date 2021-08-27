@@ -235,9 +235,12 @@ class MotionDetectorSettings(Settings):
 class RaspiGpioSensorSettings(MotionDetectorSettings):
     """Specialized motion detector settings for raspi gpio sensor
     """
+    _KEY: ClassVar[str] = "raspi_gpio_sensor"
     _GPIO_PIN_NUMBER: ClassVar[str] = "gpio_pin_number"
     _NOTIFICATION_LED_GPIO_PIN_NUMBER: ClassVar[str] = "notification_led_gpio_pin_number"
-    _KEY: ClassVar[str] = "raspi_gpio_sensor"
+    _QUEUE_LENGTH: ClassVar[str] = "queue_length"
+    _THRESHOLD: ClassVar[str] = "threshold"
+    _SAMPLE_WAIT: ClassVar[str] = "sample_wait"
 
     @property
     def gpio_pin_number(self) -> int:
@@ -255,10 +258,36 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
     def led_gpio_pin_number(self, value: int) -> None:
         self._led_gpio_pin_number = value
 
+    @property
+    def sample_wait(self) -> float:
+        return self._sample_wait
+
+    @sample_wait.setter
+    def sample_wait(self, value: float) -> None:
+        self._sample_wait = value
+
+    @property
+    def queue_length(self) -> int:
+        return self._queue_length
+
+    @queue_length.setter
+    def queue_length(self, value: int) -> None:
+        self._queue_length = value
+
+    @property
+    def threshold(self) -> float:
+        return self._threshold
+
+    @threshold.setter
+    def threshold(self, value: float) -> None:
+        self._threshold = value
+
     def _default(self):
         super()._default()
         # 0 == not set
-        self.led_gpio_pin_number = 0 
+        self.led_gpio_pin_number = 0
+        self.sample_wait = 10
+        self.queue_length = 1
 
     def _parse_data(self, data: Dict[Any, Any]):
         """parse settings data for raspi gpio sensor settings
@@ -280,7 +309,16 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
 
         if RaspiGpioSensorSettings._NOTIFICATION_LED_GPIO_PIN_NUMBER in data[MotionDetectorSettings._KEY][self._KEY]:
             self.led_gpio_pin_number = \
-            data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._NOTIFICATION_LED_GPIO_PIN_NUMBER]
+                data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._NOTIFICATION_LED_GPIO_PIN_NUMBER]
+
+        if RaspiGpioSensorSettings._SAMPLE_WAIT in data[MotionDetectorSettings._KEY][self._KEY]:
+            self.sample_wait = data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._SAMPLE_WAIT]
+
+        if RaspiGpioSensorSettings._QUEUE_LENGTH in data[MotionDetectorSettings._KEY][self._KEY]:
+            self.queue_length = data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._QUEUE_LENGTH]
+
+        if RaspiGpioSensorSettings._THRESHOLD in data[MotionDetectorSettings._KEY][self._KEY]:
+            self.threshold = data[MotionDetectorSettings._KEY][self._KEY][RaspiGpioSensorSettings._THRESHOLD]
 
 
 class DummyGpioSensorSettings(RaspiGpioSensorSettings):

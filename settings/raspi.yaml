@@ -80,6 +80,28 @@ motion_detector:
         # default: 0, which means it is disabled
         #notification_led_gpio_pin_number: 0
 
+        # The length of the queue used to store values read from the sensor. 
+        # This defaults to 1 which effectively disables the queue. If your motion
+        # sensor is particularly "twitchy" you may wish to increase this value.
+        # type: int
+        # required: no
+        # default: 1, which disabled the queue
+        #queue_length: 0
+
+        # When the average of all values in the internal queue rises above this value,
+        # the sensor will be considered "active"
+        # type: float
+        # required: no
+        # default: 0.5, which means half of the queue has to be considered "active" 
+        #threshold: 0.5
+
+        # The length of time to wait between retrieving the state of the underlying device. 
+        # Defaults to 0.0 indicating that values are retrieved as fast as possible.
+        # type: float
+        # required: no
+        # default: 0.0
+        #sample_wait: 0.0
+
     # dummy gpio sensor settings node
     # type: node
     # required: yes
