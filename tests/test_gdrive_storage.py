@@ -8,9 +8,9 @@ from googleapiclient.discovery import build # type: ignore
 from googleapiclient.http import MediaFileUpload # type: ignore
 
 from camguard.exceptions import GDriveError
+from camguard.file_storage_settings import GDriveStorageSettings
 from camguard.gdrive_storage import (GDriveMimetype, GDriveStorage,
                                      GDriveStorageAuth)
-from camguard.settings import GDriveStorageSettings
 
 
 class GDriveStorageAuthTest(TestCase):

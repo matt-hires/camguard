@@ -35,11 +35,11 @@ Refactoring
 
         implementation: dummy
 
-* Refactor settings - reuse a code refragment for getting settings and throwing a mandatory exception
-
 =======
 PENDING
 =======
+
+* Refactor settings - reuse a code refragment for getting settings and throwing a mandatory exception
 
 ====
 DONE

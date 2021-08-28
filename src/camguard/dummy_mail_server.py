@@ -36,6 +36,7 @@ class DummyMailServer(ContextManager["DummyMailServer"]):
                                       decode_data=True,
                                       # require starttls from client for authentication
                                       require_starttls=True,
+                                      port=self._port,
                                       authenticator=self.authenticator)
         self._controller.start()
         return self
@@ -48,9 +49,10 @@ class DummyMailServer(ContextManager["DummyMailServer"]):
         self._controller.stop()  # type: ignore
         return False
 
-    def __init__(self, user: str, password: str) -> None:
+    def __init__(self, user: str, password: str, port: int) -> None:
         self._user = user
         self._password = password
+        self._port = port
         self._tsl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         self._tsl_context.check_hostname = False
         self._tsl_context.load_cert_chain(certfile=MAIL_CERT, keyfile=MAIL_KEY)

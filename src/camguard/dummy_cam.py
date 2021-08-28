@@ -5,7 +5,7 @@ from typing import Any, ClassVar, List
 from os import path, makedirs
 
 from .bridge_impl import MotionHandlerImpl
-from .settings import DummyCamSettings
+from .motion_handler_settings import DummyCamSettings
 
 LOGGER = logging.getLogger(__name__)
 

@@ -14,9 +14,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import build  # type: ignore
 from googleapiclient.http import MediaFileUpload  # type: ignore
 
-from .bridge_impl import FileStorageImpl
-from .exceptions import GDriveError
-from .settings import GDriveStorageSettings
+from camguard.file_storage_settings import GDriveStorageSettings
+
+from camguard.bridge_impl import FileStorageImpl
+from camguard.exceptions import GDriveError
 
 LOGGER = logging.getLogger(__name__)
 

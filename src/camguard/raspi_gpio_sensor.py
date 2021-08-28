@@ -1,10 +1,11 @@
 import logging
 from typing import Callable
 
-from gpiozero import LED, MotionSensor as GPIOMotionSensor  # type: ignore
+from gpiozero import LED, MotionSensor as GPIOMotionSensor # type: ignore
+
+from camguard.motion_detector_settings import RaspiGpioSensorSettings
 
 from .bridge_impl import MotionDetectorImpl
-from .settings import RaspiGpioSensorSettings
 
 LOGGER = logging.getLogger(__name__)
 

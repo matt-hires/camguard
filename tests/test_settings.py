@@ -3,9 +3,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, mock_open, patch
 
 from camguard.exceptions import ConfigurationError
-from camguard.settings import (FileStorageSettings, ImplementationType,
-                               MotionDetectorSettings, MotionHandlerSettings,
-                               Settings)
+from camguard.settings import (ImplementationType, Settings)
 
 
 class ImplementationTypeTest(TestCase):
@@ -38,15 +36,23 @@ class ImplementationTypeTest(TestCase):
 
 class SettingsTest(TestCase):
 
+    @staticmethod
+    def mock_yaml_data() -> Dict[str, Any]:
+        return {
+            'key1': {'subkey1': 'value1'},
+            'key2': {'subkey2': 'value2'},
+            'key3': {'subkey3': 'value3'}
+        }
+
     @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
     @patch("camguard.settings.open", mock_open())
     def test_should_load_and_parse(self):
         # arrange
-        data = SettingsTest.mock_yaml_data()
-        safe_load_mock = MagicMock(return_value=data)
+        data = self.mock_yaml_data()
+        # safe_load_mock = MagicMock(return_value=data)
 
         # act
-        with patch("camguard.settings.safe_load", safe_load_mock):
+        with patch("camguard.settings.safe_load", MagicMock(return_value=data)):
             settings = Settings.load_settings(".")
 
         # assert
@@ -65,61 +71,46 @@ class SettingsTest(TestCase):
         # assert
         open_mock.assert_not_called()
 
-    @staticmethod
-    def mock_yaml_data() -> Dict[Any, Any]:
-        return {
-            'motion_handler': {'implementation': 'dummy'},
-            'motion_detector': {'implementation': 'dummy'},
-            'file_storage': {'implementation': 'dummy'}
-        }
-
-
-class MotionHandlerSettingsTest(TestCase):
-
-    @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
-    @patch("camguard.settings.open", mock_open())
-    def test_should_set_correct_impl_type(self):
+    def test_should_get_setting_from_key(self):
         # arrange
-        data = SettingsTest.mock_yaml_data()
-        safe_load_mock = MagicMock(return_value=data)
+        data = self.mock_yaml_data()
 
         # act
-        with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = MotionHandlerSettings.load_settings(".")
+        setting = Settings.get_setting_from_key(setting_key='key1.subkey1', settings=data)
 
         # assert
-        self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
+        self.assertEqual('value1', setting)
 
-
-class MotionDetectorSettingsTest(TestCase):
-
-    @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
-    @patch("camguard.settings.open", mock_open())
-    def test_should_set_correct_impl_type(self):
+    def test_should_get_default_setting_from_key(self):
         # arrange
-        data = SettingsTest.mock_yaml_data()
-        safe_load_mock = MagicMock(return_value=data)
+        data = self.mock_yaml_data()
 
         # act
-        with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = MotionDetectorSettings.load_settings(".")
+        setting = Settings.get_setting_from_key(setting_key='key1.subkey2',
+                                                settings=data,
+                                                default=False) # use a falsy default here
 
         # assert
-        self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
+        self.assertEqual(False, setting)
 
-
-class FileStorageSettingsTest(TestCase):
-
-    @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
-    @patch("camguard.settings.open", mock_open())
-    def test_should_set_correct_impl_type(self):
+    def test_should_raise_when_get_setting_from_non_existing_subkey(self):
         # arrange
-        data = SettingsTest.mock_yaml_data()
-        safe_load_mock = MagicMock(return_value=data)
+        data = self.mock_yaml_data()
+        key = "motion_handler.implementation.raspi_cam"
 
         # act
-        with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = FileStorageSettings.load_settings(".")
+        with self.assertRaises(ConfigurationError) as config_error:
+            Settings.get_setting_from_key(setting_key=key, settings=data)
+            # assert
+            self.assertTrue(f"settings key not found: {key}" in config_error.message)  # type: ignore
 
-        # assert
-        self.assertEqual(False, settings.dummy_impl)
+    def test_should_raise_when_get_setting_from_non_existing_rootkey(self):
+        # arrange
+        data = self.mock_yaml_data()
+        key = "test"
+
+        # act
+        with self.assertRaises(ConfigurationError) as config_error:
+            Settings.get_setting_from_key(setting_key=key, settings=data)
+            # assert
+            self.assertTrue(f"settings key not found: {key}" in config_error.message)  # type: ignore

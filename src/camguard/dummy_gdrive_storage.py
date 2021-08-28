@@ -2,7 +2,7 @@ import logging
 from time import sleep
 from typing import ClassVar, List
 
-from camguard.settings import DummyGDriveStorageSettings
+from camguard.file_storage_settings import DummyGDriveStorageSettings
 
 from .bridge_impl import FileStorageImpl
 from .gdrive_storage import GDriveUploadManager

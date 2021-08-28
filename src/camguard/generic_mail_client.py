@@ -8,7 +8,7 @@ from smtplib import SMTPConnectError
 from typing import ClassVar, List
 
 from camguard.bridge_impl import MailClientImpl
-from camguard.settings import GenericMailClientSettings
+from camguard.mail_client_settings import GenericMailClientSettings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +35,6 @@ class GenericMailClient(MailClientImpl):
         except (SMTPConnectError, OSError) as client_err:
             LOGGER.error(f"Error while connecting to mail server: {self._settings.hostname}:{GenericMailClient._PORT}",
                          exc_info=client_err)
-
 
     def _create_msg(self, sender: str, receiver: str, files: List[str]) -> EmailMessage:
         msg: EmailMessage = EmailMessage()

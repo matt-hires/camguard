@@ -4,11 +4,12 @@ from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
 from camguard.bridge_api import FileStorage, MailClient, MotionDetector, MotionHandler
 from camguard.bridge_impl import (FileStorageImpl, MailClientImpl, MotionDetectorImpl,
                                   MotionHandlerImpl)
-from camguard.settings import (DummyCamSettings, DummyGpioSensorSettings, DummyMailClientSettings,
-                               FileStorageSettings, DummyGDriveStorageSettings,
-                               GDriveStorageSettings, ImplementationType,
-                               MotionDetectorSettings, MotionHandlerSettings,
-                               RaspiCamSettings, RaspiGpioSensorSettings, MailClientSettings)
+
+from camguard.settings import ImplementationType
+from camguard.file_storage_settings import DummyGDriveStorageSettings, FileStorageSettings, GDriveStorageSettings
+from camguard.mail_client_settings import MailClientSettings, DummyMailClientSettings
+from camguard.motion_handler_settings import MotionHandlerSettings, DummyCamSettings, RaspiCamSettings
+from camguard.motion_detector_settings import MotionDetectorSettings, DummyGpioSensorSettings, RaspiGpioSensorSettings
 
 
 class MotionHandlerTest(TestCase):
@@ -25,8 +26,8 @@ class MotionHandlerTest(TestCase):
         self._dummy_cam_settings_mock.load_settings = MagicMock(return_value=self._dummy_cam_settings_mock)
 
         self._patcher = patch.multiple("camguard.bridge_api",
-                                      MotionHandlerSettings=self._mh_settings_mock,
-                                      DummyCamSettings=self._dummy_cam_settings_mock)
+                                       MotionHandlerSettings=self._mh_settings_mock,
+                                       DummyCamSettings=self._dummy_cam_settings_mock)
         self._patcher.start()
         self._config_path = "."
 
@@ -116,10 +117,10 @@ class MotionDetectorTest(TestCase):
         self._dummy_sensor_settings_mock.load_settings = MagicMock(return_value=self._dummy_sensor_settings_mock)
 
         self._patcher = patch.multiple("camguard.bridge_api",
-                                      MotionDetectorSettings=self._md_settings_mock,
-                                      DummyGpioSensorSettings=self._dummy_sensor_settings_mock)
+                                       MotionDetectorSettings=self._md_settings_mock,
+                                       DummyGpioSensorSettings=self._dummy_sensor_settings_mock)
         self._patcher.start()
-        self._config_path = "." 
+        self._config_path = "."
         # motion detector mocked with dummy gpio sensor settings by default
         self.sut = MotionDetector(self._config_path)
 
@@ -131,7 +132,7 @@ class MotionDetectorTest(TestCase):
 
         # act
         with patch.dict("sys.modules", {"camguard.dummy_gpio_sensor": dummy_sensor_mock}):
-           MotionDetector(self._config_path) 
+            MotionDetector(self._config_path)
 
         # assert
         dummy_sensor_mock.DummyGpioSensor.assert_called_with(self._dummy_sensor_settings_mock)  # type: ignore
@@ -146,7 +147,7 @@ class MotionDetectorTest(TestCase):
         # settings should return MotionHandlerSettings mock on load_settings
         md_settings_mock.load_settings = MagicMock(return_value=md_settings_mock)
 
-        # RaspiGpioSensorSettings 
+        # RaspiGpioSensorSettings
         raspi_sensor_settings_mock = create_autospec(spec=RaspiGpioSensorSettings, spec_set=True)
         raspi_sensor_settings_mock.load_settings = MagicMock(return_value=raspi_sensor_settings_mock)
 
@@ -205,10 +206,10 @@ class FileStorageTest(TestCase):
         self._dummy_storage_settings_mock.load_settings = MagicMock(return_value=self._dummy_storage_settings_mock)
 
         self._patcher = patch.multiple("camguard.bridge_api",
-                                      FileStorageSettings=self._fs_settings_mock,
-                                      DummyGDriveStorageSettings=self._dummy_storage_settings_mock)
+                                       FileStorageSettings=self._fs_settings_mock,
+                                       DummyGDriveStorageSettings=self._dummy_storage_settings_mock)
         self._patcher.start()
-        self._config_path = "." 
+        self._config_path = "."
         # file storage mocked with dummy gdrive storage settings by default
         self.sut = FileStorage(self._config_path)
 
@@ -235,7 +236,7 @@ class FileStorageTest(TestCase):
         # settings should return MotionHandlerSettings mock on load_settings
         fs_settings_mock.load_settings = MagicMock(return_value=fs_settings_mock)
 
-        # RaspiGpioSensorSettings 
+        # RaspiGpioSensorSettings
         gdrive_storage_settings_mock = create_autospec(spec=GDriveStorageSettings, spec_set=True)
         gdrive_storage_settings_mock.load_settings = MagicMock(return_value=gdrive_storage_settings_mock)
         # GDriveStorage mock
@@ -316,10 +317,10 @@ class MailClientTest(TestCase):
         self._dummy_mail_settings_mock.load_settings = MagicMock(return_value=self._dummy_mail_settings_mock)
 
         self._patcher = patch.multiple("camguard.bridge_api",
-                                      MailClientSettings=self._mail_settings_mock,
-                                      DummyMailClientSettings=self._dummy_mail_settings_mock)
+                                       MailClientSettings=self._mail_settings_mock,
+                                       DummyMailClientSettings=self._dummy_mail_settings_mock)
         self._patcher.start()
-        self._config_path = "." 
+        self._config_path = "."
         self.sut = MailClient(self._config_path)
 
     def test_should_send_mail(self) -> None:
@@ -336,5 +337,3 @@ class MailClientTest(TestCase):
 
     def tearDown(self) -> None:
         self._patcher.stop()
-
-

@@ -15,6 +15,7 @@
         "vim.textwidth": 120,
         "editor.wordWrapColumn": 120,
         "editor.minimap.maxColumn": 120,
-        "editor.wordWrap": "wordWrapColumn"
+        "editor.wordWrap": "wordWrapColumn",
+        "python.testing.unittestEnabled": true
     }
 }

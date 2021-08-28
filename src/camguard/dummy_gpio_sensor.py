@@ -4,7 +4,7 @@ from random import uniform
 from threading import Event, Lock, Thread
 from typing import Callable, Optional
 
-from camguard.settings import DummyGpioSensorSettings
+from camguard.motion_detector_settings import DummyGpioSensorSettings
 
 from .exceptions import CamGuardError
 

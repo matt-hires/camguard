@@ -6,7 +6,7 @@ from unittest import TestCase
 from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
 
 from camguard.exceptions import ConfigurationError
-from camguard.settings import RaspiCamSettings
+from camguard.motion_handler_settings import RaspiCamSettings
 
 MODULES = "sys.modules"
 

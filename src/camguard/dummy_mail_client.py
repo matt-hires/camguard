@@ -7,7 +7,7 @@ from typing import ClassVar, List
 from camguard.bridge_impl import MailClientImpl
 from camguard.certs import MAIL_CERT
 from camguard.dummy_mail_server import DummyMailServer
-from camguard.settings import DummyMailClientSettings
+from camguard.mail_client_settings import DummyMailClientSettings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -32,7 +32,9 @@ class DummyMailClient(MailClientImpl):
         try:
             # implicitly start mail server for dummy delivery
             # performance should not be an issue in this context
-            with DummyMailServer(user=self._settings.user, password=self._settings.password), \
+            with DummyMailServer(user=self._settings.user,
+                                 password=self._settings.password,
+                                 port=DummyMailClient._PORT), \
                     Client(host=self._settings.hostname, port=DummyMailClient._PORT) as client:
 
                 client.starttls()

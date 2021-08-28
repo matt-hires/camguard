@@ -3,11 +3,11 @@ import os
 import time
 from datetime import date
 from typing import Any, ClassVar, List
-from camguard.settings import RaspiCamSettings
 
 # picamera cannot be installed on a non-pi system
 from picamera import PiCamera  # type: ignore reportMissingImports
 
+from .motion_handler_settings import RaspiCamSettings
 from .bridge_impl import MotionHandlerImpl
 from .exceptions import ConfigurationError
 
