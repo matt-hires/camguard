@@ -53,9 +53,9 @@ class MotionSensorTest(TestCase):
         self.assertEqual(activations, mock_callback.call_count)
         self._led_mock.assert_has_calls([call().on(), call().off()], any_order=True)
         # check led on calls
-        self.assertEquals(activations, sum(c == call().on() for c in self._led_mock.method_calls))  # type: ignore
+        self.assertEqual(activations, sum(c == call().on() for c in self._led_mock.method_calls))  # type: ignore
         # check led off calls
-        self.assertEquals(activations, sum(c == call().off() for c in self._led_mock.method_calls))  # type: ignore
+        self.assertEqual(activations, sum(c == call().off() for c in self._led_mock.method_calls))  # type: ignore
 
     def tearDown(self):
         Device.pin_factory.release_pins(self.sut._motion_sensor,  # type: ignore

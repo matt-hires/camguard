@@ -7,9 +7,8 @@ from typing import Any, ClassVar, List
 # picamera cannot be installed on a non-pi system
 from picamera import PiCamera  # type: ignore reportMissingImports
 
-from .motion_handler_settings import RaspiCamSettings
-from .bridge_impl import MotionHandlerImpl
-from .exceptions import ConfigurationError
+from camguard.motion_handler_settings import RaspiCamSettings
+from camguard.bridge_impl import MotionHandlerImpl
 
 
 class RecordPathError(Exception):
@@ -60,15 +59,12 @@ class RaspiCam(MotionHandlerImpl):
         # expand env variables and '~' in path
         resolved_path = os.path.expandvars(os.path.expanduser(self._settings.record_path))
 
-        if resolved_path is None or not os.path.isdir(resolved_path):
-            raise ConfigurationError("Record root path invalid")
-
         # create directory with the current date
         date_str = date.today().strftime("%Y%m%d/")
         record_path = os.path.join(resolved_path, date_str)
 
         if not os.path.exists(record_path):
-            os.mkdir(record_path)
+            os.makedirs(record_path, exist_ok=True)
 
         recorded: List[str] = []
         for i, filename in enumerate(

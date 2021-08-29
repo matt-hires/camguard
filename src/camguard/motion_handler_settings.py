@@ -76,7 +76,7 @@ class RaspiCamSettings(MotionHandlerSettings):
         self.record_path = Settings.get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{self._KEY}.{RaspiCamSettings._RECORD_PATH}",
             settings=data,
-            default="$HOME/.camguard/record"
+            default="$HOME/.camguard/records"
         )
 
         self.record_file_format = Settings.get_setting_from_key(

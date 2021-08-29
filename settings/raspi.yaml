@@ -23,8 +23,8 @@ motion_handler:
         # path where files should be saved, '~' and env variables will be resolved
         # type: string
         # required: no 
-        # default: "~/.camguard/records"
-        # record_path: "~/.camguard/records"
+        # default: "$HOME/.camguard/records"
+        # record_path: "$HOME/.camguard/records"
 
         # picture count per motion detection
         # type: integer
@@ -104,7 +104,7 @@ motion_detector:
 
     # dummy gpio sensor settings node
     # type: node
-    # required: yes
+    # required: no
     #dummy_gpio_sensor:
         # settings properties are the same as for raspi_gpio_sensor
 
@@ -143,7 +143,7 @@ file_storage:
 
     # dummy storage settings node
     # type: node
-    # required: yes
+    # required: no
     #dummy_gdrive_storage:
         # settings properties are the same as for raspi_gpio_sensor
 
