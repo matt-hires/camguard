@@ -117,7 +117,19 @@ class MotionDetector:
     def id(self) -> int:
         return self._get_impl().id
 
+    @property
+    def disabled(self) -> bool:
+        return self._disabled
+
+    @disabled.setter
+    def disabled(self, value: bool) -> None:
+        self._disabled = value
+
     def _on_motion(self) -> None:
+        if hasattr(self, "_disabled") and self._disabled:
+            LOGGER.debug("Motion Detector disabled, pipeline deactivated")
+            return
+
         LOGGER.debug("Forwarding event to motion handler pipeline")
         for step in self._pipeline:
             step.send(self)

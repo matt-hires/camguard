@@ -28,6 +28,10 @@ class MotionHandlerImpl(ABC):
 class MotionDetectorImpl(ABC):
     """abstract base class for motion detector implementations
     """
+
+    def __init__(self) -> None:
+        self._disabled = False
+        
     @abstractmethod
     def register_handler(self, handler: Callable[..., None]) -> None:
         pass
@@ -40,6 +44,15 @@ class MotionDetectorImpl(ABC):
     @abstractmethod
     def id(self) -> int:
         pass
+
+    @property
+    def disabled(self) -> bool:
+        return self._disabled
+
+    @disabled.setter
+    def disabled(self, value: bool) -> None:
+        self._disabled = value
+
 
 """ FileStorage Bridge """
 
@@ -76,4 +89,3 @@ class MailClientImpl(ABC):
     @abstractmethod
     def send_mail(self, files: List[str]) -> None:
         pass
-

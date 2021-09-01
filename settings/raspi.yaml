@@ -40,11 +40,12 @@ motion_handler:
 
         # file name format where,
         # counter = 3 Digit Number from 1..record_count
-        # timestamp = current date format
+        # timestamp = current date format 
+        # (see https://docs.python.org/3/library/datetime.html?highlight=time%20format#datetime.datetime)
         # type: string
         # required: no
-        # default: "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"
-        record_file_format: "{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"
+        # default: "{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg"
+        record_file_format: "{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg"
 
     # for dummy settings are the same as for raspi
     # type: node 

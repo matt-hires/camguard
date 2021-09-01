@@ -26,7 +26,7 @@ class DummySensorThread(Thread):
     def handler(self) -> Optional[Callable[..., None]]:
         with DummySensorThread._lock:
             if not hasattr(self, "_handler"):
-                return None
+                return None 
             return self._handler
 
     @handler.setter
@@ -40,9 +40,8 @@ class DummySensorThread(Thread):
             # randomize trigger between 5 and 10 seconds
             while not self._stop_event.wait(round(uniform(5, 10), 1)):
                 LOGGER.debug(f"Simulating motion detection")
-                if hasattr(self, "_handler"):
-                    if self.handler:
-                        self.handler()
+                if hasattr(self, "_handler") and self.handler:
+                    self.handler()
         except Exception as e:
             LOGGER.error("Unrecoverable error in dummy gpio sensor thread", exc_info=e)
 
@@ -63,15 +62,23 @@ class DummySensorThread(Thread):
 
 class DummyGpioSensor(MotionDetectorImpl):
     def __init__(self, settings: DummyGpioSensorSettings) -> None:
+        super().__init__()
+
         self._sensor_thread = DummySensorThread()
         self._sensor_thread.start()
+        self._sensor_thread.handler = self._when_activated
         self._settings = settings
 
     def register_handler(self, handler: Callable[..., None]) -> None:
-        self._sensor_thread.handler = handler
+        self._handler = handler
 
     def shutdown(self) -> None:
         self._sensor_thread.stop()
+
+    def _when_activated(self) -> None:
+        if self.disabled:
+            LOGGER.debug("Sensor disabled, activation ignored")
+        self._handler()
 
     @property
     def id(self) -> int:

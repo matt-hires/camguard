@@ -17,13 +17,6 @@ Features
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
 
-* deactivation when specific mac addr is present in network
-    - Sample code for searching:
-
-    .. code-block:: 
-
-        sudo nmap -sn 192.168.1.0/24 --dns-server 192.168.1.1 | grep "MAC-ADDR"
-
 * email notification
     - make mail client optional
 
@@ -39,11 +32,17 @@ Refactoring
 PENDING
 =======
 
-* Refactor settings - reuse a code refragment for getting settings and throwing a mandatory exception
+* deactivation when specific mac addr is present in network
+    - Sample code for searching:
+
+    .. code-block:: 
+
+        nmap -sn 192.168.1.0/24 --dns-server=192.168.1.1 --host-timeout=1
 
 ====
 DONE
 ====
+* Refactor settings - reuse a code refragment for getting settings and throwing a mandatory exception
 * gdrive - google oauth
     - describe new settings
 * motionsensor
