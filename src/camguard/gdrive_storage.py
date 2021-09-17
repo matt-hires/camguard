@@ -8,7 +8,7 @@ from random import uniform
 from threading import Event, Lock
 from typing import Any, Callable, ClassVar, Dict, List, Optional, Sequence
 
-from google.oauth2.credentials import Credentials  # type: ignore
+from google.oauth2.credentials import Credentials, exceptions  # type: ignore
 from google.auth.transport.requests import Request  # type: ignore
 from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import build  # type: ignore
@@ -63,7 +63,10 @@ class GDriveStorageAuth:
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:  # type: ignore
                 LOGGER.debug("Refreshing expired credentials")
-                creds.refresh(Request())  # type: ignore
+                try:
+                    creds.refresh(Request())  # type: ignore
+                except exceptions.RefreshError as oauth_ex:
+                    raise GDriveError(f"Cannot refresh access token: {oauth_ex}")
             else:
                 credentials_path: str = path.join(path.expandvars(path.expanduser(settings.oauth_credentials_path)),
                                                   'credentials.json')
@@ -174,9 +177,13 @@ class GDriveUploadManager():
                     self._upload_fn(file)
                     LOGGER.debug(f"Upload successful: {file}")
                 except GDriveError as e:
+                    # gdrive errors do not stop the thread, 
+                    # so that the upload component can recover from google driver errors 
                     LOGGER.warn(f"Upload failed: {file} with error: {e}")
                 finally:
                     # indicate formerly enqueued task is done
+                    # therefore also a unsuccessful upload, in case of GDriveError, won't lead to a retry
+                    # the queue should be ready for new work and not be flodded with old upload retries 
                     self._queue.task_done()
 
         except Exception as e:
