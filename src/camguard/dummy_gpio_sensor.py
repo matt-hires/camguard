@@ -39,8 +39,8 @@ class DummySensorThread(Thread):
         try:
             # randomize trigger between 5 and 10 seconds
             while not self._stop_event.wait(round(uniform(5, 10), 1)):
-                LOGGER.debug(f"Simulating motion detection")
-                if hasattr(self, "_handler") and self.handler:
+                LOGGER.debug("Simulating motion detection")
+                if self.handler: 
                     self.handler()
         except Exception as e:
             LOGGER.error("Unrecoverable error in dummy gpio sensor thread", exc_info=e)

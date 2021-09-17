@@ -27,13 +27,13 @@ class DummyCam(MotionHandlerImpl):
         DummyCam._id += 1
 
     def handle_motion(self) -> Any:
-        LOGGER.debug(f"Triggered by motion")
+        LOGGER.debug("Triggered by motion")
         return self._record_picture()
 
     def shutdown(self) -> None:
         """shutdown picam recording 
         """
-        LOGGER.info(f"Shutting down")
+        LOGGER.info("Shutting down")
         self._shutdown = True
 
     def _record_picture(self) -> List[str]:
