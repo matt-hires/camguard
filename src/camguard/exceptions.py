@@ -5,6 +5,7 @@ class CamGuardError(Exception):
     """
 
     def __init__(self, message: str):
+        super().__init__()
         self._message = message
 
     @property
