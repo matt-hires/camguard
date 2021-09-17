@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, List
 
-""" Handler Bridge """
+# Handler Bridge
 
 
 class MotionHandlerImpl(ABC):
@@ -22,8 +22,7 @@ class MotionHandlerImpl(ABC):
         pass
 
 
-""" Detector Bridge """
-
+# Detector Bridge
 
 class MotionDetectorImpl(ABC):
     """abstract base class for motion detector implementations
@@ -54,7 +53,7 @@ class MotionDetectorImpl(ABC):
         self._disabled = value
 
 
-""" FileStorage Bridge """
+# FileStorage Bridge
 
 
 class FileStorageImpl(ABC):

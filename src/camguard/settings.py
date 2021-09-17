@@ -22,11 +22,12 @@ class ImplementationType(Enum):
         if value == 'raspi':
             LOGGER.debug(f"{cls.__name__} - parsed implementation type: raspi")
             return cls.RASPI
-        elif value == 'dummy':
+
+        if value == 'dummy':
             LOGGER.debug(f"{cls.__name__} - parsed implementation type: dummy")
             return cls.DUMMY
-        else:
-            raise ConfigurationError(f"Implementation type {value} not allowed")
+
+        raise ConfigurationError(f"Implementation type {value} not allowed")
 
 
 class Settings:
@@ -97,7 +98,8 @@ class Settings:
 
         if value is None and default is None:
             raise ConfigurationError(f"Mandatory settings key not found: {setting_key}")
-        elif value is None and default != None:
+
+        if value is None and default is not None:
             return default
 
         return value

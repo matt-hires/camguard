@@ -11,12 +11,6 @@ from camguard.motion_handler_settings import RaspiCamSettings
 from camguard.bridge_impl import MotionHandlerImpl
 
 
-class RecordPathError(Exception):
-
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-
 LOGGER = logging.getLogger(__name__)
 
 

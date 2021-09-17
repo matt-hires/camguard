@@ -13,8 +13,8 @@ class DummyMailServer(ContextManager["DummyMailServer"]):
     """dummy mail server for testing
     """
 
-    def authenticator(self, server: SMTP, session: Session, envelope: Envelope, mechanism: str,
-                      login_data: Tuple[bytes, bytes]) -> AuthResult:
+    def authenticator(self, _unused_server: SMTP, _unused_session: Session, _unused_envelope: Envelope,
+                      mechanism: str, login_data: Tuple[bytes, bytes]) -> AuthResult:
 
         if mechanism not in ("LOGIN", "PLAIN"):
             return AuthResult(success=False, handled=False)
@@ -41,8 +41,9 @@ class DummyMailServer(ContextManager["DummyMailServer"]):
         self._controller.start()
         return self
 
-    def __exit__(self, __exc_type: Optional[Type[BaseException]], __exc_value: Optional[BaseException],
-                 __traceback: Optional[TracebackType]) -> Optional[bool]:
+    def __exit__(self, _unused_exc_type: Optional[Type[BaseException]],
+                 _unused_exc_value: Optional[BaseException],
+                 _unused_traceback: Optional[TracebackType]) -> Optional[bool]:
         if not self._controller:
             return None
 

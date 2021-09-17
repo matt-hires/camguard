@@ -11,8 +11,10 @@ from camguard.raspi_gpio_sensor import RaspiGpioSensor
 
 class MotionSensorTest(TestCase):
 
-    @patch("camguard.raspi_gpio_sensor.LED", autospec=LED)
-    def setUp(self, led_mock: MagicMock):
+    def setUp(self):
+        self._patcher = patch("camguard.raspi_gpio_sensor.LED", spec=True)
+        self._led_mock = self._patcher.start()
+
         Device.pin_factory = MockFactory()
         self._sensor_settings_mock = create_autospec(spec=RaspiGpioSensorSettings, spec_set=True)
         type(self._sensor_settings_mock).gpio_pin_number = PropertyMock(return_value=13)
@@ -21,7 +23,7 @@ class MotionSensorTest(TestCase):
         type(self._sensor_settings_mock).threshold = PropertyMock(return_value=0.5)
         type(self._sensor_settings_mock).led_gpio_pin_number = PropertyMock(return_value=16)
         self.sut = RaspiGpioSensor(self._sensor_settings_mock)
-        self._led_mock = led_mock
+
 
     def test_should_trigger_callback(self):
         """
@@ -53,10 +55,11 @@ class MotionSensorTest(TestCase):
         self.assertEqual(activations, mock_callback.call_count)
         self._led_mock.assert_has_calls([call().on(), call().off()], any_order=True)
         # check led on calls
-        self.assertEqual(activations, sum(c == call().on() for c in self._led_mock.method_calls))  # type: ignore
+        self.assertEqual(activations, sum(c == call().on() for c in self._led_mock.mock_calls))  # type: ignore
         # check led off calls
-        self.assertEqual(activations, sum(c == call().off() for c in self._led_mock.method_calls))  # type: ignore
+        self.assertEqual(activations, sum(c == call().off() for c in self._led_mock.mock_calls))  # type: ignore
 
     def tearDown(self):
         Device.pin_factory.release_pins(self.sut._motion_sensor,  # type: ignore
                                         self._sensor_settings_mock.gpio_pin_number)
+        self._patcher.stop()

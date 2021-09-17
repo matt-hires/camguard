@@ -21,7 +21,11 @@ def pipelinestep(func: Callable[..., Any]):
     @wraps(func)  # make it look like the wrapped 'func'
     def _wrapper(*args: Any, **kwargs: Any) -> Generator[Any, Any, Any]:
         gen = func(*args, **kwargs)
-        next(gen)
+        try:
+            next(gen)
+        except StopIteration:
+            LOGGER.error(f"Generator function is exhausted: {gen.__module__}.{gen.__name__}")
+            pass
         return gen
     return _wrapper
 

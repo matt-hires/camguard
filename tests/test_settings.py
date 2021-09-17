@@ -9,21 +9,15 @@ from camguard.settings import (ImplementationType, Settings)
 class ImplementationTypeTest(TestCase):
 
     def test_should_parse_dummy(self):
-        # arrange
-        type = "dummy"
-
-        # act
-        parsed = ImplementationType.parse(type)
+        # arrange - act
+        parsed = ImplementationType.parse("dummy")
 
         # assert
         self.assertEqual(ImplementationType.DUMMY, parsed)
 
     def test_should_parse_raspi(self):
-        # arrange
-        type = "raspi"
-
-        # act
-        parsed = ImplementationType.parse(type)
+        # arrange- act
+        parsed = ImplementationType.parse("raspi")
 
         # assert
         self.assertEqual(ImplementationType.RASPI, parsed)
