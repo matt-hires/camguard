@@ -17,12 +17,6 @@ class GDriveError(CamGuardError):
     """ indicates error with gdrive processing 
     """
 
-    def __init__(self, message: str):
-        super().__init__(message)
-
 class ConfigurationError(CamGuardError):
     """ indicates wrong configuration
     """
-
-    def __init__(self, message: str):
-        super().__init__(message)
