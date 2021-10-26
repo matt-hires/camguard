@@ -4,8 +4,8 @@ from typing import ClassVar, List
 
 from camguard.file_storage_settings import DummyGDriveStorageSettings
 
-from .bridge_impl import FileStorageImpl
-from .gdrive_storage import GDriveUploadManager
+from camguard.bridge_impl import FileStorageImpl
+from camguard.gdrive_storage import GDriveUploadManager
 
 LOGGER = logging.getLogger(__name__)
 

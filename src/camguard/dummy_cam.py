@@ -43,7 +43,7 @@ class DummyCam(MotionHandlerImpl):
         LOGGER.info("Recording pictures")
 
         date_str = date.today().strftime("%Y%m%d/")
-        record_path = self._settings.record_path
+        record_path = path.expandvars(path.expanduser(self._settings.record_path))
         record_path = path.join(record_path, date_str)
         makedirs(record_path, exist_ok=True)
 

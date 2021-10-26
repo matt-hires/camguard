@@ -19,7 +19,7 @@ class MotionHandlerSettings(Settings):
     def _parse_data(self, data: Dict[Any, Any]):
         super()._parse_data(data)
 
-        self.impl_type = ImplementationType.parse(Settings.get_setting_from_key(
+        self.impl_type = ImplementationType.parse(super().get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{MotionHandlerSettings._IMPL}",
             settings=data,
             default=ImplementationType.RASPI))
@@ -73,25 +73,25 @@ class RaspiCamSettings(MotionHandlerSettings):
         """
         super()._parse_data(data)
 
-        self.record_path = Settings.get_setting_from_key(
+        self.record_path = super().get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{self._KEY}.{RaspiCamSettings._RECORD_PATH}",
             settings=data,
             default="$HOME/.camguard/records"
         )
 
-        self.record_file_format = Settings.get_setting_from_key(
+        self.record_file_format = super().get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{self._KEY}.{RaspiCamSettings._RECORD_FILE_FORMAT}",
             settings=data,
             default="{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"
         )
 
-        self.record_interval_sec = Settings.get_setting_from_key(
+        self.record_interval_sec = super().get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{self._KEY}.{RaspiCamSettings._RECORD_INTERVAL_SEC}",
             settings=data,
             default=1.0
         )
 
-        self._record_count = Settings.get_setting_from_key(
+        self._record_count = super().get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{self._KEY}.{RaspiCamSettings._RECORD_COUNT}",
             settings=data,
             default=15

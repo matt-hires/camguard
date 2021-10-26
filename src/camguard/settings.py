@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 from os import path
 from typing import Any, Dict, List
 
@@ -7,11 +6,12 @@ from yaml import safe_load
 from yaml.error import YAMLError
 
 from camguard.exceptions import CamGuardError, ConfigurationError
+from camguard.extended_enum import ExtendedEnum
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ImplementationType(Enum):
+class ImplementationType(ExtendedEnum):
     """implementation type setting for equipment selection
     """
     DUMMY = "dummy"
@@ -19,16 +19,21 @@ class ImplementationType(Enum):
 
     @classmethod
     def parse(cls, value: str):
-        if value == 'raspi':
-            LOGGER.debug(f"{cls.__name__} - parsed implementation type: raspi")
-            return cls.RASPI
+        enum_vals = cls.list_values()
+        logger = logging.getLogger(cls.__name__) # log with specific cls name
 
-        if value == 'dummy':
-            LOGGER.debug(f"{cls.__name__} - parsed implementation type: dummy")
+        if value not in enum_vals:
+            raise ConfigurationError(f"Implementation type {value} not allowed. "
+                                     f"Allowed values are: {enum_vals}")
+
+        logger.debug(f"Parsing implementation type: {value}")
+
+        if value == cls.RASPI.value:
+            return cls.RASPI
+        if value == cls.DUMMY.value:
             return cls.DUMMY
 
         raise ConfigurationError(f"Implementation type {value} not allowed")
-
 
 class Settings:
     """camguard yaml settings base class
@@ -90,7 +95,7 @@ class Settings:
 
         value: Any = settings
         for key in splitted_key:
-            if key in value:
+            if key in value and value[key]:
                 value = value[key]
             else:
                 value = None

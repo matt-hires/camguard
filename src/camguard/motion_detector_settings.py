@@ -18,7 +18,7 @@ class MotionDetectorSettings(Settings):
         self._impl_type = value
 
     def _parse_data(self, data: Dict[str, Any]):
-        self.impl_type = ImplementationType.parse(Settings.get_setting_from_key(
+        self.impl_type = ImplementationType.parse(super().get_setting_from_key(
             setting_key=f"{MotionDetectorSettings._KEY}.{MotionDetectorSettings._IMPL}",
             settings=data,
             default=ImplementationType.RASPI))
@@ -81,31 +81,31 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
         """
         super()._parse_data(data)
 
-        self.gpio_pin_number = Settings.get_setting_from_key(
+        self.gpio_pin_number = super().get_setting_from_key(
             setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._GPIO_PIN_NUMBER}",
             settings=data
         )
 
-        self.led_gpio_pin_number = Settings.get_setting_from_key(
+        self.led_gpio_pin_number = super().get_setting_from_key(
             setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}."
             f"{RaspiGpioSensorSettings._NOTIFICATION_LED_GPIO_PIN_NUMBER}",
             settings=data,
             default=0  # 0 -> disable the notification led by default
         )
 
-        self.sample_wait = Settings.get_setting_from_key(
+        self.sample_wait = super().get_setting_from_key(
             setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._SAMPLE_WAIT}",
             settings=data,
             default=10.0
         )
 
-        self.queue_length = Settings.get_setting_from_key(
+        self.queue_length = super().get_setting_from_key(
             setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._SAMPLE_WAIT}",
             settings=data,
             default=1
         )
 
-        self.threshold = Settings.get_setting_from_key(
+        self.threshold = super().get_setting_from_key(
             setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._THRESHOLD}",
             settings=data,
             default=0.5

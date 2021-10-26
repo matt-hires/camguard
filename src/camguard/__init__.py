@@ -1,13 +1,15 @@
 import logging
 import time
-from sys import stderr, stdout, exit
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from signal import SIGINT, SIGTERM, Signals, sigwait
+from sys import exit, stderr, stdout
 from typing import Any, Dict, Optional
 
 from daemon.daemon import DaemonContext  # type: ignore[reportMissingTypeStubs]
 from pid import PidFile  # type: ignore[reportMissingTypeStubs]
 
+from camguard.exceptions import \
+    CamGuardError  # type: ignore[reportMissingTypeStubs]
 
 __version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
@@ -33,10 +35,6 @@ def _parse_args() -> Namespace:
                         "only useful when combined with --daemonize. "
                         "Redundant if the process is started by the init system "
                         "(sys-v, systemd, ...)")
-    parser.add_argument("--upload", default=False, action='store_true',
-                        help="Upload files to a configured google drive. "
-                        "Authenticates on first usage.")
-
     args = parser.parse_args()
 
     if args.detach and not args.daemonize:
@@ -89,6 +87,21 @@ def _run_daemonized(args: Namespace, camguard: Any) -> None:
             time.sleep(1.0)
 
 
+def _init(camguard: Any) -> bool:
+    success = False
+    try:
+        camguard.init()
+        success = True
+    except CamGuardError as e:
+        LOGGER.exception(f"Error during initialization: {e.message}", exc_info=e)
+        camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
+    except Exception as e:
+        LOGGER.exception(f"Error during initialization", exc_info=e)
+        camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
+
+    return success
+
+
 def _run(args: Namespace, camguard: Any) -> None:
     if args.daemonize:
         return _run_daemonized(args, camguard)
@@ -108,15 +121,17 @@ def main():
         LOGGER.info(f"Starting up with args: {args}")
 
         from .camguard import CamGuard
-        camguard = CamGuard(args.config_path, args.upload)
-        camguard.init()
+        _camguard = CamGuard(args.config_path)
 
-        _run(args, camguard)
+        # run camguard if it was successfully initialized
+        if _init(_camguard): 
+            _run(args, _camguard)
+
     except SystemExit as e:
         LOGGER.debug(e)
         LOGGER.info("Camguard shut down gracefully")
     except Exception as e:
-        LOGGER.error("Unexpected error occured", exc_info=e)
+        LOGGER.exception("Unexpected error occured", exc_info=e)
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
     exit(rc)

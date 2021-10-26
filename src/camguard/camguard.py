@@ -1,8 +1,10 @@
 import logging
+from typing import Any, Generator, List
 
+from camguard.bridge_api import (FileStorage, MailClient, MotionDetector,
+                                 MotionHandler, NetworkDeviceDetector)
+from camguard.camguard_settings import CamguardSettings, ComponentsType
 from camguard.exceptions import CamGuardError
-
-from camguard.bridge_api import FileStorage, MailClient, MotionDetector, MotionHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -11,31 +13,39 @@ class CamGuard:
     """CamGuard main device class, holds and manages equipment
     """
 
-    def __init__(self, config_path: str, upload: bool):
-        """Camguard ctor
+    def __init__(self, config_path: str):
+        """create camguard instance
 
         Args:
             config_path (str): folder path where to read configuration files from
-            gpio_pin (int): raspi gpio pin for motion detection
-            upload (bool): upload files to file storage (i.e. gdrive) 
         """
         self._init = False
         self._config_path = config_path
+        self._settings: CamguardSettings = CamguardSettings.load_settings(self._config_path)
+
         self._detector = MotionDetector(self._config_path)
         self._handler = MotionHandler(self._config_path)
-        self._mail_client = MailClient(self._config_path)
-        self._upload = upload
 
     def init(self):
         """initialize equipment, this *has* to be done before start
         """
         LOGGER.info("Initializing equipment")
 
-        if self._upload:
+        if ComponentsType.FILE_STORAGE in self._settings.components:
             LOGGER.info("Setting up file storage")
             self._file_storage = FileStorage(self._config_path)
             self._file_storage.authenticate()
             self._file_storage.start()
+
+        if ComponentsType.MAIL_CLIENT in self._settings.components:
+            LOGGER.info("Setting up mail client")
+            self._mail_client = MailClient(self._config_path)
+
+        if ComponentsType.NETWORK_DEVICE_DETECTOR in self._settings.components:
+            LOGGER.info("Setting up network device dector")
+            self._netw_dev_detector = NetworkDeviceDetector(self._config_path)
+            self._netw_dev_detector.register_handler(self._detector.set_disabled)
+            self._netw_dev_detector.start()
 
         self._init = True
 
@@ -46,26 +56,20 @@ class CamGuard:
             CamGuardError: is camguard hasn't been initialized
         """
         if not self._init:
-            raise CamGuardError("Equipment has not been initialized before start")
+            raise CamGuardError("Components have not been initialized successfully before start")
 
         LOGGER.info("Starting camguard")
 
-        # build handler pipeline
-        if self._upload:
-            _pipeline = [
-                self._handler.on_motion([                # 1. trigger handler
-                    self._file_storage.enqueue_files(),  # 2. enqueue files to upload
-                    self._mail_client.send_mail()        # 3. send notification mail
-                ])
-            ]
-        else:
-            _pipeline = [
-                self._handler.on_motion([           # 1. trigger handler
-                    self._mail_client.send_mail()   # 2. send notification mail
-                ]) 
-            ]
+        # build handler pipe
+        on_motion_pipe: List[Generator[None, Any, None]] = []
 
-        self._detector.register_handlers(_pipeline)
+        if ComponentsType.FILE_STORAGE in self._settings.components:
+            on_motion_pipe.append(self._file_storage.enqueue_files()) 
+
+        if ComponentsType.MAIL_CLIENT in self._settings.components:
+            on_motion_pipe.append(self._mail_client.send_mail())
+
+        self._detector.register_handlers([self._handler.on_motion(on_motion_pipe)])
 
     def stop(self):
         """stop camguard
@@ -74,7 +78,10 @@ class CamGuard:
         self._handler.stop()
         self._detector.stop()
 
-        if self._upload:
+        if ComponentsType.FILE_STORAGE in self._settings.components:
             self._file_storage.stop()
+
+        if ComponentsType.NETWORK_DEVICE_DETECTOR in self._settings.components:
+            self._netw_dev_detector.stop()
 
         self._init = False

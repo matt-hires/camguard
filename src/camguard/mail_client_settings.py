@@ -64,33 +64,33 @@ class MailClientSettings(Settings):
     def _parse_data(self, data: Dict[str, Any]):
         super()._parse_data(data)
 
-        self.dummy_impl = Settings.get_setting_from_key(
+        self.dummy_impl = super().get_setting_from_key(
             setting_key=f"{MailClientSettings._KEY}.{MailClientSettings._DUMMY_IMPL}",
             settings=data,
             default=False
         )
 
-        self.user = Settings.get_setting_from_key(
+        self.user = super().get_setting_from_key(
             setting_key=f"{MailClientSettings._KEY}.{MailClientSettings._USER}",
             settings=data
         )
 
-        self.password = Settings.get_setting_from_key(
+        self.password = super().get_setting_from_key(
             setting_key=f"{MailClientSettings._KEY}.{MailClientSettings._PASSWORD}",
             settings=data
         )
 
-        self.receiver_mail = Settings.get_setting_from_key(
+        self.receiver_mail = super().get_setting_from_key(
             setting_key=f"{MailClientSettings._KEY}.{MailClientSettings._RECEIVER_MAIL}",
             settings=data
         )
 
-        self.sender_mail = Settings.get_setting_from_key(
+        self.sender_mail = super().get_setting_from_key(
             setting_key=f"{MailClientSettings._KEY}.{MailClientSettings._SENDER_MAIL}",
             settings=data
         )
 
-        self.hostname = Settings.get_setting_from_key(
+        self.hostname = super().get_setting_from_key(
             setting_key=f"{MailClientSettings._KEY}.{MailClientSettings._HOSTNAME}",
             settings=data
         )

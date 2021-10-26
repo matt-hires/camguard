@@ -43,7 +43,7 @@ class DummySensorThread(Thread):
                 if self.handler: 
                     self.handler()
         except Exception as e:
-            LOGGER.error("Unrecoverable error in dummy gpio sensor thread", exc_info=e)
+            LOGGER.exception("Unrecoverable error in dummy gpio sensor thread", exc_info=e)
 
         LOGGER.info("Finished")
 
@@ -78,7 +78,8 @@ class DummyGpioSensor(MotionDetectorImpl):
     def _when_activated(self) -> None:
         if self.disabled:
             LOGGER.debug("Sensor disabled, activation ignored")
-        self._handler()
+        if hasattr(self, '_handler') and self._handler:
+            self._handler()
 
     @property
     def id(self) -> int:

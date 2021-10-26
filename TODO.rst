@@ -20,24 +20,36 @@ Features
 * email notification
     - make mail client optional
 
+* increase test coverage
+    - ITs
+    - Unit-Tests
+
 Refactoring
 -----------
-* FileStorage-Settings: Use implementation setting the same way as for motion detector. This is the same for the mail client
+
+* FileStorage-Settings: Use implementation setting the same way as for motion detector. This is the same for the mail client.
+
+For optional components it should be possible to disable it in a global configuration section.
 
     .. code-block::
 
-        implementation: dummy
+        implementation: dummy # dummy, raspi
+        disabled: false # (default=false) <- add this
 
 =======
 PENDING
 =======
 
 * deactivation when specific mac addr is present in network
+    - configuration
+        - mac-addr
+        - dns-server
+        - ip-range
     - Sample code for searching:
 
     .. code-block:: 
 
-        nmap -sn 192.168.1.0/24 --dns-server=192.168.1.1 --host-timeout=1
+        sudo nmap -sn 192.168.1.0/24 --dns-server=192.168.1.1 -T4 | grep "DA:DC:E8:A1:9E:0D"
 
 ====
 DONE

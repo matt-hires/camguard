@@ -12,12 +12,13 @@ from google.oauth2.credentials import Credentials, exceptions  # type: ignore
 from google.auth.transport.requests import Request  # type: ignore
 from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import build  # type: ignore
-from googleapiclient.http import MediaFileUpload  # type: ignore
+from googleapiclient.http import MediaFileUpload
+from camguard.camguard_settings import CamguardSettings  # type: ignore
 
 from camguard.file_storage_settings import GDriveStorageSettings
 
 from camguard.bridge_impl import FileStorageImpl
-from camguard.exceptions import GDriveError
+from camguard.exceptions import CamGuardError, GDriveError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -177,17 +178,19 @@ class GDriveUploadManager():
                     self._upload_fn(file)
                     LOGGER.debug(f"Upload successful: {file}")
                 except GDriveError as e:
-                    # gdrive errors do not stop the thread, 
-                    # so that the upload component can recover from google driver errors 
+                    # gdrive errors do not stop the thread,
+                    # so that the upload component can recover from google driver errors
                     LOGGER.warn(f"Upload failed: {file} with error: {e}")
                 finally:
                     # indicate formerly enqueued task is done
                     # therefore also a unsuccessful upload, in case of GDriveError, won't lead to a retry
-                    # the queue should be ready for new work and not be flodded with old upload retries 
+                    # the queue should be ready for new work and not be flodded with old upload retries
                     self._queue.task_done()
 
+        except CamGuardError as e:
+            LOGGER.exception(f"Unrecoverable error in upload worker: {e.message}", exc_info=e)
         except Exception as e:
-            LOGGER.error("Unrecoverable error in upload worker", exc_info=e)
+            LOGGER.exception("Unrecoverable error in upload worker", exc_info=e)
 
         LOGGER.info("Exit")
 
@@ -293,7 +296,7 @@ class GDriveStorage(FileStorageImpl):
             if parent_id:
                 file_metadata.update({'parents': [parent_id]})
 
-            with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:
+            with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:  # type: ignore
                 response = gdrive_service.files().create(body=file_metadata,  # type: ignore
                                                          fields='id, name, parents').execute()
                 folder: Dict[str, Any] = {'id': response['id'],
@@ -341,7 +344,7 @@ class GDriveStorage(FileStorageImpl):
                 file_metadata.update({'parents': [parent_id]})
 
             media = MediaFileUpload(filename=file_path, mimetype=mimetype.value)
-            with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:
+            with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:  # type: ignore
                 response = gdrive_service.files().create(body=file_metadata,  # type: ignore
                                                          media_body=media,
                                                          fields='id, name, parents').execute()
@@ -376,7 +379,7 @@ class GDriveStorage(FileStorageImpl):
 
         query = cls._build_query(name=file_name, mimetype=mimetype, parent_id=parent_id)
         found_files: List[Dict[str, Any]] = []
-        with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:
+        with build(serviceName='drive', version='v3', credentials=creds) as gdrive_service:  # type: ignore
             page_token = None
             while True:
                 response = gdrive_service.files().list(q=query,  # type: ignore

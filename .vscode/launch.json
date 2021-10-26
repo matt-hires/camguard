@@ -42,11 +42,8 @@
             "justMyCode": false,
             "module": "camguard",
             "args": [
-                "-c",
-                ".",
                 "-l",
-                "DEBUG",
-                "--upload"
+                "DEBUG"
             ]
         }
     ]

@@ -4,8 +4,18 @@
 
 # main camguard configuration file, which also shows possible values, types and the default value 
 
+# component configuration
+# some of the components are mandatory and noted here just for the sake of completeness
+# type: list
+# required: yes
+components:
+    - motion_handler # mandatory
+    - motion_detector # mandatory
+    - file_storage
+    - mail_client
+
 # motion handler settings node
-# type: node
+# type: dict
 # required: yes
 motion_handler:
     # implementation type for camguard equipment
@@ -16,7 +26,7 @@ motion_handler:
     implementation: raspi
 
     # implementation settings node 
-    # type: node
+    # type: dict
     # required: no
     # values: [raspi_cam, dummy_cam]
     raspi_cam:
@@ -48,13 +58,13 @@ motion_handler:
         record_file_format: "{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg"
 
     # for dummy settings are the same as for raspi
-    # type: node 
+    # type: dict 
     # required: no
     #dummy_cam:
         # settings properties the same as for raspi_cam
 
 # motion detector settings node
-# type: node
+# type: dict
 # required: yes
 motion_detector:
     # implementation type for camguard equipment
@@ -65,7 +75,7 @@ motion_detector:
     implementation: raspi
 
     # implementation settings node 
-    # type: node
+    # type: dict
     # required: yes
     # values: [raspi_gpio_sensor, dummy_gpio_sensor]
     raspi_gpio_sensor: 
@@ -104,13 +114,13 @@ motion_detector:
         #sample_wait: 0.0
 
     # dummy gpio sensor settings node
-    # type: node
+    # type: dict
     # required: no
     #dummy_gpio_sensor:
         # settings properties are the same as for raspi_gpio_sensor
 
 # file storage settings node
-# type: node
+# type: dict
 # required: yes
 file_storage:
     # switch file storage to dummy/offline mode (simulate gdrive upload) 
@@ -120,7 +130,7 @@ file_storage:
     #dummy_implementation: False
 
     # implementation settings node 
-    # type: node
+    # type: dict
     # required: yes
     # values: [gdrive_storage, dummy_gdrive_storage]
     gdrive_storage:
@@ -143,13 +153,13 @@ file_storage:
         #oauth_credentials_path: "."
 
     # dummy storage settings node
-    # type: node
+    # type: dict
     # required: no
     #dummy_gdrive_storage:
         # settings properties are the same as for raspi_gpio_sensor
 
 # mail notification settings node
-# type: node
+# type: dict
 # required: yes
 mail_client:
     # switch mail client to dummy/offline mode (simulate mail sending) 

@@ -30,7 +30,7 @@ class MotionDetectorImpl(ABC):
 
     def __init__(self) -> None:
         self._disabled = False
-        
+
     @abstractmethod
     def register_handler(self, handler: Callable[..., None]) -> None:
         pass
@@ -81,10 +81,37 @@ class FileStorageImpl(ABC):
         pass
 
 
+# MailClient Bridge
+
+
 class MailClientImpl(ABC):
     """abstract base class for mail notification implementations
     """
 
     @abstractmethod
     def send_mail(self, files: List[str]) -> None:
+        pass
+
+
+# NetworkDeviceDetector Bridge
+
+
+class NetworkDeviceDetectorImpl(ABC):
+    """abstract base class for network detector implementations
+    """
+
+    @abstractmethod
+    def init(self) -> None:
+        pass
+
+    @abstractmethod
+    def register_handler(self, handler: Callable[..., None]) -> None:
+        pass
+
+    @abstractmethod
+    def start(self) -> None:
+        pass
+
+    @abstractmethod
+    def stop(self) -> None:
         pass

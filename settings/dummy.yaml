@@ -1,3 +1,9 @@
+components:
+    - motion_handler
+    - motion_detector
+    - file_storage
+    - mail_client
+
 motion_handler:
     implementation: dummy
     dummy_cam:

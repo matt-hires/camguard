@@ -20,7 +20,7 @@ class FileStorageSettings(Settings):
     def _parse_data(self, data: Dict[str, Any]):
         super()._parse_data(data)
 
-        self.dummy_impl = Settings.get_setting_from_key(
+        self.dummy_impl = super().get_setting_from_key(
             setting_key=f"{FileStorageSettings._KEY}.{FileStorageSettings._DUMMY_IMPL}",
             settings=data,
             default=False
@@ -72,19 +72,19 @@ class GDriveStorageSettings(FileStorageSettings):
         """
         super()._parse_data(data)
 
-        self.upload_folder_name = Settings.get_setting_from_key(
+        self.upload_folder_name = super().get_setting_from_key(
             setting_key=f"{FileStorageSettings._KEY}.{self._KEY}.{GDriveStorageSettings._UPLOAD_FOLDER_NAME}",
             settings=data,
             default="Camguard"
         )
 
-        self.oauth_token_path = Settings.get_setting_from_key(
+        self.oauth_token_path = super().get_setting_from_key(
             setting_key=f"{FileStorageSettings._KEY}.{self._KEY}.{GDriveStorageSettings._OAUTH_TOKEN_PATH}",
             settings=data,
             default="."
         )
 
-        self.oauth_credentials_path = Settings.get_setting_from_key(
+        self.oauth_credentials_path = super().get_setting_from_key(
             setting_key=f"{FileStorageSettings._KEY}.{self._KEY}.{GDriveStorageSettings._OAUTH_CREDENTIALS_PATH}",
             settings=data,
             default="."
