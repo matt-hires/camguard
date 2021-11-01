@@ -91,7 +91,7 @@ class GDriveStorageSettings(FileStorageSettings):
         )
 
 
-class DummyGDriveStorageSettings(GDriveStorageSettings):
+class DummyGDriveStorageSettings(FileStorageSettings):
     """specialized gdrive dummy storage setting
     """
     _KEY: ClassVar[str] = "dummy_gdrive_storage"

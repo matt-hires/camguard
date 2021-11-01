@@ -9,11 +9,11 @@ class NetworkDeviceDetectorSettings(Settings):
     _DUMMY_MODE: ClassVar[str] = "dummy_mode"
 
     @property
-    def dummy_mode(self) -> str:
+    def dummy_mode(self) -> bool:
         return self._dummy_mode
 
     @dummy_mode.setter
-    def dummy_mode(self, value: str) -> None:
+    def dummy_mode(self, value: bool) -> None:
         self._dummy_mode = value
 
     def _parse_data(self, data: Dict[str, Any]):

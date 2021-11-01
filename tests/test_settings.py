@@ -10,14 +10,14 @@ class ImplementationTypeTest(TestCase):
 
     def test_should_parse_dummy(self):
         # arrange - act
-        parsed = ImplementationType.parse("dummy")
+        parsed = ImplementationType.parse(ImplementationType.DUMMY.value)
 
         # assert
         self.assertEqual(ImplementationType.DUMMY, parsed)
 
     def test_should_parse_raspi(self):
         # arrange- act
-        parsed = ImplementationType.parse("raspi")
+        parsed = ImplementationType.parse(ImplementationType.RASPI.value)
 
         # assert
         self.assertEqual(ImplementationType.RASPI, parsed)
@@ -25,7 +25,7 @@ class ImplementationTypeTest(TestCase):
     def test_should_raise_configuration_error(self):
         # act / assert
         with self.assertRaises(ConfigurationError):
-            ImplementationType.parse("unknown_type")
+            ImplementationType.parse('unknown_type')
 
 
 class SettingsTest(TestCase):
@@ -38,29 +38,28 @@ class SettingsTest(TestCase):
             'key3': {'subkey3': 'value3'}
         }
 
-    @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
-    @patch("camguard.settings.open", mock_open())
+    @patch('camguard.settings.path.isfile', MagicMock(return_value=True))
+    @patch('camguard.settings.open', mock_open())
     def test_should_load_and_parse(self):
         # arrange
         data = self.mock_yaml_data()
-        # safe_load_mock = MagicMock(return_value=data)
 
         # act
-        with patch("camguard.settings.safe_load", MagicMock(return_value=data)):
-            settings = Settings.load_settings(".")
+        with patch('camguard.settings.safe_load', MagicMock(return_value=data)):
+            settings = Settings.load_settings('.')
 
         # assert
         self.assertIsNotNone(settings)
 
-    @patch("camguard.settings.path.isfile", MagicMock(return_value=False))
+    @patch('camguard.settings.path.isfile', MagicMock(return_value=False))
     def test_should_raise_error_when_non_existant_file(self):
         # arrange
         open_mock = MagicMock()
 
         # act
-        with patch("camguard.settings.open", mock_open(mock=open_mock)), \
+        with patch('camguard.settings.open', mock_open(mock=open_mock)), \
                 self.assertRaises(ConfigurationError):
-            Settings.load_settings(".")
+            Settings.load_settings('.')
 
         # assert
         open_mock.assert_not_called()
@@ -90,21 +89,21 @@ class SettingsTest(TestCase):
     def test_should_raise_when_get_setting_from_non_existing_subkey(self):
         # arrange
         data = self.mock_yaml_data()
-        key = "motion_handler.implementation.raspi_cam"
+        key = 'motion_handler.implementation.raspi_cam'
 
         # act
         with self.assertRaises(ConfigurationError) as config_error:
             Settings.get_setting_from_key(setting_key=key, settings=data)
             # assert
-            self.assertTrue(f"settings key not found: {key}" in config_error.message)  # type: ignore
+            self.assertTrue(f'settings key not found: {key}' in config_error.message)  # type: ignore
 
     def test_should_raise_when_get_setting_from_non_existing_rootkey(self):
         # arrange
         data = self.mock_yaml_data()
-        key = "test"
+        key = 'test'
 
         # act
         with self.assertRaises(ConfigurationError) as config_error:
             Settings.get_setting_from_key(setting_key=key, settings=data)
             # assert
-            self.assertTrue(f"settings key not found: {key}" in config_error.message)  # type: ignore
+            self.assertTrue(f'settings key not found: {key}' in config_error.message)  # type: ignore
