@@ -124,10 +124,11 @@ motion_detector:
 # required: yes
 file_storage:
     # switch file storage to dummy/offline mode (simulate gdrive upload) 
-    # type: boolean [0, 1, True, False]
+    # type: enumeration
     # required: no
-    # default: False
-    #dummy_implementation: False
+    # values: [dummy, default]
+    # default: default
+    #implementation: dummy
 
     # implementation settings node 
     # type: dict

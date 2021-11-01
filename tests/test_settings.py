@@ -22,6 +22,13 @@ class ImplementationTypeTest(TestCase):
         # assert
         self.assertEqual(ImplementationType.RASPI, parsed)
 
+    def test_should_parse_default(self):
+        # arrange- act
+        parsed = ImplementationType.parse(ImplementationType.DEFAULT.value)
+
+        # assert
+        self.assertEqual(ImplementationType.DEFAULT, parsed)
+
     def test_should_raise_configuration_error(self):
         # act / assert
         with self.assertRaises(ConfigurationError):

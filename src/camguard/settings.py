@@ -16,6 +16,7 @@ class ImplementationType(ExtendedEnum):
     """
     DUMMY = "dummy"
     RASPI = "raspi"
+    DEFAULT = "default"
 
     @classmethod
     def parse(cls, value: str):
@@ -33,7 +34,7 @@ class ImplementationType(ExtendedEnum):
         if value == cls.DUMMY.value:
             return cls.DUMMY
 
-        raise ConfigurationError(f"Implementation type {value} not allowed")
+        return ImplementationType.DEFAULT
 
 class Settings:
     """camguard yaml settings base class

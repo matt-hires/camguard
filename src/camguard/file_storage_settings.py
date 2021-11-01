@@ -1,30 +1,29 @@
 
 from typing import Any, ClassVar, Dict
-from camguard.settings import Settings
+from camguard.settings import Settings, ImplementationType
 
 
 class FileStorageSettings(Settings):
     """specialized file storage settings class
     """
-    _DUMMY_IMPL: ClassVar[str] = "dummy_implementation"
+    _IMPL_TYPE: ClassVar[str] = "implementation"
     _KEY: ClassVar[str] = "file_storage"
 
     @property
-    def dummy_impl(self) -> bool:
-        return self._dummy_impl
+    def impl_type(self) -> ImplementationType:
+        return self._impl_type
 
-    @dummy_impl.setter
-    def dummy_impl(self, value: bool):
-        self._dummy_impl = value
+    @impl_type.setter
+    def impl_type(self, value: ImplementationType):
+        self._impl_type = value
 
     def _parse_data(self, data: Dict[str, Any]):
         super()._parse_data(data)
 
-        self.dummy_impl = super().get_setting_from_key(
-            setting_key=f"{FileStorageSettings._KEY}.{FileStorageSettings._DUMMY_IMPL}",
+        self.impl_type = ImplementationType.parse(super().get_setting_from_key(
+            setting_key=f"{FileStorageSettings._KEY}.{FileStorageSettings._IMPL_TYPE}",
             settings=data,
-            default=False
-        )
+            default=ImplementationType.DEFAULT.value))
 
 
 class GDriveStorageSettings(FileStorageSettings):

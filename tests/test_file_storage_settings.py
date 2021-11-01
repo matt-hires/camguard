@@ -4,6 +4,7 @@ from unittest.case import TestCase
 from unittest.mock import MagicMock, mock_open, patch
 
 from camguard.file_storage_settings import DummyGDriveStorageSettings, FileStorageSettings, GDriveStorageSettings
+from camguard.settings import ImplementationType
 
 
 class FileStorageSettingsTest(TestCase):
@@ -11,7 +12,7 @@ class FileStorageSettingsTest(TestCase):
     @staticmethod
     def mock_yaml_data() -> Dict[str, Any]:
         return {
-            'file_storage': {'dummy_implementation': True}
+            'file_storage': {'implementation': 'dummy'}
         }
 
     @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
@@ -23,10 +24,10 @@ class FileStorageSettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = FileStorageSettings.load_settings(".")
+            settings: FileStorageSettings = FileStorageSettings.load_settings(".")
 
         # assert
-        self.assertTrue(settings.dummy_impl)
+        self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
 
     @patch("camguard.settings.path.isfile", MagicMock(return_value=True))
     @patch("camguard.settings.open", mock_open())
@@ -36,10 +37,10 @@ class FileStorageSettingsTest(TestCase):
 
         # act
         with patch("camguard.settings.safe_load", safe_load_mock):
-            settings = FileStorageSettings.load_settings(".")
+            settings: FileStorageSettings = FileStorageSettings.load_settings(".")
 
         # assert
-        self.assertFalse(settings.dummy_impl)
+        self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
 
 
 class GDriveStorageSettingsTest(TestCase):
@@ -76,7 +77,7 @@ class GDriveStorageSettingsTest(TestCase):
             settings: GDriveStorageSettings = GDriveStorageSettings.load_settings('.')
 
         # assert
-        self.assertFalse(settings.dummy_impl)
+        self.assertFalse(settings.impl_type)
         self.assertEqual('test', settings.upload_folder_name)
         self.assertEqual('./testTokenPath', settings.oauth_token_path)
         self.assertEqual('./testCredentialsPath', settings.oauth_credentials_path)
@@ -93,7 +94,7 @@ class GDriveStorageSettingsTest(TestCase):
             settings: GDriveStorageSettings = GDriveStorageSettings.load_settings('.')
 
         # assert
-        self.assertFalse(settings.dummy_impl)
+        self.assertFalse(settings.impl_type)
         self.assertEqual('Camguard', settings.upload_folder_name)
         self.assertEqual('.', settings.oauth_token_path)
         self.assertEqual('.', settings.oauth_credentials_path)
@@ -121,4 +122,4 @@ class DummyGDriveStorageSettingsTest(TestCase):
             settings: DummyGDriveStorageSettings = DummyGDriveStorageSettings.load_settings(".")
 
         # assert
-        self.assertTrue(settings.dummy_impl)
+        self.assertTrue(settings.impl_type)

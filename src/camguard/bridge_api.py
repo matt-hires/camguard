@@ -201,7 +201,7 @@ class FileStorage:
 
     def _get_impl(self) -> FileStorageImpl:
         if not hasattr(self, "_impl") or not self._impl:
-            if self._settings.dummy_impl:
+            if self._settings.impl_type:
                 from .dummy_gdrive_storage import DummyGDriveStorage
                 self._impl = DummyGDriveStorage(DummyGDriveStorageSettings.load_settings(self._config_path))
             else:
