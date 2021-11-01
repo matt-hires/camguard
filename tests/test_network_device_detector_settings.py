@@ -4,6 +4,7 @@ from unittest.case import TestCase
 from unittest.mock import MagicMock, mock_open, patch
 
 from camguard.network_device_detector_settings import DummyNetworkDeviceDetectorSettings, NMapDeviceDetectorSettings, NetworkDeviceDetectorSettings
+from camguard.settings import ImplementationType
 
 
 class NetworkDeviceDetectorSettingsTest(TestCase):
@@ -11,7 +12,7 @@ class NetworkDeviceDetectorSettingsTest(TestCase):
     def mock_yaml_data() -> Dict[str, Any]:
         return {
             'network_device_detector': {
-                'dummy_mode': 'True'
+                'implementation': 'dummy'
             }
         }
 
@@ -27,7 +28,7 @@ class NetworkDeviceDetectorSettingsTest(TestCase):
             settings: NetworkDeviceDetectorSettings = NetworkDeviceDetectorSettings.load_settings('.')
 
         # assert
-        self.assertTrue(settings.dummy_mode)
+        self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
 
     @patch('camguard.settings.path.isfile', MagicMock(return_value=True))
     @patch('camguard.settings.open', mock_open())
@@ -40,7 +41,7 @@ class NetworkDeviceDetectorSettingsTest(TestCase):
             settings: NetworkDeviceDetectorSettings = NetworkDeviceDetectorSettings.load_settings('.')
 
         # assert
-        self.assertFalse(settings.dummy_mode)
+        self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
 
 
 class NMapDeviceDetectorSettingsTest(TestCase):
@@ -67,7 +68,7 @@ class NMapDeviceDetectorSettingsTest(TestCase):
             settings: NMapDeviceDetectorSettings = NMapDeviceDetectorSettings.load_settings('.')
 
         # assert
-        self.assertFalse(settings.dummy_mode)
+        self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
         self.assertEqual('1.2.3.4', settings.ip_addr)
         self.assertEqual('2.0', settings.interval_seconds)
 
@@ -77,7 +78,7 @@ class DummyDeviceDetectorSettingsTest(TestCase):
     def mock_yaml_data() -> Dict[str, Any]:
         return {
             'network_device_detector': {
-                'dummy_mode': 'True'
+                'implementation': 'dummy'
             }
         }
 
@@ -93,4 +94,4 @@ class DummyDeviceDetectorSettingsTest(TestCase):
             settings: DummyNetworkDeviceDetectorSettings = DummyNetworkDeviceDetectorSettings.load_settings('.')
 
         # assert
-        self.assertTrue(settings.dummy_mode)
+        self.assertEqual(ImplementationType.DUMMY, settings.impl_type)

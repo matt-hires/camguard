@@ -77,7 +77,7 @@ class GDriveStorageSettingsTest(TestCase):
             settings: GDriveStorageSettings = GDriveStorageSettings.load_settings('.')
 
         # assert
-        self.assertFalse(settings.impl_type)
+        self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
         self.assertEqual('test', settings.upload_folder_name)
         self.assertEqual('./testTokenPath', settings.oauth_token_path)
         self.assertEqual('./testCredentialsPath', settings.oauth_credentials_path)
@@ -94,7 +94,7 @@ class GDriveStorageSettingsTest(TestCase):
             settings: GDriveStorageSettings = GDriveStorageSettings.load_settings('.')
 
         # assert
-        self.assertFalse(settings.impl_type)
+        self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
         self.assertEqual('Camguard', settings.upload_folder_name)
         self.assertEqual('.', settings.oauth_token_path)
         self.assertEqual('.', settings.oauth_credentials_path)

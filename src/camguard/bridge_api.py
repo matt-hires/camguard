@@ -201,7 +201,7 @@ class FileStorage:
 
     def _get_impl(self) -> FileStorageImpl:
         if not hasattr(self, "_impl") or not self._impl:
-            if self._settings.impl_type:
+            if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gdrive_storage import DummyGDriveStorage
                 self._impl = DummyGDriveStorage(DummyGDriveStorageSettings.load_settings(self._config_path))
             else:
@@ -234,7 +234,7 @@ class MailClient:
 
     def _get_impl(self) -> MailClientImpl:
         if not hasattr(self, "_impl") or not self._impl:
-            if self._settings.dummy_impl:
+            if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_mail_client import DummyMailClient
                 self._impl = DummyMailClient(DummyMailClientSettings.load_settings(self._config_path))
             else:

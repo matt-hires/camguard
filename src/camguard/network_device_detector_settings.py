@@ -1,27 +1,28 @@
 from typing import Any, ClassVar, Dict
-from camguard.settings import Settings
+from camguard.settings import ImplementationType, Settings
 
 
 class NetworkDeviceDetectorSettings(Settings):
     """network device connector settings class
     """
     _KEY: ClassVar[str] = "network_device_detector"
-    _DUMMY_MODE: ClassVar[str] = "dummy_mode"
+    _IMPL_TYPE: ClassVar[str] = "implementation"
 
     @property
-    def dummy_mode(self) -> bool:
-        return self._dummy_mode
+    def impl_type(self) -> ImplementationType:
+        return self._impl_type
 
-    @dummy_mode.setter
-    def dummy_mode(self, value: bool) -> None:
-        self._dummy_mode = value
+    @impl_type.setter
+    def impl_type(self, value: ImplementationType) -> None:
+        self._impl_type = value
 
     def _parse_data(self, data: Dict[str, Any]):
         super()._parse_data(data)
 
-        self.dummy_mode = super().get_setting_from_key(
-            setting_key=f"{NetworkDeviceDetectorSettings._KEY}.{NetworkDeviceDetectorSettings._DUMMY_MODE}",
-            settings=data, default=False)
+        self.impl_type = ImplementationType.parse(super().get_setting_from_key(
+            setting_key=f"{NetworkDeviceDetectorSettings._KEY}.{NetworkDeviceDetectorSettings._IMPL_TYPE}",
+            settings=data, 
+            default=ImplementationType.DEFAULT.value))
 
 
 class NMapDeviceDetectorSettings(NetworkDeviceDetectorSettings):

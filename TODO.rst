@@ -27,9 +27,9 @@ Features
 Refactoring
 -----------
 
-* FileStorage-Settings: Use implementation setting the same way as for motion detector. This is the same for the mail client.
-
+* Settings 
 For optional components it should be possible to disable it in a global configuration section.
+Update documentation afterwards
 
     .. code-block::
 
@@ -39,6 +39,9 @@ For optional components it should be possible to disable it in a global configur
 =======
 PENDING
 =======
+
+* FileStorage-Settings: Use implementation setting the same way as for motion detector. This is the same for the mail client.
+
 
 * deactivation when specific mac addr is present in network
     - configuration

@@ -197,7 +197,7 @@ class FileStorageTest(TestCase):
     def setUp(self) -> None:
         # FileStorageSettings
         self._fs_settings_mock = create_autospec(spec=FileStorageSettings, spec_set=True)
-        type(self._fs_settings_mock).dummy_impl = PropertyMock(return_value=True)
+        type(self._fs_settings_mock).impl_type = PropertyMock(return_value=ImplementationType.DUMMY)
         # settings should return FileStorageSettings mock on load_settings
         self._fs_settings_mock.load_settings = MagicMock(return_value=self._fs_settings_mock)
 
@@ -308,7 +308,7 @@ class MailClientTest(TestCase):
     def setUp(self) -> None:
         # MailClientSettings
         self._mail_settings_mock = create_autospec(spec=MailClientSettings, spec_set=True)
-        type(self._mail_settings_mock).dummy_impl = PropertyMock(return_value=True)
+        type(self._mail_settings_mock).impl_type = PropertyMock(return_value=ImplementationType.DUMMY)
         # settings should return MailClientSettings mock on load_settings
         self._mail_settings_mock.load_settings = MagicMock(return_value=self._mail_settings_mock)
 

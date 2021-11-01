@@ -164,10 +164,11 @@ file_storage:
 # required: yes
 mail_client:
     # switch mail client to dummy/offline mode (simulate mail sending) 
-    # type: boolean [0, 1, True, False]
+    # type: enumeration
     # required: no
-    # default: False
-    #dummy_implementation: False
+    # values: [dummy, default]
+    # default: default
+    #implementation: dummy
 
     # username for smtp authentication
     # type: string

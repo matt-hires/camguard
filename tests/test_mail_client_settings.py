@@ -4,6 +4,7 @@ from unittest.case import TestCase
 from unittest.mock import MagicMock, mock_open, patch
 
 from camguard.mail_client_settings import DummyMailClientSettings, GenericMailClientSettings, MailClientSettings
+from camguard.settings import ImplementationType
 
 
 class MailClientSettingsTest(TestCase):
@@ -14,7 +15,7 @@ class MailClientSettingsTest(TestCase):
     def mock_yaml_data() -> Dict[str, Any]:
         return {
             'mail_client': {
-                'dummy_implementation': 'True',
+                'implementation': 'dummy',
                 'username': 'myUser',
                 'password': 'myPw',
                 'sender_mail': 'mail@sender.com',
@@ -48,7 +49,7 @@ class MailClientSettingsTest(TestCase):
                 with patch('camguard.settings.safe_load', safe_load_mock):
                     settings: MailClientSettings = settings_cls.load_settings('.')
                     # assert
-                    self.assertTrue(settings.dummy_impl)
+                    self.assertEqual(ImplementationType.DUMMY, settings.impl_type)
                     self.assertEqual('myUser', settings.user)
                     self.assertEqual('myPw', settings.password)
                     self.assertEqual('mail@sender.com', settings.sender_mail)
@@ -68,7 +69,7 @@ class MailClientSettingsTest(TestCase):
                 with patch('camguard.settings.safe_load', safe_load_mock):
                     settings: MailClientSettings = MailClientSettings.load_settings('.')
                     # assert
-                    self.assertFalse(settings.dummy_impl)
+                    self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
                     self.assertEqual('myUser', settings.user)
                     self.assertEqual('myPw', settings.password)
                     self.assertEqual('mail@sender.com', settings.sender_mail)
