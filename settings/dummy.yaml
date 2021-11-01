@@ -12,8 +12,6 @@ motion_handler:
 
 motion_detector:
     implementation: dummy
-    dummy_gpio_sensor: 
-        gpio_pin_number: 10
 
 file_storage:
     dummy_implementation: True

@@ -112,7 +112,7 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
         )
 
 
-class DummyGpioSensorSettings(RaspiGpioSensorSettings):
+class DummyGpioSensorSettings(MotionDetectorSettings):
     """specialized motion detector settings for dummy gpio sensor
     """
     _KEY: ClassVar[str] = "dummy_gpio_sensor"

@@ -2,7 +2,7 @@
 import logging
 from random import uniform
 from threading import Event, Lock, Thread
-from typing import Callable, Optional
+from typing import Callable, ClassVar, Optional
 
 from camguard.motion_detector_settings import DummyGpioSensorSettings
 
@@ -61,6 +61,11 @@ class DummySensorThread(Thread):
 
 
 class DummyGpioSensor(MotionDetectorImpl):
+    """dummy gpio sensor implementation
+    this can be used for running camguard in a dummy mode
+    """
+    _id: ClassVar[int] = 0
+
     def __init__(self, settings: DummyGpioSensorSettings) -> None:
         super().__init__()
 
@@ -68,6 +73,8 @@ class DummyGpioSensor(MotionDetectorImpl):
         self._sensor_thread.start()
         self._sensor_thread.handler = self._when_activated
         self._settings = settings
+        DummyGpioSensor._id += 1
+
 
     def register_handler(self, handler: Callable[..., None]) -> None:
         self._handler = handler
@@ -83,4 +90,4 @@ class DummyGpioSensor(MotionDetectorImpl):
 
     @property
     def id(self) -> int:
-        return self._settings.gpio_pin_number
+        return DummyGpioSensor._id 

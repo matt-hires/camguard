@@ -82,7 +82,7 @@ class RaspiCamSettings(MotionHandlerSettings):
         self.record_file_format = super().get_setting_from_key(
             setting_key=f"{MotionHandlerSettings._KEY}.{self._KEY}.{RaspiCamSettings._RECORD_FILE_FORMAT}",
             settings=data,
-            default="{counter:03d}_{timestamp:%y%m%d_%H%M%S}_capture.jpg"
+            default="{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg"
         )
 
         self.record_interval_sec = super().get_setting_from_key(
@@ -98,7 +98,7 @@ class RaspiCamSettings(MotionHandlerSettings):
         )
 
 
-class DummyCamSettings(RaspiCamSettings):
+class DummyCamSettings(MotionHandlerSettings):
     """ specialized settings for dummy cam motion handler
     """
     _KEY: ClassVar[str] = "dummy_cam"
