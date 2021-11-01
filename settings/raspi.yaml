@@ -106,12 +106,12 @@ motion_detector:
         # default: 0.5, which means half of the queue has to be considered "active" 
         #threshold: 0.5
 
-        # The length of time to wait between retrieving the state of the underlying device. 
-        # Defaults to 0.0 indicating that values are retrieved as fast as possible.
+        # The number of values to read from the device (and append to the
+        # internal queue) per second. Defaults to 10.0.
         # type: float
         # required: no
-        # default: 0.0
-        #sample_wait: 0.0
+        # default: 10.0
+        #sample_rate: 10.0
 
     # dummy gpio sensor settings node
     # type: dict

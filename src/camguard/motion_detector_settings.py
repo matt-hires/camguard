@@ -32,7 +32,7 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
     _NOTIFICATION_LED_GPIO_PIN_NUMBER: ClassVar[str] = "notification_led_gpio_pin_number"
     _QUEUE_LENGTH: ClassVar[str] = "queue_length"
     _THRESHOLD: ClassVar[str] = "threshold"
-    _SAMPLE_WAIT: ClassVar[str] = "sample_wait"
+    _SAMPLE_RATE: ClassVar[str] = "sample_rate"
 
     @property
     def gpio_pin_number(self) -> int:
@@ -51,12 +51,12 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
         self._led_gpio_pin_number = value
 
     @property
-    def sample_wait(self) -> float:
-        return self._sample_wait
+    def sample_rate(self) -> float:
+        return self._sample_rate
 
-    @sample_wait.setter
-    def sample_wait(self, value: float) -> None:
-        self._sample_wait = value
+    @sample_rate.setter
+    def sample_rate(self, value: float) -> None:
+        self._sample_rate = value
 
     @property
     def queue_length(self) -> int:
@@ -93,14 +93,14 @@ class RaspiGpioSensorSettings(MotionDetectorSettings):
             default=0  # 0 -> disable the notification led by default
         )
 
-        self.sample_wait = super().get_setting_from_key(
-            setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._SAMPLE_WAIT}",
+        self.sample_rate = super().get_setting_from_key(
+            setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._SAMPLE_RATE}",
             settings=data,
             default=10.0
         )
 
         self.queue_length = super().get_setting_from_key(
-            setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._SAMPLE_WAIT}",
+            setting_key=f"{MotionDetectorSettings._KEY}.{self._KEY}.{RaspiGpioSensorSettings._QUEUE_LENGTH}",
             settings=data,
             default=1
         )

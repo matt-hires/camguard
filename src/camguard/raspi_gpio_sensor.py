@@ -20,7 +20,7 @@ class RaspiGpioSensor(MotionDetectorImpl):
         LOGGER.info(f"Using motion sensor on pin {settings.gpio_pin_number}")
         self._motion_sensor = GPIOMotionSensor(pin=settings.gpio_pin_number,
                                                queue_len=settings.queue_length,
-                                               sample_rate=settings.sample_wait,
+                                               sample_rate=settings.sample_rate,
                                                threshold=settings.threshold)
 
         self._settings = settings
