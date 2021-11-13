@@ -5,8 +5,8 @@ from camguard.settings import ImplementationType, Settings
 class NetworkDeviceDetectorSettings(Settings):
     """network device connector settings class
     """
-    _KEY: ClassVar[str] = "network_device_detector"
-    _IMPL_TYPE: ClassVar[str] = "implementation"
+    _KEY: ClassVar[str] = 'network_device_detector'
+    _IMPL_TYPE: ClassVar[str] = 'implementation'
 
     @property
     def impl_type(self) -> ImplementationType:
@@ -28,9 +28,9 @@ class NetworkDeviceDetectorSettings(Settings):
 class NMapDeviceDetectorSettings(NetworkDeviceDetectorSettings):
     """specialized mail notification settings for a common mail client implementation 
     """
-    _KEY: ClassVar[str] = "nmap_device_detector"
-    _IP_ADDR: ClassVar[str] = "ip_addr"
-    _INTERVAL_SECONDS: ClassVar[str] = "interval_seconds"
+    _KEY: ClassVar[str] = 'nmap_device_detector'
+    _IP_ADDR: ClassVar[str] = 'ip_addr'
+    _INTERVAL_SECONDS: ClassVar[str] = 'interval_seconds'
 
     @property
     def ip_addr(self) -> str:
@@ -63,4 +63,4 @@ class NMapDeviceDetectorSettings(NetworkDeviceDetectorSettings):
 class DummyNetworkDeviceDetectorSettings(NetworkDeviceDetectorSettings):
     """specialized mail notification settings for dummy implementation 
     """
-    _KEY: ClassVar[str] = "dummy_network_device_detector"
+    _KEY: ClassVar[str] = 'dummy_network_device_detector'

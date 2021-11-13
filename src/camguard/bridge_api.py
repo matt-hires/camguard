@@ -8,7 +8,7 @@ from camguard.file_storage_settings import DummyGDriveStorageSettings, FileStora
 from camguard.mail_client_settings import DummyMailClientSettings, GenericMailClientSettings, MailClientSettings
 from camguard.motion_detector_settings import DummyGpioSensorSettings, MotionDetectorSettings, RaspiGpioSensorSettings
 from camguard.motion_handler_settings import DummyCamSettings, MotionHandlerSettings, RaspiCamSettings
-from camguard.network_device_detector_settings import NMapDeviceDetectorSettings, NetworkDeviceDetectorSettings
+from camguard.network_device_detector_settings import DummyNetworkDeviceDetectorSettings, NMapDeviceDetectorSettings, NetworkDeviceDetectorSettings
 from camguard.settings import ImplementationType
 
 LOGGER = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class MotionHandler:
         self._get_impl()  # create impl objects
 
     @pipelinestep
-    def on_motion(self, pipeline: List[Generator[None, Any, None]]) -> Generator[None, "MotionDetector", None]:
+    def on_motion(self, pipeline: List[Generator[None, Any, None]]) -> Generator[None, 'MotionDetector', None]:
         """ motion handler pipeline step: on_motion
         handle current motion event in handler and sends return value to sink pipeline
 
@@ -74,7 +74,7 @@ class MotionHandler:
         return self._get_impl().id
 
     def _get_impl(self) -> MotionHandlerImpl:
-        if not hasattr(self, "_impl") or not self._impl:
+        if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_cam import DummyCam
                 self._impl = DummyCam(DummyCamSettings.load_settings(self._config_path))
@@ -101,12 +101,12 @@ class MotionDetector:
         Args:
             config_path (str): settings configuration path
         """
-        self._pipeline: List[Generator[None, "MotionDetector", None]] = []
+        self._pipeline: List[Generator[None, 'MotionDetector', None]] = []
         self._config_path = config_path
         self._settings: MotionDetectorSettings = MotionDetectorSettings.load_settings(config_path)
         self._get_impl()  # create impl objects
 
-    def register_handlers(self, pipeline: List[Generator[None, "MotionDetector", None]]) -> None:
+    def register_handlers(self, pipeline: List[Generator[None, 'MotionDetector', None]]) -> None:
         """register handler pipe
 
         Args:
@@ -132,11 +132,11 @@ class MotionDetector:
 
     def set_disabled(self, value: bool) -> None:
         # synchronize for enabling cross-thread calls for this function
-        with MotionDetector._lock: 
+        with MotionDetector._lock:
             self._disabled = value
 
     def _on_motion(self) -> None:
-        if hasattr(self, "_disabled") and self._disabled:
+        if hasattr(self, '_disabled') and self._disabled:
             LOGGER.debug("Motion Detector disabled, pipeline deactivated")
             return
 
@@ -145,7 +145,7 @@ class MotionDetector:
             step.send(self)
 
     def _get_impl(self) -> MotionDetectorImpl:
-        if not hasattr(self, "_impl") or not self._impl:
+        if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gpio_sensor import DummyGpioSensor
                 self._impl = DummyGpioSensor(DummyGpioSensorSettings.load_settings(self._config_path))
@@ -200,7 +200,7 @@ class FileStorage:
             self._get_impl().enqueue_files(files)
 
     def _get_impl(self) -> FileStorageImpl:
-        if not hasattr(self, "_impl") or not self._impl:
+        if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gdrive_storage import DummyGDriveStorage
                 self._impl = DummyGDriveStorage(DummyGDriveStorageSettings.load_settings(self._config_path))
@@ -233,7 +233,7 @@ class MailClient:
             self._get_impl().send_mail(files)
 
     def _get_impl(self) -> MailClientImpl:
-        if not hasattr(self, "_impl") or not self._impl:
+        if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_mail_client import DummyMailClient
                 self._impl = DummyMailClient(DummyMailClientSettings.load_settings(self._config_path))
@@ -242,6 +242,7 @@ class MailClient:
                 self._impl = GenericMailClient(GenericMailClientSettings.load_settings(self._config_path))
 
         return self._impl
+
 
 class NetworkDeviceDetector:
     """network device detector api
@@ -280,7 +281,12 @@ class NetworkDeviceDetector:
     def _get_impl(self) -> NetworkDeviceDetectorImpl:
         # TODO: check for dummy flag
         if not hasattr(self, '_impl') or not self._impl:
-            from .nmap_device_detector import NMapDeviceDetector
-            self._impl = NMapDeviceDetector(NMapDeviceDetectorSettings.load_settings(self._config_path))
+            if self._settings.impl_type == ImplementationType.DUMMY:
+                from .dummy_network_device_detector import DummyNetworkDeviceDetector
+                self._impl = DummyNetworkDeviceDetector(
+                    DummyNetworkDeviceDetectorSettings.load_settings(self._config_path))
+            else:
+                from .nmap_device_detector import NMapDeviceDetector
+                self._impl = NMapDeviceDetector(NMapDeviceDetectorSettings.load_settings(self._config_path))
 
         return self._impl

@@ -54,7 +54,7 @@ class RaspiCam(MotionHandlerImpl):
         resolved_path = os.path.expandvars(os.path.expanduser(self._settings.record_path))
 
         # create directory with the current date
-        date_str = date.today().strftime("%Y%m%d/")
+        date_str = date.today().strftime('%Y%m%d/')
         record_path = os.path.join(resolved_path, date_str)
 
         if not os.path.exists(record_path):

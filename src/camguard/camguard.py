@@ -74,7 +74,7 @@ class CamGuard:
     def stop(self):
         """stop camguard
         """
-        LOGGER.info('Stopping camguard')
+        LOGGER.info("Stopping camguard")
         self._handler.stop()
         self._detector.stop()
 

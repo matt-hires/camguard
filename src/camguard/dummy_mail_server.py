@@ -9,27 +9,27 @@ from aiosmtpd.smtp import AuthResult, LoginPassword, SMTP, Envelope, Session
 from camguard.certs import MAIL_CERT, MAIL_KEY
 
 
-class DummyMailServer(ContextManager["DummyMailServer"]):
+class DummyMailServer(ContextManager['DummyMailServer']):
     """dummy mail server for testing
     """
 
     def authenticator(self, _unused_server: SMTP, _unused_session: Session, _unused_envelope: Envelope,
                       mechanism: str, login_data: Tuple[bytes, bytes]) -> AuthResult:
 
-        if mechanism not in ("LOGIN", "PLAIN"):
+        if mechanism not in ('LOGIN', 'PLAIN'):
             return AuthResult(success=False, handled=False)
-        if not isinstance(login_data, LoginPassword):
+        if not isinstance(login_data, LoginPassword): # type: ignore
             return AuthResult(success=False, handled=False)
 
-        username = login_data.login.decode()
-        password = login_data.password.decode()
+        username = login_data.login.decode() # type: ignore
+        password = login_data.password.decode() # type: ignore
 
         if username != self._user or password != self._password:
             return AuthResult(success=False, handled=False)
 
         return AuthResult(success=True)
 
-    def __enter__(self) -> "DummyMailServer":
+    def __enter__(self) -> 'DummyMailServer':
         self._controller = Controller(handler=Debugging(),
                                       tls_context=self._tsl_context,
                                       # otherwise mail-client have to decode data manually (split by \r\n)

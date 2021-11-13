@@ -5,8 +5,8 @@ from camguard.settings import ImplementationType, Settings
 class MotionHandlerSettings(Settings):
     """Specialized motion handler settings class
     """
-    _IMPL: ClassVar[str] = "implementation"
-    _KEY: ClassVar[str] = "motion_handler"
+    _IMPL: ClassVar[str] = 'implementation'
+    _KEY: ClassVar[str] = 'motion_handler'
 
     @property
     def impl_type(self) -> ImplementationType:
@@ -28,11 +28,11 @@ class MotionHandlerSettings(Settings):
 class RaspiCamSettings(MotionHandlerSettings):
     """ specialized settings for raspi cam motion handler
     """
-    _RECORD_PATH: ClassVar[str] = "record_path"
-    _RECORD_INTERVAL_SEC: ClassVar[str] = "record_interval_seconds"
-    _RECORD_COUNT: ClassVar[str] = "record_count"
-    _RECORD_FILE_FORMAT: ClassVar[str] = "record_file_format"
-    _KEY: ClassVar[str] = "raspi_cam"
+    _RECORD_PATH: ClassVar[str] = 'record_path'
+    _RECORD_INTERVAL_SEC: ClassVar[str] = 'record_interval_seconds'
+    _RECORD_COUNT: ClassVar[str] = 'record_count'
+    _RECORD_FILE_FORMAT: ClassVar[str] = 'record_file_format'
+    _KEY: ClassVar[str] = 'raspi_cam'
 
     @property
     def record_path(self) -> str:
@@ -98,7 +98,7 @@ class RaspiCamSettings(MotionHandlerSettings):
         )
 
 
-class DummyCamSettings(MotionHandlerSettings):
+class DummyCamSettings(RaspiCamSettings):
     """ specialized settings for dummy cam motion handler
     """
-    _KEY: ClassVar[str] = "dummy_cam"
+    _KEY: ClassVar[str] = 'dummy_cam' # override key for DummyCamSettings

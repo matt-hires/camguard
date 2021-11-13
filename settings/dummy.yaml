@@ -3,6 +3,7 @@ components:
     - motion_detector
     - file_storage
     - mail_client
+    - network_device_detector
 
 motion_handler:
     implementation: dummy
@@ -14,14 +15,18 @@ motion_detector:
     implementation: dummy
 
 file_storage:
-    dummy_implementation: True
+    implementation: dummy
 
 mail_client:
-    dummy_implementation: True
+    implementation: dummy
     username: camguard 
     password: dummy
     receiver_mail: dummy-receiver@camguard.at
     sender_mail: dummy-sender@camguard.at
     hostname: localhost
+
+network_device_detector:
+    implementation: dummy
+
 
 

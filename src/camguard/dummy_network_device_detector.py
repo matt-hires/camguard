@@ -1,35 +1,27 @@
 import logging
-import threading
-from shutil import which
-from subprocess import run
+from random import uniform, random
 from threading import Event
-from typing import Callable, ClassVar, List
-
+import threading
+from typing import Callable
 from camguard.bridge_impl import NetworkDeviceDetectorImpl
-from camguard.exceptions import ConfigurationError
-from camguard.network_device_detector_settings import \
-    NMapDeviceDetectorSettings
+from camguard.network_device_detector_settings import DummyNetworkDeviceDetectorSettings
 
 LOGGER = logging.getLogger(__name__)
 
 
-class NMapDeviceDetector(NetworkDeviceDetectorImpl):
-    _NMAP_BIN: ClassVar[str] = 'nmap'
-    _SCAN_TYPE: ClassVar[str] = '-sn'
-    _SCAN_ALGORHITHM: ClassVar[str] = '-T4'
-    _FOUND_HOST_MSG: ClassVar[str] = 'host is up'
+class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
+    """simulation network device detection in a random interval between two boundaries
+    """
 
-    def __init__(self, settings: NMapDeviceDetectorSettings) -> None:
+    def __init__(self, settings: DummyNetworkDeviceDetectorSettings) -> None:
         super().__init__()
         self._stop_event = Event()
         self._settings = settings
-        self._args: List[str] = [self._NMAP_BIN, self._SCAN_ALGORHITHM, self._SCAN_TYPE, self._settings.ip_addr]
+        self._min_detection_seconds = 10.0 
+        self._max_detection_seconds = 20.0
 
     def init(self) -> None:
         LOGGER.info("Initializing nmap device detector")
-        if not which(self._NMAP_BIN):
-            # check if nmap is available, otherwise raise error
-            raise ConfigurationError(f"Couldn't find nmap binary: {self._NMAP_BIN}")
 
     def register_handler(self, handler: Callable[[bool], None]) -> None:
         LOGGER.debug("Registering nmap device detector callback")
@@ -47,18 +39,20 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
             LOGGER.debug("Detector thread has never been started")
             return
         self._stop_event.set()
-        self._thread.join(4 * self._settings.interval_seconds)
+        self._thread.join(4 * self._max_detection_seconds)
 
         self._stop_event.clear()
         LOGGER.info("Shutdown successful")
 
     def _do_work(self):
         LOGGER.info("Starting device check thread")
-        while not self._stop_event.wait(self._settings.interval_seconds):
+        while not self._stop_event.wait(round(uniform(self._min_detection_seconds,
+                                                      self._max_detection_seconds), 1)):
             # check for device in network
-            result = run(self._args, capture_output=True, text=True)
-            # TODO: handle errors from cmd
-            found_device = self._FOUND_HOST_MSG in result.stdout.lower()
+            LOGGER.debug("Simulating device detection")
+
+            # randomize found device
+            found_device: bool = bool(round(random()))
 
             if hasattr(self, '_handler') and self._handler:
                 # call handler and notice about detection status

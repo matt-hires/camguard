@@ -42,14 +42,20 @@ class DummyCam(MotionHandlerImpl):
 
         LOGGER.info("Recording pictures")
 
+        # expand env variables and '~' in path
+        resolved_path = path.expandvars(path.expanduser(self._settings.record_path))
+
+        # create directory with the current date
         date_str = date.today().strftime("%Y%m%d/")
-        record_path = path.expandvars(path.expanduser(self._settings.record_path))
-        record_path = path.join(record_path, date_str)
-        makedirs(record_path, exist_ok=True)
+        record_path = path.join(resolved_path, date_str)
+
+        if not path.exists(record_path):
+            makedirs(record_path, exist_ok=True)
 
         recorded: List[str] = []
         for i in range(1, self._settings.record_count + 1):
-            filename = self._settings.record_file_format.format(counter=i, timestamp=datetime.today())
+            filename = self._settings.record_file_format.format(counter=i,
+                                                                timestamp=datetime.today())
             file_path = path.join(record_path, filename)
             LOGGER.info(f"Recorded picture to {file_path}")
 

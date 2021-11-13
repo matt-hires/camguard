@@ -12,8 +12,7 @@ from google.oauth2.credentials import Credentials, exceptions  # type: ignore
 from google.auth.transport.requests import Request  # type: ignore
 from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import build  # type: ignore
-from googleapiclient.http import MediaFileUpload
-from camguard.camguard_settings import CamguardSettings  # type: ignore
+from googleapiclient.http import MediaFileUpload # type: ignore
 
 from camguard.file_storage_settings import GDriveStorageSettings
 
