@@ -17,9 +17,6 @@ Features
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
 
-* email notification
-    - make mail client optional
-
 * increase test coverage
     - ITs
     - Unit-Tests
@@ -27,21 +24,20 @@ Features
 Refactoring
 -----------
 
-* Settings 
-    For optional components it should be possible to disable it in a global configuration section. Update documentation afterwards
-
-
-    .. code-block::
-
-        implementation: dummy # dummy, raspi
-        disabled: false # (default=false) <- add this
-
 =======
 PENDING
 =======
 
+====
+DONE
+====
+* email notification
+    - make mail client optional
+
+* Settings 
+    For optional components it should be possible to disable it in a global configuration section. Update documentation afterwards
+
 * FileStorage-Settings: Use implementation setting the same way as for motion detector. This is the same for the mail client. Update documentation afterwards
- 
 
 * deactivation when specific mac addr is present in network
     - configuration
@@ -54,9 +50,6 @@ PENDING
 
         sudo nmap -sn 192.168.1.0/24 --dns-server=192.168.1.1 -T4 | grep "DA:DC:E8:A1:9E:0D"
 
-====
-DONE
-====
 * Refactor settings - reuse a code refragment for getting settings and throwing a mandatory exception
 * gdrive - google oauth
     - describe new settings
