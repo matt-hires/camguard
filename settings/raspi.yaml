@@ -9,10 +9,66 @@
 # type: list
 # required: yes
 components:
-    - motion_handler # mandatory
     - motion_detector # mandatory
+    - motion_handler # mandatory
     - file_storage
     - mail_client
+
+# motion detector settings node
+# type: dict
+# required: yes
+motion_detector:
+    # implementation type for camguard equipment
+    # type: enumeration
+    # required: no
+    # values: [raspi, dummy]
+    # default: raspi
+    implementation: raspi
+
+    # implementation settings node 
+    # type: dict
+    # required: yes
+    # values: [raspi_gpio_sensor, dummy_gpio_sensor]
+    raspi_gpio_sensor: 
+
+        # raspi gpio pin number where motion sensor is connected
+        # type: integer
+        # required: yes
+        gpio_pin_number: 23 
+
+        # raspi gpio pin number for a optional notification led 
+        # type: integer
+        # required: no
+        # default: 0, which means it is disabled
+        #notification_led_gpio_pin_number: 0
+
+        # The length of the queue used to store values read from the sensor. 
+        # This defaults to 1 which effectively disables the queue. If your motion
+        # sensor is particularly "twitchy" you may wish to increase this value.
+        # type: int
+        # required: no
+        # default: 1, which disabled the queue
+        #queue_length: 1
+
+        # When the average of all values in the internal queue rises above this value,
+        # the sensor will be considered "active"
+        # type: float
+        # required: no
+        # default: 0.5, which means half of the queue has to be considered "active" 
+        #threshold: 0.5
+
+        # The number of values to read from the device (and append to the
+        # internal queue) per second. Defaults to 10.0.
+        # type: float
+        # required: no
+        # default: 10.0
+        #sample_rate: 10.0
+
+    # dummy gpio sensor settings node
+    # type: dict
+    # required: no
+    #dummy_gpio_sensor:
+        # settings properties are the same as for raspi_gpio_sensor
 
 # motion handler settings node
 # type: dict
@@ -62,62 +118,6 @@ motion_handler:
     # required: no
     #dummy_cam:
         # settings properties the same as for raspi_cam
-
-# motion detector settings node
-# type: dict
-# required: yes
-motion_detector:
-    # implementation type for camguard equipment
-    # type: enumeration
-    # required: no
-    # values: [raspi, dummy]
-    # default: raspi
-    implementation: raspi
-
-    # implementation settings node 
-    # type: dict
-    # required: yes
-    # values: [raspi_gpio_sensor, dummy_gpio_sensor]
-    raspi_gpio_sensor: 
-
-        # raspi gpio pin number where motion sensor is connected
-        # type: integer
-        # required: yes
-        gpio_pin_number: 23 
-
-        # raspi gpio pin number for a optional notification led 
-        # type: integer
-        # required: no
-        # default: 0, which means it is disabled
-        #notification_led_gpio_pin_number: 0
-
-        # The length of the queue used to store values read from the sensor. 
-        # This defaults to 1 which effectively disables the queue. If your motion
-        # sensor is particularly "twitchy" you may wish to increase this value.
-        # type: int
-        # required: no
-        # default: 1, which disabled the queue
-        #queue_length: 0
-
-        # When the average of all values in the internal queue rises above this value,
-        # the sensor will be considered "active"
-        # type: float
-        # required: no
-        # default: 0.5, which means half of the queue has to be considered "active" 
-        #threshold: 0.5
-
-        # The number of values to read from the device (and append to the
-        # internal queue) per second. Defaults to 10.0.
-        # type: float
-        # required: no
-        # default: 10.0
-        #sample_rate: 10.0
-
-    # dummy gpio sensor settings node
-    # type: dict
-    # required: no
-    #dummy_gpio_sensor:
-        # settings properties are the same as for raspi_gpio_sensor
 
 # file storage settings node
 # type: dict

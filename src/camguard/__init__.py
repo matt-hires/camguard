@@ -27,7 +27,8 @@ def _parse_args() -> Namespace:
                         choices=["INFO", "DEBUG", "WARN", "ERROR", "CRITICAL"],
                         help="Define custom log level")
     parser.add_argument("-c", metavar="CONFIG_PATH", type=str, default="$HOME/.config/camguard", dest="config_path",
-                        help="Define custom config path, '~' and env variables will be resolved.")
+                        help="Define custom config path, '~' and env variables will be resolved, "
+                        "file name is 'settings.yaml'.")
     parser.add_argument("--daemonize", default=False, action="store_true", help="Run camguard as a unix daemon")
     parser.add_argument("--detach", default=False, action="store_true",
                         help="Detach process from current terminal "
@@ -124,7 +125,7 @@ def main():
         _camguard = CamGuard(args.config_path)
 
         # run camguard if it was successfully initialized
-        if _init(_camguard): 
+        if _init(_camguard):
             _run(args, _camguard)
 
     except SystemExit as e:

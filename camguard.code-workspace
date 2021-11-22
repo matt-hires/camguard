@@ -16,6 +16,12 @@
         "editor.wordWrapColumn": 120,
         "editor.minimap.maxColumn": 120,
         "editor.wordWrap": "wordWrapColumn",
-        "python.testing.unittestEnabled": true
+        "python.testing.unittestEnabled": true,
+        "cSpell.words": [
+            "camguard",
+            "Electreeks",
+            "gpio",
+            "raspi"
+        ]
     }
 }
