@@ -28,10 +28,11 @@ Motion detector (``motion_detector``)
 
 Implementation Type (``implementation``)
 ''''''''''''''''''''''''''''''''''''''''
-| *Required* enumeration type for selecting the implementation of the detector component, available values are:
+| *Required* enumeration type for selecting the implementation of the motion detector component, available values are:
 | Type: ``enum``
+| Default: ``raspi``
 
-- ``raspi`` (default)
+- ``raspi``
 - ``dummy``
 
 Implementation Settings
@@ -98,7 +99,7 @@ Example configuration for Dummy usage
         dummy_gpio_sensor:
             # no value available
 
-Motion handler (``motion_handler``)
+Motion Handler (``motion_handler``)
 ```````````````````````````````````
 | A component which handles motion detection, in the current implementation this is represented either by a Raspberry Pi- or Dummy-Camera. 
 | The following settings are available for ``motion_handler`` node:
@@ -175,3 +176,138 @@ Example configuration for Dummy usage
             record_count: 5
             record_interval_seconds: 0.5
             record_file_format: "{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg" # default
+
+File Storage (``file_storage``)
+```````````````````````````````
+| A component which handles file storage of the recorded files from the motion handler. 
+| The following settings are available for ``file_storage`` node:
+
+Implementation Type (``implementation``)
+''''''''''''''''''''''''''''''''''''''''
+| *Required* enumeration type for selecting the implementation of the file storage component, by default this is a google drive storage implementation. Available values are:
+| Type: ``enum``
+| Default: ``default`` (google drive storage)
+
+- ``default``
+- ``dummy`` (selects a dummy/offline implementation of the file storage for testing purposes)
+
+Implementation Settings
+'''''''''''''''''''''''
+The settings node of the selected implementation type, available values are:
+
+- gdrive_storage
+- dummy_gdrive_storage
+
+Following settings are *both only available for ``gdrive_storage``*.
+
+Upload folder name (``upload_folder_name``)
+'''''''''''''''''''''''''''''''''''''''''''
+| The name of the upload folder in the gdrive root.
+| Type: ``string``
+| Default: ``'Camguard'``
+
+OAuth token path (``oauth_token_path``)
+'''''''''''''''''''''''''''''''''''''''
+| Folder path for saving Google-OAuth ``token.json`` file.
+| Type: ``string``
+| Default: ``'.'``
+
+OAuth credentials path (``oauth_credentials_path``)
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+| Folder path for loading Google-OAuth ``credentials.json`` file.
+| Type: ``string``
+| Default: ``'.'``
+
+Example configuration for GDrive File Storage
+'''''''''''''''''''''''''''''''''''''''''''''
+
+.. code:: yaml
+
+    file_storage:
+        implementation: default
+
+        gdrive_storage:
+                upload_folder_name: 'Camguard' # default 
+                oauth_token_path: "~/.config/camguard"
+                oauth_credentials_path: "~/.config/camguard"
+
+Example configuration for Dummy usage
+'''''''''''''''''''''''''''''''''''''
+
+.. code:: yaml
+
+    file_storage:
+        implementation: dummy
+
+        dummy_gdrive_storage:
+            # there are no specific settings for this node
+
+Mail client (``mail_client``)
+```````````````````````````````
+| Component which enables mail notification after motion motion is detected and handled by the motion handler.
+| The following settings are available for ``mail_client`` node:
+
+Implementation Type (``implementation``)
+''''''''''''''''''''''''''''''''''''''''
+| *Required* enumeration type for selecting the implementation of the mail client, by default this is a generic SMTP Mail Client implementation.
+| Type: ``enum``
+| Default: ``default`` (SMTP mail client implementation)
+
+- ``default``
+- ``dummy`` (selects a dummy/offline implementation of the mail client for testing purposes)
+
+Implementation Settings
+'''''''''''''''''''''''
+There is no dedicated settings node for the mail client, the settings of the selected implementation type reside inside the ``mail_client`` node.
+
+Username (``username``)
+'''''''''''''''''''''''
+| SMTP username for mail server authentication.
+| Type: ``string``
+
+Password (``password``)
+'''''''''''''''''''''''
+| SMTP password for mail server authentication. This is currently *not* encrypted.
+| Type: ``string``
+
+Sender mail (``sender_mail``)
+'''''''''''''''''''''''''''''
+| The sender mail address.
+| Type: ``string``
+
+Receiver mail (``receiver_mail``)
+'''''''''''''''''''''''''''''''''
+| The address of the mail recipient.
+| Type: ``string``
+
+Hostname (``hostname``):
+| Mail server hostname
+| Type: ``string``
+
+Example configuration for SMTP Mail Client 
+''''''''''''''''''''''''''''''''''''''''''
+
+.. code:: yaml
+
+    mail_client:
+        implementation: default
+
+        username: 'my-mail-user'
+        password: 'my-user-password'
+        sender_mail: 'user@mail-domain.com'
+        receiver_mail: 'recipient@gmail.com'
+        hostname: mail-domain.com
+
+Example configuration for Dummy usage 
+'''''''''''''''''''''''''''''''''''''
+
+.. code:: yaml
+
+    mail_client:
+        implementation: dummy
+
+        username: 'my-mail-user'
+        password: 'my-user-password'
+        sender_mail: 'user@mail-domain.com'
+        receiver_mail: 'recipient@gmail.com'
+        hostname: mail-domain.com

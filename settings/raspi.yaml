@@ -157,7 +157,7 @@ file_storage:
     # type: dict
     # required: no
     #dummy_gdrive_storage:
-        # settings properties are the same as for raspi_gpio_sensor
+        # there are no specific settings for this node
 
 # mail notification settings node
 # type: dict
