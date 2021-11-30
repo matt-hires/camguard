@@ -4,13 +4,13 @@ from typing import Any, Generator, List
 from camguard.bridge_api import (FileStorage, MailClient, MotionDetector,
                                  MotionHandler, NetworkDeviceDetector)
 from camguard.camguard_settings import CamguardSettings, ComponentsType
-from camguard.exceptions import CamGuardError
+from camguard.exceptions import CamguardError
 
 LOGGER = logging.getLogger(__name__)
 
 
-class CamGuard:
-    """CamGuard main device class, holds and manages equipment
+class Camguard:
+    """Camguard main device class, holds and manages equipment
     """
 
     def __init__(self, config_path: str):
@@ -53,10 +53,10 @@ class CamGuard:
         """start camguard
 
         Raises:
-            CamGuardError: is camguard hasn't been initialized
+            CamguardError: is camguard hasn't been initialized
         """
         if not self._init:
-            raise CamGuardError("Components have not been initialized successfully before start")
+            raise CamguardError("Components have not been initialized successfully before start")
 
         LOGGER.info("Starting camguard")
 

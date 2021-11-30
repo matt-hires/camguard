@@ -1,7 +1,7 @@
 import logging
 from typing import Any, ClassVar, Dict, List
 
-from camguard.exceptions import CamGuardError, ConfigurationError
+from camguard.exceptions import CamguardError, ConfigurationError
 from camguard.extended_enum import ExtendedEnum
 from camguard.settings import Settings
 
@@ -67,7 +67,7 @@ class ComponentsType(ExtendedEnum):
         if value == cls.NETWORK_DEVICE_DETECTOR.component_name:
             return cls.NETWORK_DEVICE_DETECTOR
 
-        raise CamGuardError(f"Component type {value} not implemented yet")
+        raise CamguardError(f"Component type {value} not implemented yet")
 
 
 class CamguardSettings(Settings):

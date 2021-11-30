@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from yaml import safe_load
 from yaml.error import YAMLError
 
-from camguard.exceptions import CamGuardError, ConfigurationError
+from camguard.exceptions import CamguardError, ConfigurationError
 from camguard.extended_enum import ExtendedEnum
 
 LOGGER = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class Settings:
             filepath (str, optional): yaml file. Defaults to "settings.yaml".
 
         Raises:
-            CamGuardError: if settings file cannot be openend 
+            CamguardError: if settings file cannot be openend 
             ConfigurationError: on yaml errors 
 
         Returns:
@@ -68,7 +68,7 @@ class Settings:
             with open(settings_path, 'r') as stream:
                 data = safe_load(stream)
         except OSError as ose:
-            raise CamGuardError(f"{cls.__name__}: Cannot open settings file {settings_path}: {ose}")
+            raise CamguardError(f"{cls.__name__}: Cannot open settings file {settings_path}: {ose}")
         except YAMLError as yamle:
             raise ConfigurationError(f"{cls.__name__}: Error in settings file {settings_path}: {yamle}")
         else:

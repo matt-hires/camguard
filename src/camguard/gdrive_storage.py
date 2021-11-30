@@ -17,7 +17,7 @@ from googleapiclient.http import MediaFileUpload  # type: ignore
 from camguard.file_storage_settings import GDriveStorageSettings
 
 from camguard.bridge_impl import FileStorageImpl
-from camguard.exceptions import CamGuardError, GDriveError
+from camguard.exceptions import CamguardError, GDriveError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ class GDriveUploadManager():
                     # the queue should be ready for new work and not be flodded with old upload retries
                     self._queue.task_done()
 
-        except CamGuardError as e:
+        except CamguardError as e:
             LOGGER.exception(f"Unrecoverable error in upload worker: {e.message}", exc_info=e)
         except Exception as e:
             LOGGER.exception("Unrecoverable error in upload worker", exc_info=e)

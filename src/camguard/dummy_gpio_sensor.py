@@ -6,7 +6,7 @@ from typing import Callable, ClassVar
 
 from camguard.motion_detector_settings import DummyGpioSensorSettings
 
-from .exceptions import CamGuardError
+from .exceptions import CamguardError
 
 from .bridge_impl import MotionDetectorImpl
 
@@ -57,7 +57,7 @@ class DummySensorThread(Thread):
         if self.is_alive():
             msg = f"Failed to stop within {timeout_sec}"
             LOGGER.error(msg)
-            raise CamGuardError(msg)
+            raise CamguardError(msg)
 
 
 class DummyGpioSensor(MotionDetectorImpl):

@@ -9,7 +9,7 @@ from daemon.daemon import DaemonContext  # type: ignore[reportMissingTypeStubs]
 from pid import PidFile  # type: ignore[reportMissingTypeStubs]
 
 from camguard.exceptions import \
-    CamGuardError  # type: ignore[reportMissingTypeStubs]
+    CamguardError  # type: ignore[reportMissingTypeStubs]
 
 __version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ def _init(camguard: Any) -> bool:
     try:
         camguard.init()
         success = True
-    except CamGuardError as e:
+    except CamguardError as e:
         LOGGER.exception(f"Error during initialization: {e.message}", exc_info=e)
         camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
     except Exception as e:
@@ -121,8 +121,8 @@ def main():
 
         LOGGER.info(f"Starting up with args: {args}")
 
-        from .camguard import CamGuard
-        _camguard = CamGuard(args.config_path)
+        from .camguard import Camguard
+        _camguard = Camguard(args.config_path)
 
         # run camguard if it was successfully initialized
         if _init(_camguard):

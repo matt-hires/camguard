@@ -1,5 +1,5 @@
 
-class CamGuardError(Exception):
+class CamguardError(Exception):
     """
     exception base class for camguard module
     """
@@ -13,10 +13,10 @@ class CamGuardError(Exception):
         return self._message
 
 
-class GDriveError(CamGuardError):
+class GDriveError(CamguardError):
     """ indicates error with gdrive processing 
     """
 
-class ConfigurationError(CamGuardError):
+class ConfigurationError(CamguardError):
     """ indicates wrong configuration
     """
