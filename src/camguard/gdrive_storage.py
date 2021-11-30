@@ -12,7 +12,7 @@ from google.oauth2.credentials import Credentials, exceptions  # type: ignore
 from google.auth.transport.requests import Request  # type: ignore
 from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import build  # type: ignore
-from googleapiclient.http import MediaFileUpload # type: ignore
+from googleapiclient.http import MediaFileUpload  # type: ignore
 
 from camguard.file_storage_settings import GDriveStorageSettings
 
@@ -113,7 +113,7 @@ class GDriveUploadManager():
         try:
             self._queue.put_nowait(file_path)
         except Full:
-            LOGGER.warn(f"maxium queue length of {self._queue.maxsize} reached. Loosing item {file_path}")
+            LOGGER.warning(f"maxium queue length of {self._queue.maxsize} reached. Loosing item {file_path}")
 
     def start(self) -> None:
         """fire up workers
@@ -127,11 +127,8 @@ class GDriveUploadManager():
         LOGGER.info(f"Starting up workers")
         # set up dictionary of worker futures
         self._worker_futures = dict(
-            enumerate([
-                self._executor.submit(self._upload_worker)
-                for _ in range(self._MAX_WORKERS
-                               )]
-                      ))
+            enumerate(self._executor.submit(self._upload_worker) for _ in range(self._MAX_WORKERS))
+        )
 
     def stop(self) -> None:
         """stop workers gracefully
@@ -179,7 +176,7 @@ class GDriveUploadManager():
                 except GDriveError as e:
                     # gdrive errors do not stop the thread,
                     # so that the upload component can recover from google driver errors
-                    LOGGER.warn(f"Upload failed: {file} with error: {e}")
+                    LOGGER.warning(f"Upload failed: {file} with error: {e}")
                 finally:
                     # indicate formerly enqueued task is done
                     # therefore also a unsuccessful upload, in case of GDriveError, won't lead to a retry

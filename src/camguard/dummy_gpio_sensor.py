@@ -2,7 +2,7 @@
 import logging
 from random import uniform
 from threading import Event, Lock, Thread
-from typing import Callable, ClassVar, Optional
+from typing import Callable, ClassVar
 
 from camguard.motion_detector_settings import DummyGpioSensorSettings
 
@@ -25,10 +25,8 @@ class DummySensorThread(Thread):
         self._min_trigger_seconds: float = 5.0
 
     @property
-    def handler(self) -> Optional[Callable[..., None]]:
+    def handler(self) -> Callable[..., None]:
         with DummySensorThread._lock:
-            if not hasattr(self, "_handler"):
-                return None
             return self._handler
 
     @handler.setter
@@ -42,7 +40,7 @@ class DummySensorThread(Thread):
             while not self._stop_event.wait(round(uniform(self._min_trigger_seconds,
                                                           self._max_trigger_seconds), 1)):
                 LOGGER.debug("Simulating motion detection")
-                if self.handler:
+                if hasattr(self, "_handler"):
                     self.handler()
         except Exception as e:
             LOGGER.exception("Unrecoverable error in dummy gpio sensor thread", exc_info=e)

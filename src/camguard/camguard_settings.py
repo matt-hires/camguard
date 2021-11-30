@@ -91,5 +91,5 @@ class CamguardSettings(Settings):
         ]
 
         missing_mandatories = ComponentsType.check_mandatory(self._components)
-        if len(missing_mandatories):
+        if missing_mandatories:
             raise ConfigurationError(f"Mandatory components missing: {missing_mandatories}")

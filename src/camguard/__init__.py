@@ -2,7 +2,7 @@ import logging
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from signal import SIGINT, SIGTERM, Signals, sigwait
-from sys import exit, stderr, stdout
+from sys import stderr, stdout
 from typing import Any, Dict, Optional
 
 from daemon.daemon import DaemonContext  # type: ignore[reportMissingTypeStubs]
@@ -39,7 +39,7 @@ def _parse_args() -> Namespace:
     args = parser.parse_args()
 
     if args.detach and not args.daemonize:
-        LOGGER.warn("Ignoring --detach argument as it is used without --daemonize")
+        LOGGER.warning("Ignoring --detach argument as it is used without --daemonize")
 
     return args
 
@@ -128,11 +128,11 @@ def main():
         if _init(_camguard):
             _run(args, _camguard)
 
-    except SystemExit as e:
-        LOGGER.debug(e)
+    except SystemExit as sysEx:
+        LOGGER.debug(sysEx)
         LOGGER.info("Camguard shut down gracefully")
-    except Exception as e:
-        LOGGER.exception("Unexpected error occured", exc_info=e)
+    except Exception as ex:
+        LOGGER.exception("Unexpected error occured", exc_info=ex)
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
     exit(rc)
