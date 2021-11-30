@@ -26,6 +26,7 @@ class Camguard:
         self._detector = MotionDetector(self._config_path)
         self._handler = MotionHandler(self._config_path)
 
+    # skipcq: PYL-W0201
     def init(self):
         """initialize equipment, this *has* to be done before start
         """

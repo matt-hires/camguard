@@ -76,6 +76,7 @@ class DummyGpioSensor(MotionDetectorImpl):
         self._settings = settings
         DummyGpioSensor._id += 1
 
+    # skipcq: PYL-W0201
     def register_handler(self, handler: Callable[..., None]) -> None:
         self._handler = handler
 

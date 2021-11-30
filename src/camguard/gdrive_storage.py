@@ -124,7 +124,7 @@ class GDriveUploadManager():
         if self._worker_futures:
             raise GDriveError("Upload workers already running")
 
-        LOGGER.info(f"Starting up workers")
+        LOGGER.info("Starting up workers")
         # set up dictionary of worker futures
         self._worker_futures = dict(
             enumerate(self._executor.submit(self._upload_worker) for _ in range(self._MAX_WORKERS))

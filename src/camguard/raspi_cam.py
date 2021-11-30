@@ -25,7 +25,7 @@ class RaspiCam(MotionHandlerImpl):
         RaspiCam._id += 1
 
     def handle_motion(self) -> Any:
-        LOGGER.debug(f"Triggered by motion")
+        LOGGER.debug("Triggered by motion")
         with PiCamera() as pi_camera:  # type: ignore
             return self._record_picture(pi_camera)
 

@@ -99,7 +99,7 @@ def _init(camguard: Any) -> bool:
         camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
     # skipcq: PYL-W0703
     except Exception as e:
-        LOGGER.exception(f"Error during initialization", exc_info=e)
+        LOGGER.exception("Error during initialization", exc_info=e)
         camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
 
     return success
