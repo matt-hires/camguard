@@ -124,6 +124,7 @@ class Settings:
 
         return _instance
 
+    # skipcq: PYL-R0201
     def _parse_data(self, data: Dict[str, Any]):
         """parse data from yaml and store
 
