@@ -165,4 +165,3 @@ License
 .. |raspi| replace:: **Raspberry PI** 
 .. _`camguard rtd`: https://camguard.readthedocs.io
 .. |camguard rtd| replace:: **camguard.readthedocs.io**
-
