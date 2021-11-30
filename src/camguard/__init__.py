@@ -1,8 +1,8 @@
 import logging
+import sys
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 from signal import SIGINT, SIGTERM, Signals, sigwait
-from sys import stderr, stdout
 from typing import Any, Dict, Optional
 
 from daemon.daemon import DaemonContext  # type: ignore[reportMissingTypeStubs]
@@ -64,11 +64,12 @@ def _configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
     return DaemonContext(detach_process=detach,
                          pidfile=pid_file,
                          signal_map=signal_map,
-                         stderr=stderr,
-                         stdout=stdout,
+                         stderr=sys.stderr,
+                         stdout=sys.stdout,
                          working_directory=work_dir)
 
 
+# skipcq: PYL-W0613
 def _shutdown(camguard: Any, signal_number: Signals, stack_frame: Any) -> None:
     LOGGER.info("Gracefully shutting down Camguard")
     if camguard:
@@ -96,6 +97,7 @@ def _init(camguard: Any) -> bool:
     except CamguardError as e:
         LOGGER.exception(f"Error during initialization: {e.message}", exc_info=e)
         camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
+    # skipcq: PYL-W0703
     except Exception as e:
         LOGGER.exception(f"Error during initialization", exc_info=e)
         camguard.stop()  # in case a component already started a thread in init (DummyGpioSensor)
@@ -131,8 +133,9 @@ def main():
     except SystemExit as sysEx:
         LOGGER.debug(sysEx)
         LOGGER.info("Camguard shut down gracefully")
+    # skipcq: PYL-W0703
     except Exception as ex:
         LOGGER.exception("Unexpected error occured", exc_info=ex)
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
-    exit(rc)
+    sys.exit(rc)

@@ -42,6 +42,7 @@ class DummySensorThread(Thread):
                 LOGGER.debug("Simulating motion detection")
                 if hasattr(self, "_handler"):
                     self.handler()
+        # skipcq: PYL-W0703
         except Exception as e:
             LOGGER.exception("Unrecoverable error in dummy gpio sensor thread", exc_info=e)
 

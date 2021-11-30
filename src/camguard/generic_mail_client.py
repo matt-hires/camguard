@@ -31,12 +31,13 @@ class GenericMailClient(MailClientImpl):
             with Client(host=self._settings.hostname, port=GenericMailClient._PORT) as client:
                 client.starttls()
                 client.login(self._settings.user, self._settings.password)
-                client.send_message(self._create_msg(sender, receiver, files))
+                client.send_message(GenericMailClient._create_msg(sender, receiver, files))
         except (SMTPConnectError, OSError) as client_err:
             LOGGER.error(f"Error while connecting to mail server: {self._settings.hostname}:{GenericMailClient._PORT}",
                          exc_info=client_err)
 
-    def _create_msg(self, sender: str, receiver: str, files: List[str]) -> EmailMessage:
+    @staticmethod
+    def _create_msg(sender: str, receiver: str, files: List[str]) -> EmailMessage:
         msg: EmailMessage = EmailMessage()
         msg.add_header("Subject", GenericMailClient._MAIL_SUBJECT)
         msg.add_header("From", sender)

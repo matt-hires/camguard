@@ -185,6 +185,8 @@ class GDriveUploadManager():
 
         except CamguardError as e:
             LOGGER.exception(f"Unrecoverable error in upload worker: {e.message}", exc_info=e)
+
+        # skipcq: PYL-W0703
         except Exception as e:
             LOGGER.exception("Unrecoverable error in upload worker", exc_info=e)
 
