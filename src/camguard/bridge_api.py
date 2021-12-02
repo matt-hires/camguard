@@ -32,9 +32,6 @@ def pipelinestep(func: Callable[..., Any]):
     return _wrapper
 
 
-""" Handler Bridge """
-
-
 class MotionHandler:
     """ motion handler api which supports handler pipeline 
     """
@@ -86,9 +83,6 @@ class MotionHandler:
         return self._impl
 
 
-""" Detector Bridge """
-
-
 class MotionDetector:
     """ motion detector api, which supports handler pipeline 
     """
@@ -133,6 +127,7 @@ class MotionDetector:
     def set_disabled(self, value: bool) -> None:
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
+            # skipcq: PYL-W0201
             self._disabled = value
 
     def _on_motion(self) -> None:
@@ -158,9 +153,6 @@ class MotionDetector:
 
     # property created without annotation, so that the setter can be passed as a function
     disabled = property(get_disabled, set_disabled)
-
-
-""" FileStorage Bridge """
 
 
 class FileStorage:
