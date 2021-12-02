@@ -58,7 +58,7 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
         LOGGER.info("Starting device check thread")
         while not self._stop_event.wait(self._settings.interval_seconds):
             # check for device in network
-            result = run(self._args, capture_output=True, text=True)
+            result = run(self._args, capture_output=True, text=True) # skipcq: PYL-W1510
             # TODO: handle errors from cmd
             found_device = self._FOUND_HOST_MSG in result.stdout.lower()
 
