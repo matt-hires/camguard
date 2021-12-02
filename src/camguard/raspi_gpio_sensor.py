@@ -33,9 +33,9 @@ class RaspiGpioSensor(MotionDetectorImpl):
         # store activation status
         self._activated = False 
 
-    # skipcq: PYL-W0201
     def register_handler(self, handler: Callable[..., None]) -> None:
         LOGGER.debug("Registering motion_sensor callback")
+        # skipcq: PYL-W0201
         self._handler = handler
 
     def shutdown(self) -> None:

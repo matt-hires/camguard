@@ -26,7 +26,6 @@ class Camguard:
         self._detector = MotionDetector(self._config_path)
         self._handler = MotionHandler(self._config_path)
 
-    # skipcq: PYL-W0201
     def init(self):
         """initialize equipment, this *has* to be done before start
         """
@@ -34,16 +33,19 @@ class Camguard:
 
         if ComponentsType.FILE_STORAGE in self._settings.components:
             LOGGER.info("Setting up file storage")
+            # skipcq: PYL-W0201
             self._file_storage = FileStorage(self._config_path)
             self._file_storage.authenticate()
             self._file_storage.start()
 
         if ComponentsType.MAIL_CLIENT in self._settings.components:
             LOGGER.info("Setting up mail client")
+            # skipcq: PYL-W0201
             self._mail_client = MailClient(self._config_path)
 
         if ComponentsType.NETWORK_DEVICE_DETECTOR in self._settings.components:
             LOGGER.info("Setting up network device dector")
+            # skipcq: PYL-W0201
             self._netw_dev_detector = NetworkDeviceDetector(self._config_path)
             self._netw_dev_detector.register_handler(self._detector.set_disabled)
             self._netw_dev_detector.start()
