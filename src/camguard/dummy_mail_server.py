@@ -30,6 +30,7 @@ class DummyMailServer(ContextManager['DummyMailServer']):
         return AuthResult(success=True)
 
     def __enter__(self) -> 'DummyMailServer':
+        # skipcq: PYL-W0201
         self._controller = Controller(handler=Debugging(),
                                       tls_context=self._tsl_context,
                                       # otherwise mail-client have to decode data manually (split by \r\n)

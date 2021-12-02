@@ -33,10 +33,12 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
 
     def register_handler(self, handler: Callable[[bool], None]) -> None:
         LOGGER.debug("Registering nmap device detector callback")
+        # skipcq: PYL-W0201
         self._handler = handler
 
     def start(self) -> None:
         LOGGER.info("Starting detector thread")
+        # skipcq: PYL-W0201
         self._thread = threading.Thread(target=self._do_work)
         self._thread.start()
 
