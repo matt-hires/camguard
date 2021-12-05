@@ -65,6 +65,7 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
         self.__thread.join(4 * self.__max_detection_seconds)
 
         self.__stop_event.clear()
+        self.__thread = None
         LOGGER.info("Shutdown successful")
 
     def __do_work(self):

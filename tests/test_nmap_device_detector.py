@@ -50,6 +50,30 @@ class NmapDeviceDetectorTest(TestCase):
         self.__sut.stop()
         handler_mock.assert_any_call(True)
 
+    def test_should_not_stop_when_never_started(self):
+        # arrange
+
+        # act
+        self.__sut.stop()
+
+        # assert
+        self.assertFalse(self.__sut.__getattribute__(f"_{NMapDeviceDetector.__name__}__thread"))
+
+    @patch('camguard.nmap_device_detector.run',
+           MagicMock(return_value=CompletedProcess("nmap args", 0, "Nmap scan report: offline", None)))
+    def test_should_stop_before_start_when_already_running(self):
+        # arrange
+        handler_mock = MagicMock()
+
+        self.__sut.register_handler(handler_mock)
+
+        # act
+        self.__sut.start()
+        self.__sut.start()
+
+        self.__sut.stop()
+        self.assertFalse(self.__sut.__getattribute__(f"_{NMapDeviceDetector.__name__}__thread"))
+
     @patch('camguard.nmap_device_detector.run',
            MagicMock(return_value=CompletedProcess("nmap args", 0, "Nmap scan report: offline", None)))
     def test_should_not_call_handler(self):
@@ -64,6 +88,7 @@ class NmapDeviceDetectorTest(TestCase):
 
         self.__sut.stop()
         handler_mock.assert_any_call(False)
+        self.assertFalse(self.__sut.__getattribute__(f"_{NMapDeviceDetector.__name__}__thread"))
 
 class DummyNetworkDeviceDetectorTest(TestCase):
 
@@ -86,6 +111,7 @@ class DummyNetworkDeviceDetectorTest(TestCase):
 
         self.__sut.stop()
         handler_mock.assert_any_call(True)
+        self.assertFalse(self.__sut.__getattribute__(f"_{DummyNetworkDeviceDetector.__name__}__thread"))
 
     @patch('camguard.dummy_network_device_detector.random', MagicMock(return_value=0))
     @patch('camguard.dummy_network_device_detector.uniform', MagicMock(return_value=1))
@@ -101,4 +127,28 @@ class DummyNetworkDeviceDetectorTest(TestCase):
 
         self.__sut.stop()
         handler_mock.assert_any_call(False)
+        self.assertFalse(self.__sut.__getattribute__(f"_{DummyNetworkDeviceDetector.__name__}__thread"))
 
+    @patch('camguard.dummy_network_device_detector.random', MagicMock(return_value=0))
+    @patch('camguard.dummy_network_device_detector.uniform', MagicMock(return_value=1))
+    def test_should_stop_before_start_when_already_running(self):
+        # arrange
+        handler_mock = MagicMock()
+
+        self.__sut.register_handler(handler_mock)
+
+        # act
+        self.__sut.start()
+        self.__sut.start()
+
+        self.__sut.stop()
+        self.assertFalse(self.__sut.__getattribute__(f"_{DummyNetworkDeviceDetector.__name__}__thread"))
+
+    def test_should_not_stop_when_never_started(self):
+        # arrange
+
+        # act
+        self.__sut.stop()
+
+        # assert
+        self.assertFalse(self.__sut.__getattribute__(f"_{DummyNetworkDeviceDetector.__name__}__thread"))
