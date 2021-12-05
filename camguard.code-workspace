@@ -22,6 +22,7 @@
             "Electreeks",
             "gdrive",
             "gpio",
+            "nmap",
             "raspi",
             "skipcq"
         ]

@@ -1,6 +1,5 @@
 
 import logging
-import ssl
 from os import path
 from email.message import EmailMessage
 from smtplib import SMTP as Client
@@ -14,34 +13,43 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GenericMailClient(MailClientImpl):
-    _PORT: ClassVar[int] = 587  # for starttls
-    _MAIL_MSG: ClassVar[str] = "Camguard motion triggered, files where recorded and uploaded: {files}"
-    _MAIL_SUBJECT: ClassVar[str] = "Camguard motion triggered"
+    """generic smtp mail client implementation, supports sending notification mails to a configured receiver mail
+    """
+    __PORT: ClassVar[int] = 587  # for starttls
+    __MAIL_MSG: ClassVar[str] = "Camguard motion triggered, files where recorded and uploaded: {files}"
+    __MAIL_SUBJECT: ClassVar[str] = "Camguard motion triggered"
 
     def __init__(self, settings: GenericMailClientSettings) -> None:
-        self._settings = settings
-        self._ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        """initialize generic mail client with settings from yaml
+        """
+        self.__settings = settings
 
     def send_mail(self, files: List[str]) -> None:
+        """send mail to configured receiver to notify about recorded files list
+
+        Args:
+            files (List[str]): the list of already recorded files to inform about
+        """
         LOGGER.info(f"Sending mail with: {files}")
-        sender = self._settings.sender_mail
-        receiver = self._settings.receiver_mail
+        sender = self.__settings.sender_mail
+        receiver = self.__settings.receiver_mail
 
         try:
-            with Client(host=self._settings.hostname, port=GenericMailClient._PORT) as client:
+            with Client(host=self.__settings.hostname, port=GenericMailClient.__PORT) as client:
                 client.starttls()
-                client.login(self._settings.user, self._settings.password)
-                client.send_message(GenericMailClient._create_msg(sender, receiver, files))
+                client.login(self.__settings.user, self.__settings.password)
+                client.send_message(GenericMailClient.__create_msg(sender, receiver, files))
         except (SMTPConnectError, OSError) as client_err:
-            LOGGER.error(f"Error while connecting to mail server: {self._settings.hostname}:{GenericMailClient._PORT}",
+            LOGGER.error("Error while connecting to mail server: "
+                         f"{self.__settings.hostname}:{GenericMailClient.__PORT}",
                          exc_info=client_err)
 
     @staticmethod
-    def _create_msg(sender: str, receiver: str, files: List[str]) -> EmailMessage:
+    def __create_msg(sender: str, receiver: str, files: List[str]) -> EmailMessage:
         msg: EmailMessage = EmailMessage()
-        msg.add_header("Subject", GenericMailClient._MAIL_SUBJECT)
-        msg.add_header("From", sender)
-        msg.add_header("To", receiver)
-        msg.set_content(GenericMailClient._MAIL_MSG.format(files=[path.basename(file) for file in files]))
+        msg.add_header('Subject', GenericMailClient.__MAIL_SUBJECT)
+        msg.add_header('From', sender)
+        msg.add_header('To', receiver)
+        msg.set_content(GenericMailClient.__MAIL_MSG.format(files=[path.basename(file) for file in files]))
 
         return msg

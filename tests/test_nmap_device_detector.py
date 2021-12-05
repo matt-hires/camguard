@@ -1,0 +1,104 @@
+from subprocess import CompletedProcess
+from time import sleep
+from unittest import TestCase
+from unittest.mock import MagicMock, PropertyMock, create_autospec, patch
+from camguard.dummy_network_device_detector import DummyNetworkDeviceDetector
+from camguard.exceptions import CamguardError
+
+from camguard.network_device_detector_settings import DummyNetworkDeviceDetectorSettings, NMapDeviceDetectorSettings
+from camguard.nmap_device_detector import NMapDeviceDetector
+
+
+class NmapDeviceDetectorTest(TestCase):
+
+    def setUp(self) -> None:
+        self.__settings_mock = create_autospec(spec=NMapDeviceDetectorSettings, spec_set=True)
+        type(self.__settings_mock).interval_seconds = PropertyMock(return_value=1.0)
+
+        self.__sut = NMapDeviceDetector(self.__settings_mock)
+
+    @patch('camguard.nmap_device_detector.which')
+    def test_should_init(self, which_mock: MagicMock):
+        # arrange
+
+        # act
+        self.__sut.init()
+
+        # assert
+        which_mock.assert_called()
+
+    @patch('camguard.nmap_device_detector.which', MagicMock(return_value=False))
+    def test_should_raise_error_on_init(self):
+        # arrange
+
+        # act / assert
+        with self.assertRaises(CamguardError):
+            self.__sut.init()
+
+    @patch('camguard.nmap_device_detector.run',
+           MagicMock(return_value=CompletedProcess("nmap args", 0, "HoSt IS uP", None)))
+    def test_should_call_handler(self):
+        # arrange
+        handler_mock = MagicMock()
+
+        self.__sut.register_handler(handler_mock)
+
+        # act
+        self.__sut.start()
+        sleep(self.__settings_mock.interval_seconds * 2)
+
+        self.__sut.stop()
+        handler_mock.assert_any_call(True)
+
+    @patch('camguard.nmap_device_detector.run',
+           MagicMock(return_value=CompletedProcess("nmap args", 0, "Nmap scan report: offline", None)))
+    def test_should_not_call_handler(self):
+        # arrange
+        handler_mock = MagicMock()
+
+        self.__sut.register_handler(handler_mock)
+
+        # act
+        self.__sut.start()
+        sleep(self.__settings_mock.interval_seconds * 2)
+
+        self.__sut.stop()
+        handler_mock.assert_any_call(False)
+
+class DummyNetworkDeviceDetectorTest(TestCase):
+
+    def setUp(self) -> None:
+        self.__settings_mock = create_autospec(spec=DummyNetworkDeviceDetectorSettings, spec_set=True)
+
+        self.__sut = DummyNetworkDeviceDetector(self.__settings_mock)
+
+    @patch('camguard.dummy_network_device_detector.random', MagicMock(return_value=1))
+    @patch('camguard.dummy_network_device_detector.uniform', MagicMock(return_value=1.0))
+    def test_should_call_handler(self):
+        # arrange
+        handler_mock = MagicMock()
+
+        self.__sut.register_handler(handler_mock)
+
+        # act
+        self.__sut.start()
+        sleep(2)
+
+        self.__sut.stop()
+        handler_mock.assert_any_call(True)
+
+    @patch('camguard.dummy_network_device_detector.random', MagicMock(return_value=0))
+    @patch('camguard.dummy_network_device_detector.uniform', MagicMock(return_value=1))
+    def test_should_not_call_handler(self):
+        # arrange
+        handler_mock = MagicMock()
+
+        self.__sut.register_handler(handler_mock)
+
+        # act
+        self.__sut.start()
+        sleep(2)
+
+        self.__sut.stop()
+        handler_mock.assert_any_call(False)
+

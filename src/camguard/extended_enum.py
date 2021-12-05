@@ -3,7 +3,7 @@ from enum import Enum
 
 
 class ExtendedEnum(Enum):
-    """extension for standard python Enum class
+    """extension for standard python enum class
     """
 
     @classmethod

@@ -88,7 +88,7 @@ class SettingsTest(TestCase):
         # act
         setting = Settings.get_setting_from_key(setting_key='key1.subkey2',
                                                 settings=data,
-                                                default=False) # use a falsy default here
+                                                default=False)  # use a falsy default here
 
         # assert
         self.assertEqual(False, setting)

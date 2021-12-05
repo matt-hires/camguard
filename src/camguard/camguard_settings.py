@@ -11,24 +11,24 @@ LOGGER = logging.getLogger(__name__)
 class ComponentsType(ExtendedEnum):
     """Components types for equipment selection
     """
-    MOTION_HANDLER = ("motion_handler", True)
-    MOTION_DETECTOR = ("motion_detector", True)
-    FILE_STORAGE = ("file_storage", False)
-    MAIL_CLIENT = ("mail_client", False)
-    NETWORK_DEVICE_DETECTOR = ("network_device_detector", False)
+    MOTION_HANDLER = ('motion_handler', True)
+    MOTION_DETECTOR = ('motion_detector', True)
+    FILE_STORAGE = ('file_storage', False)
+    MAIL_CLIENT = ('mail_client', False)
+    NETWORK_DEVICE_DETECTOR = ('network_device_detector', False)
 
     def __init__(self, component_name: str, mandatory: bool) -> None:
         super().__init__()
-        self._component_name = component_name
-        self._mandatory = mandatory
+        self.__component_name = component_name
+        self.__mandatory = mandatory
 
     @property
     def component_name(self) -> str:
-        return self._component_name
+        return self.__component_name
 
     @property
     def mandatory(self) -> bool:
-        return self._mandatory
+        return self.__mandatory
 
     @classmethod
     def check_mandatory(cls, components: List['ComponentsType']) -> List['str']:
@@ -73,23 +73,23 @@ class ComponentsType(ExtendedEnum):
 class CamguardSettings(Settings):
     """General settings for camguard application 
     """
-    _COMPONENTS: ClassVar[str] = "components"
+    __COMPONENTS: ClassVar[str] = 'components'
 
     @property
     def components(self) -> List[ComponentsType]:
-        return self._components
+        return self.__components
 
     @components.setter
     def components(self, value: List[ComponentsType]):
-        self._components = value
+        self.__components = value
 
     def _parse_data(self, data: Dict[str, Any]):
         super()._parse_data(data)
 
         self.components = [ComponentsType.parse(component) for component in super().get_setting_from_key(
-            setting_key=self._COMPONENTS, settings=data)
+            setting_key=self.__COMPONENTS, settings=data)
         ]
 
-        missing_mandatories = ComponentsType.check_mandatory(self._components)
+        missing_mandatories = ComponentsType.check_mandatory(self.__components)
         if missing_mandatories:
             raise ConfigurationError(f"Mandatory components missing: {missing_mandatories}")
