@@ -21,6 +21,7 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
         """
         super().__init__()
         self.__stop_event = Event()
+        # skipcq: PTC-W0037
         self.__settings = settings
         self.__min_detection_seconds = 10.0
         self.__max_detection_seconds = 20.0
@@ -39,7 +40,6 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
             handler (Callable[[bool], None]): handler function to be called when device check runs 
         """
         LOGGER.debug("Registering nmap device detector callback")
-        # skipcq: PYL-W0201
         self.__handler = handler
 
     def start(self) -> None:
@@ -50,7 +50,6 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
             LOGGER.debug("Detector thread already running")
             self.stop()
 
-        # skipcq: PYL-W0201
         self.__thread = threading.Thread(target=self.__do_work)
         self.__thread.start()
 
