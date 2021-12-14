@@ -13,6 +13,7 @@ components:
     - motion_handler # mandatory
     - file_storage
     - mail_client
+    #- network_device_detector # optional
 
 # motion detector settings node
 # type: dict
@@ -194,3 +195,29 @@ mail_client:
     # type: string
     # required: yes
     #hostname:
+
+# automatically turn off motion detection when configured device in network 
+# type: dict
+# required: no
+#network_device_detector:
+    # switch network device detector to dummy/mode (simulate detection) 
+    # type: enumeration
+    # required: no
+    # values: [dummy, default]
+    # default: default
+    #implementation: default
+
+    # implementation settings node 
+    # type: dict
+    # required: yes
+    # values: [nmap_device_detector, dummy_network_device_detector]
+    #nmap_device_detector:
+        # the ip address to detect on the network 
+        # type: string
+        # required: yes
+        #ip_addr: 
+
+        # the detection interval in seconds
+        # type: float
+        # required: yes
+        #interval_seconds: 15.0

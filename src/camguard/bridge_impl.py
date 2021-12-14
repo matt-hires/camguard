@@ -101,10 +101,6 @@ class NetworkDeviceDetectorImpl(ABC):
     """
 
     @abstractmethod
-    def init(self) -> None:
-        pass
-
-    @abstractmethod
     def register_handler(self, handler: Callable[..., None]) -> None:
         pass
 

@@ -2,7 +2,7 @@
 import logging
 from random import uniform
 from threading import Event, Lock, Thread
-from typing import Callable, ClassVar
+from typing import Callable, ClassVar, Optional
 
 from camguard.motion_detector_settings import DummyGpioSensorSettings
 
@@ -20,27 +20,28 @@ class DummySensorThread(Thread):
 
     def __init__(self) -> None:
         super().__init__(daemon=True)
-        self._stop_event = Event()
-        self._max_trigger_seconds: float = 10.0
-        self._min_trigger_seconds: float = 5.0
+        self.__stop_event = Event()
+        self.__max_trigger_seconds: float = 10.0
+        self.__min_trigger_seconds: float = 5.0
+        self.__handler: Optional[Callable[..., None]] = None
 
     @property
-    def handler(self) -> Callable[..., None]:
+    def handler(self) -> Optional[Callable[..., None]]:
         with DummySensorThread._lock:
-            return self._handler
+            return self.__handler
 
     @handler.setter
     def handler(self, value: Callable[..., None]) -> None:
         with DummySensorThread._lock:
-            self._handler = value
+            self.__handler = value
 
     def run(self) -> None:
-        self._stop_event.clear()
+        self.__stop_event.clear()
         try:
-            while not self._stop_event.wait(round(uniform(self._min_trigger_seconds,
-                                                          self._max_trigger_seconds), 1)):
+            while not self.__stop_event.wait(round(uniform(self.__min_trigger_seconds,
+                                                          self.__max_trigger_seconds), 1)):
                 LOGGER.debug("Simulating motion detection")
-                if hasattr(self, "_handler"):
+                if self.handler: 
                     self.handler()
         # skipcq: PYL-W0703
         except Exception as e:
@@ -53,7 +54,7 @@ class DummySensorThread(Thread):
             LOGGER.debug("Thread has already been stopped")
             return
         LOGGER.info("Shutting down gracefully")
-        self._stop_event.set()
+        self.__stop_event.set()
         self.join(timeout_sec)
         if self.is_alive():
             msg = f"Failed to stop within {timeout_sec}"
@@ -65,30 +66,31 @@ class DummyGpioSensor(MotionDetectorImpl):
     """dummy gpio sensor implementation
     this can be used for running camguard in a dummy mode
     """
-    _id: ClassVar[int] = 0
+    __id: ClassVar[int] = 0
 
     def __init__(self, settings: DummyGpioSensorSettings) -> None:
         super().__init__()
 
-        self._sensor_thread = DummySensorThread()
-        self._sensor_thread.start()
-        self._sensor_thread.handler = self._when_activated
-        self._settings = settings
-        DummyGpioSensor._id += 1
+        self.__sensor_thread = DummySensorThread()
+        self.__sensor_thread.start()
+        self.__sensor_thread.handler = self.__when_activated
+        self.__settings = settings
+        self.__handler: Optional[Callable[..., None]] = None
+        DummyGpioSensor.__id += 1
 
     def register_handler(self, handler: Callable[..., None]) -> None:
-        # skipcq: PYL-W0201
-        self._handler = handler
+        self.__handler = handler
 
     def shutdown(self) -> None:
-        self._sensor_thread.stop()
+        self.__sensor_thread.stop()
 
-    def _when_activated(self) -> None:
+    def __when_activated(self) -> None:
         if self.disabled:
             LOGGER.debug("Sensor disabled, activation ignored")
-        if hasattr(self, '_handler') and self._handler:
-            self._handler()
+            return
+        if self.__handler:
+            self.__handler()
 
     @property
     def id(self) -> int:
-        return DummyGpioSensor._id
+        return DummyGpioSensor.__id

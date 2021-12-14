@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Generator, List
+from typing import Any, Generator, List, Optional
 
 from camguard.bridge_api import (FileStorage, MailClient, MotionDetector,
                                  MotionHandler, NetworkDeviceDetector)
@@ -19,38 +19,37 @@ class Camguard:
         Args:
             config_path (str): folder path where to read configuration files from
         """
-        self._init = False
-        self._config_path = config_path
-        self._settings: CamguardSettings = CamguardSettings.load_settings(self._config_path)
+        self.__init = False
+        self.__config_path = config_path
+        self.__settings: CamguardSettings = CamguardSettings.load_settings(self.__config_path)
 
-        self._detector = MotionDetector(self._config_path)
-        self._handler = MotionHandler(self._config_path)
+        self.__detector = MotionDetector(self.__config_path)
+        self.__handler = MotionHandler(self.__config_path)
+        self.__file_storage: Optional[FileStorage] = None
+        self.__mail_client: Optional[MailClient] = None
+        self.__netw_dev_detector: Optional[NetworkDeviceDetector] = None
 
     def init(self):
         """initialize equipment, this *has* to be done before start
         """
         LOGGER.info("Initializing equipment")
 
-        if ComponentsType.FILE_STORAGE in self._settings.components:
+        if ComponentsType.FILE_STORAGE in self.__settings.components:
             LOGGER.info("Setting up file storage")
-            # skipcq: PYL-W0201
-            self._file_storage = FileStorage(self._config_path)
-            self._file_storage.authenticate()
-            self._file_storage.start()
+            self.__file_storage = FileStorage(self.__config_path)
+            self.__file_storage.authenticate()
+            self.__file_storage.start()
 
-        if ComponentsType.MAIL_CLIENT in self._settings.components:
+        if ComponentsType.MAIL_CLIENT in self.__settings.components:
             LOGGER.info("Setting up mail client")
-            # skipcq: PYL-W0201
-            self._mail_client = MailClient(self._config_path)
+            self.__mail_client = MailClient(self.__config_path)
 
-        if ComponentsType.NETWORK_DEVICE_DETECTOR in self._settings.components:
+        if ComponentsType.NETWORK_DEVICE_DETECTOR in self.__settings.components:
             LOGGER.info("Setting up network device dector")
-            # skipcq: PYL-W0201
-            self._netw_dev_detector = NetworkDeviceDetector(self._config_path)
-            self._netw_dev_detector.register_handler(self._detector.set_disabled)
-            self._netw_dev_detector.start()
+            self.__netw_dev_detector = NetworkDeviceDetector(self.__config_path)
+            self.__netw_dev_detector.register_handler(self.__detector.set_disabled)
 
-        self._init = True
+        self.__init = True
 
     def start(self):
         """start camguard
@@ -58,33 +57,36 @@ class Camguard:
         Raises:
             CamguardError: is camguard hasn't been initialized
         """
-        if not self._init:
+        if not self.__init:
             raise CamguardError("Components have not been initialized successfully before start")
+
+        if ComponentsType.NETWORK_DEVICE_DETECTOR in self.__settings.components and self.__netw_dev_detector:
+            self.__netw_dev_detector.start()
 
         LOGGER.info("Starting camguard")
 
         # build handler pipe
         on_motion_pipe: List[Generator[None, Any, None]] = []
 
-        if ComponentsType.FILE_STORAGE in self._settings.components:
-            on_motion_pipe.append(self._file_storage.enqueue_files()) 
+        if ComponentsType.FILE_STORAGE in self.__settings.components and self.__file_storage:
+            on_motion_pipe.append(self.__file_storage.enqueue_files()) 
 
-        if ComponentsType.MAIL_CLIENT in self._settings.components:
-            on_motion_pipe.append(self._mail_client.send_mail())
+        if ComponentsType.MAIL_CLIENT in self.__settings.components and self.__mail_client:
+            on_motion_pipe.append(self.__mail_client.send_mail())
 
-        self._detector.register_handlers([self._handler.on_motion(on_motion_pipe)])
+        self.__detector.register_handlers([self.__handler.on_motion(on_motion_pipe)])
 
     def stop(self):
         """stop camguard
         """
         LOGGER.info("Stopping camguard")
-        self._handler.stop()
-        self._detector.stop()
+        self.__handler.stop()
+        self.__detector.stop()
 
-        if ComponentsType.FILE_STORAGE in self._settings.components:
-            self._file_storage.stop()
+        if ComponentsType.FILE_STORAGE in self.__settings.components and self.__file_storage:
+            self.__file_storage.stop()
 
-        if ComponentsType.NETWORK_DEVICE_DETECTOR in self._settings.components:
-            self._netw_dev_detector.stop()
+        if ComponentsType.NETWORK_DEVICE_DETECTOR in self.__settings.components and self.__netw_dev_detector:
+            self.__netw_dev_detector.stop()
 
-        self._init = False
+        self.__init = False

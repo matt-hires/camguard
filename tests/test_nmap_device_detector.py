@@ -17,23 +17,13 @@ class NmapDeviceDetectorTest(TestCase):
 
         self.__sut = NMapDeviceDetector(self.__settings_mock)
 
-    @patch('camguard.nmap_device_detector.which')
-    def test_should_init(self, which_mock: MagicMock):
-        # arrange
-
-        # act
-        self.__sut.init()
-
-        # assert
-        which_mock.assert_called()
-
     @patch('camguard.nmap_device_detector.which', MagicMock(return_value=False))
     def test_should_raise_error_on_init(self):
         # arrange
 
         # act / assert
         with self.assertRaises(CamguardError):
-            self.__sut.init()
+            NMapDeviceDetector(self.__settings_mock)
 
     @patch('camguard.nmap_device_detector.run',
            MagicMock(return_value=CompletedProcess("nmap args", 0, "HoSt IS uP", None)))

@@ -28,11 +28,6 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
         self.__handler: Optional[Callable[[bool], None]] = None
         self.__thread: Optional[Thread] = None
 
-    def init(self) -> None:
-        """Dedicated (lazy) device detector initialization, implemented for completeness 
-        """
-        LOGGER.info("Initializing nmap device detector")
-
     def register_handler(self, handler: Callable[[bool], None]) -> None:
         """registers a given handler, which will be called on device check
 

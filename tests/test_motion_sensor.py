@@ -12,17 +12,17 @@ from camguard.raspi_gpio_sensor import RaspiGpioSensor
 class MotionSensorTest(TestCase):
 
     def setUp(self):
-        self._patcher = patch('camguard.raspi_gpio_sensor.LED', spec=True)
-        self._led_mock = self._patcher.start()
+        self.__patcher = patch('camguard.raspi_gpio_sensor.LED', spec=True)
+        self.__led_mock = self.__patcher.start()
 
         Device.pin_factory = MockFactory()
-        self._sensor_settings_mock = create_autospec(spec=RaspiGpioSensorSettings, spec_set=True)
-        type(self._sensor_settings_mock).gpio_pin_number = PropertyMock(return_value=13)
-        type(self._sensor_settings_mock).queue_length = PropertyMock(return_value=1)
-        type(self._sensor_settings_mock).sample_rate = PropertyMock(return_value=10.0)
-        type(self._sensor_settings_mock).threshold = PropertyMock(return_value=0.5)
-        type(self._sensor_settings_mock).led_gpio_pin_number = PropertyMock(return_value=16)
-        self.sut = RaspiGpioSensor(self._sensor_settings_mock)
+        self.__sensor_settings_mock = create_autospec(spec=RaspiGpioSensorSettings, spec_set=True)
+        type(self.__sensor_settings_mock).gpio_pin_number = PropertyMock(return_value=13)
+        type(self.__sensor_settings_mock).queue_length = PropertyMock(return_value=1)
+        type(self.__sensor_settings_mock).sample_rate = PropertyMock(return_value=10.0)
+        type(self.__sensor_settings_mock).threshold = PropertyMock(return_value=0.5)
+        type(self.__sensor_settings_mock).led_gpio_pin_number = PropertyMock(return_value=16)
+        self.sut = RaspiGpioSensor(self.__sensor_settings_mock)
 
 
     def test_should_trigger_callback(self):
@@ -35,7 +35,7 @@ class MotionSensorTest(TestCase):
         mock_callback = MagicMock()
         # gpiozero needs __name__ attribute
         mock_callback.__name__ = 'handler'
-        pin: MockPin = Device.pin_factory.pin(self._sensor_settings_mock.gpio_pin_number)  # type: ignore
+        pin: MockPin = Device.pin_factory.pin(self.__sensor_settings_mock.gpio_pin_number)  # type: ignore
         # default is 1/10, waiting twice as long
         sample_wait_time_sec = (2 / 10)
 
@@ -53,13 +53,13 @@ class MotionSensorTest(TestCase):
         # assert
         mock_callback.assert_called()
         self.assertEqual(activations, mock_callback.call_count)
-        self._led_mock.assert_has_calls([call().on(), call().off()], any_order=True)
+        self.__led_mock.assert_has_calls([call().on(), call().off()], any_order=True)
         # check led on calls
-        self.assertEqual(activations, sum(c == call().on() for c in self._led_mock.mock_calls))  # type: ignore
+        self.assertEqual(activations, sum(c == call().on() for c in self.__led_mock.mock_calls))  # type: ignore
         # check led off calls
-        self.assertEqual(activations, sum(c == call().off() for c in self._led_mock.mock_calls))  # type: ignore
+        self.assertEqual(activations, sum(c == call().off() for c in self.__led_mock.mock_calls))  # type: ignore
 
     def tearDown(self):
-        Device.pin_factory.release_pins(self.sut._motion_sensor,  # type: ignore
-                                        self._sensor_settings_mock.gpio_pin_number)
-        self._patcher.stop()
+        Device.pin_factory.release_pins(self.sut._RaspiGpioSensor__motion_sensor,  # type: ignore
+                                        self.__sensor_settings_mock.gpio_pin_number)
+        self.__patcher.stop()

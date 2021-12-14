@@ -37,14 +37,10 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
         self.__args: List[str] = [self.__NMAP_BIN, self.__SCAN_ALGORITHM, self.__SCAN_TYPE, self.__settings.ip_addr]
         self.__handler: Optional[Callable[[bool], None]] = None
         self.__thread: Optional[Thread] = None
-
-    def init(self) -> None:
-        """Dedicated (lazy) nmap device detector initialization, which checks if nmap binary is available 
-        """
-        LOGGER.info("Initializing nmap device detector")
+        
         if not which(self.__NMAP_BIN):
             # check if nmap is available, otherwise raise error
-            raise CamguardError(f"Couldn't find nmap binary: {self.__NMAP_BIN}")
+            raise CamguardError(f"Couldn't find nmap binary: '{self.__NMAP_BIN}'")
 
     def register_handler(self, handler: Callable[[bool], None]) -> None:
         """registers a given handler, which will be called on device check

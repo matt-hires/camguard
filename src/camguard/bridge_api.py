@@ -122,19 +122,14 @@ class MotionDetector:
     def get_disabled(self) -> bool:
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
-            return self._disabled
+            return self._get_impl().disabled
 
     def set_disabled(self, value: bool) -> None:
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
-            # skipcq: PYL-W0201
-            self._disabled = value
+            self._get_impl().disabled = value
 
     def _on_motion(self) -> None:
-        if hasattr(self, '_disabled') and self._disabled:
-            LOGGER.debug("Motion Detector disabled, pipeline deactivated")
-            return
-
         LOGGER.debug("Forwarding event to motion handler pipeline")
         for step in self._pipeline:
             step.send(self)
@@ -245,11 +240,6 @@ class NetworkDeviceDetector:
         self._settings: NetworkDeviceDetectorSettings = NetworkDeviceDetectorSettings.load_settings(self._config_path)
         self._get_impl()  # create impl objects
 
-    def init(self) -> None:
-        """initialize the detector 
-        """
-        self._get_impl().init()
-
     def register_handler(self, handler: Callable[[bool], None]):
         """register callback function, which will be triggered everytime 
         the check algorithm returns a result.
@@ -271,7 +261,6 @@ class NetworkDeviceDetector:
         self._get_impl().stop()
 
     def _get_impl(self) -> NetworkDeviceDetectorImpl:
-        # TODO: check for dummy flag
         if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_network_device_detector import DummyNetworkDeviceDetector
