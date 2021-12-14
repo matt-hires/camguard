@@ -74,7 +74,6 @@ class DummyGpioSensor(MotionDetectorImpl):
         self.__sensor_thread = DummySensorThread()
         self.__sensor_thread.start()
         self.__sensor_thread.handler = self.__when_activated
-        self.__settings = settings
         self.__handler: Optional[Callable[..., None]] = None
         DummyGpioSensor.__id += 1
 
