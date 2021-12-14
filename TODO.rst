@@ -4,29 +4,35 @@ TODO for camguard cli/daemon
 Wishlist
 --------
 
-Bugs
-----
-
-Features
---------
-* Write documentation 
-
 * Recording/Upload subfolder {capture}_{count}
 
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
 
-* increase test coverage
-    - ITs
-    - Unit-Tests
+Bugs
+----
+
+Features
+--------
+
+* nmap device detector -> check for errors from nmap cmd
 
 Refactoring
 -----------
 
+* use private attributes with ``__my_private_attribute`` to prevent re-definition
+* use attribute ``__slots__`` for settings and bridge classes
+
 =======
 PENDING
 =======
+
+* increase test coverage
+    - ITs
+    - Unit-Tests
+
+* Write documentation 
 
 ====
 DONE
