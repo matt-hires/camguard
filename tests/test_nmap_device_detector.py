@@ -11,6 +11,7 @@ from camguard.nmap_device_detector import NMapDeviceDetector
 
 class NmapDeviceDetectorTest(TestCase):
 
+    @patch('camguard.nmap_device_detector.which', MagicMock(return_value=True))
     def setUp(self) -> None:
         self.__settings_mock = create_autospec(spec=NMapDeviceDetectorSettings, spec_set=True)
         type(self.__settings_mock).interval_seconds = PropertyMock(return_value=1.0)
