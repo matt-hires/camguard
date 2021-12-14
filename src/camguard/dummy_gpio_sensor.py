@@ -68,6 +68,7 @@ class DummyGpioSensor(MotionDetectorImpl):
     """
     __id: ClassVar[int] = 0
 
+    # skipcq: PYL-W0613
     def __init__(self, settings: DummyGpioSensorSettings) -> None:
         super().__init__()
 
