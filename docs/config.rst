@@ -20,6 +20,7 @@ Components
         - motion_handler
         - file_storage
         - mail_client
+        - network_device_detector
 
 Motion detector (``motion_detector``)
 `````````````````````````````````````
@@ -108,8 +109,9 @@ Implementation Type (``implementation``)
 ''''''''''''''''''''''''''''''''''''''''
 | *Required* enumeration type for selecting the implementation of the handler component, available values are:
 | Type: ``enum``
+| Default: ``raspi``
 
-- ``raspi`` (default)
+- ``raspi``
 - ``dummy``
 
 Implementation Settings
@@ -198,7 +200,7 @@ The settings node of the selected implementation type, available values are:
 - gdrive_storage
 - dummy_gdrive_storage
 
-Following settings are *both only available for ``gdrive_storage``*.
+Following settings are *only available for ``gdrive_storage``*.
 
 Upload folder name (``upload_folder_name``)
 '''''''''''''''''''''''''''''''''''''''''''
@@ -258,7 +260,7 @@ Implementation Type (``implementation``)
 
 Implementation Settings
 '''''''''''''''''''''''
-There is no dedicated settings node for the mail client, the settings of the selected implementation type reside inside the ``mail_client`` node.
+| There is no dedicated settings node for the mail client, the settings of the selected implementation type reside inside the ``mail_client`` node.
 
 Username (``username``)
 '''''''''''''''''''''''
@@ -281,6 +283,7 @@ Receiver mail (``receiver_mail``)
 | Type: ``string``
 
 Hostname (``hostname``):
+''''''''''''''''''''''''
 | Mail server hostname
 | Type: ``string``
 
@@ -311,3 +314,58 @@ Example configuration for Dummy usage
         sender_mail: 'user@mail-domain.com'
         receiver_mail: 'recipient@gmail.com'
         hostname: mail-domain.com
+
+Network Device Detector (``network_device_detector``)
+`````````````````````````````````````````````````````
+| Component which checks continuously if a device can be found on the network by using the configured binary and search configuration.
+
+Implementation Type (``implementation``)
+''''''''''''''''''''''''''''''''''''''''
+| *Required* enumeration type for selecting the implementation of the network device detector component, available values are:
+| Type: ``enum``
+| Default: ``default``
+
+- ``default``
+- ``dummy`` (selects a dummy/offline implementation of the network device detector for testing purposes)
+
+Implementation Settings
+'''''''''''''''''''''''
+The settings node of the selected implementation type, available values are:
+
+- nmap_device_detector
+- dummy_network_device_detector
+
+Following settings are *only available for ``nmap_device_detector``*.
+
+IP Address (``ip_addr``)
+''''''''''''''''''''''''
+| The IP Address from the network device, which should detected 
+| Type: ``string``
+
+Interval Seconds (``interval_seconds``)
+'''''''''''''''''''''''''''''''''''''''
+| The detection interval in seconds
+| Type: ``float``
+
+Example configuration for nmap Device Detector 
+''''''''''''''''''''''''''''''''''''''''''''''
+
+.. code:: yaml
+
+    network_device_detector:
+        implementation: default
+
+        nmap_device_detector:
+            ip_addr: "191.168.0.2"
+            interval_seconds: 4.0
+
+Example configuration for Dummy Device Detector 
+'''''''''''''''''''''''''''''''''''''''''''''''
+
+.. code:: yaml
+
+    network_device_detector:
+        implementation: dummy
+
+        dummy_network_device_detector:
+            # there are no specific settings for this node
