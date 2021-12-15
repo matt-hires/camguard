@@ -14,6 +14,7 @@ class NmapDeviceDetectorTest(TestCase):
     @patch('camguard.nmap_device_detector.which', MagicMock(return_value=True))
     def setUp(self) -> None:
         self.__settings_mock = create_autospec(spec=NMapDeviceDetectorSettings, spec_set=True)
+        type(self.__settings_mock).ip_addr = PropertyMock(return_value=['192.168.0.1', '192.168.0.2'])
         type(self.__settings_mock).interval_seconds = PropertyMock(return_value=1.0)
 
         self.__sut = NMapDeviceDetector(self.__settings_mock)
@@ -39,7 +40,8 @@ class NmapDeviceDetectorTest(TestCase):
         sleep(self.__settings_mock.interval_seconds * 2)
 
         self.__sut.stop()
-        handler_mock.assert_any_call(True)
+        handler_mock.assert_any_call([('192.168.0.1', True), ('192.168.0.2', True)])
+        self.assertFalse(self.__sut.__getattribute__(f"_{NMapDeviceDetector.__name__}__thread"))
 
     def test_should_not_stop_when_never_started(self):
         # arrange
@@ -67,7 +69,7 @@ class NmapDeviceDetectorTest(TestCase):
 
     @patch('camguard.nmap_device_detector.run',
            MagicMock(return_value=CompletedProcess("nmap args", 0, "Nmap scan report: offline", None)))
-    def test_should_not_call_handler(self):
+    def test_should_call_handler_when_offline(self):
         # arrange
         handler_mock = MagicMock()
 
@@ -78,7 +80,7 @@ class NmapDeviceDetectorTest(TestCase):
         sleep(self.__settings_mock.interval_seconds * 2)
 
         self.__sut.stop()
-        handler_mock.assert_any_call(False)
+        handler_mock.assert_any_call([('192.168.0.1', False), ('192.168.0.2', False)])
         self.assertFalse(self.__sut.__getattribute__(f"_{NMapDeviceDetector.__name__}__thread"))
 
 class DummyNetworkDeviceDetectorTest(TestCase):

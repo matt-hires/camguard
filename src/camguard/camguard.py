@@ -47,7 +47,7 @@ class Camguard:
         if ComponentsType.NETWORK_DEVICE_DETECTOR in self.__settings.components:
             LOGGER.info("Setting up network device dector")
             self.__netw_dev_detector = NetworkDeviceDetector(self.__config_path)
-            self.__netw_dev_detector.register_handler(self.__detector.set_disabled)
+            self.__netw_dev_detector.register_handler(self.__detector.on_disable)
 
         self.__init = True
 

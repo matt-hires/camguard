@@ -337,10 +337,10 @@ The settings node of the selected implementation type, available values are:
 
 Following settings are *only available for ``nmap_device_detector``*.
 
-IP Address (``ip_addr``)
+IP Addresses (``ip_addr``)
 ''''''''''''''''''''''''
-| The IP Address from the network device, which should detected 
-| Type: ``string``
+| The IP Addresses from the network device, which should detected 
+| Type: ``list[str]``
 
 Interval Seconds (``interval_seconds``)
 '''''''''''''''''''''''''''''''''''''''
@@ -356,7 +356,9 @@ Example configuration for nmap Device Detector
         implementation: default
 
         nmap_device_detector:
-            ip_addr: "191.168.0.2"
+            ip_addr: 
+                - '191.168.0.1'
+                - '191.168.0.2'
             interval_seconds: 4.0
 
 Example configuration for Dummy Device Detector 

@@ -50,7 +50,7 @@ class NMapDeviceDetectorSettingsTest(TestCase):
         return {
             'network_device_detector': {
                 'nmap_device_detector': {
-                    'ip_addr': '1.2.3.4',
+                    'ip_addr': ['1.2.3.4', '5.6.7.8'],
                     'interval_seconds': '2.0'
                 }
             }
@@ -69,7 +69,7 @@ class NMapDeviceDetectorSettingsTest(TestCase):
 
         # assert
         self.assertEqual(ImplementationType.DEFAULT, settings.impl_type)
-        self.assertEqual('1.2.3.4', settings.ip_addr)
+        self.assertEqual(['1.2.3.4', '5.6.7.8'], settings.ip_addr)
         self.assertEqual('2.0', settings.interval_seconds)
 
 

@@ -212,10 +212,12 @@ mail_client:
     # required: yes
     # values: [nmap_device_detector, dummy_network_device_detector]
     #nmap_device_detector:
-        # the ip address to detect on the network 
-        # type: string
+        # the ip addresses to detect on the network 
+        # type: list
         # required: yes
         #ip_addr: 
+            #- '192.168.0.1'
+            #- '192.169.1.1'
 
         # the detection interval in seconds
         # type: float

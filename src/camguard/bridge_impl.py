@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Tuple
 
 # Handler Bridge
 
@@ -48,9 +48,13 @@ class MotionDetectorImpl(ABC):
     def disabled(self) -> bool:
         return self._disabled
 
-    @disabled.setter
-    def disabled(self, value: bool) -> None:
-        self._disabled = value
+    def on_disable(self, ips: List[Tuple[str, bool]]) -> None:
+        disabled = False
+        if ips:
+            all_detected = len([ip for ip in ips if ip[1]])
+            disabled = all_detected == len(ips)
+
+        self._disabled = disabled 
 
 
 # FileStorage Bridge
@@ -101,7 +105,7 @@ class NetworkDeviceDetectorImpl(ABC):
     """
 
     @abstractmethod
-    def register_handler(self, handler: Callable[..., None]) -> None:
+    def register_handler(self, handler: Callable[[List[Tuple[str, bool]]], None]) -> None:
         pass
 
     @abstractmethod

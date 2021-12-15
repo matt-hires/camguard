@@ -1,7 +1,7 @@
 from functools import wraps
 import logging
 from threading import Lock
-from typing import Any, Callable, Generator, List
+from typing import Any, Callable, Generator, List, Tuple
 
 from camguard.bridge_impl import FileStorageImpl, MailClientImpl, MotionDetectorImpl, MotionHandlerImpl, NetworkDeviceDetectorImpl
 from camguard.file_storage_settings import DummyGDriveStorageSettings, FileStorageSettings, GDriveStorageSettings
@@ -119,15 +119,16 @@ class MotionDetector:
     def id(self) -> int:
         return self._get_impl().id
 
-    def get_disabled(self) -> bool:
+    @property
+    def disabled(self) -> bool:
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
             return self._get_impl().disabled
 
-    def set_disabled(self, value: bool) -> None:
+    def on_disable(self, ips: List[Tuple[str, bool]]) -> None:
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
-            self._get_impl().disabled = value
+            self._get_impl().on_disable(ips)
 
     def _on_motion(self) -> None:
         LOGGER.debug("Forwarding event to motion handler pipeline")
@@ -145,9 +146,6 @@ class MotionDetector:
                 self._impl = RaspiGpioSensor(RaspiGpioSensorSettings.load_settings(self._config_path))
 
         return self._impl
-
-    # property created without annotation, so that the setter can be passed as a function
-    disabled = property(get_disabled, set_disabled)
 
 
 class FileStorage:
@@ -240,13 +238,13 @@ class NetworkDeviceDetector:
         self._settings: NetworkDeviceDetectorSettings = NetworkDeviceDetectorSettings.load_settings(self._config_path)
         self._get_impl()  # create impl objects
 
-    def register_handler(self, handler: Callable[[bool], None]):
+    def register_handler(self, handler: Callable[[List[Tuple[str, bool]]], None]):
         """register callback function, which will be triggered everytime 
         the check algorithm returns a result.
 
         Args:
-            handler (Callable[[bool], None]): function which will be called, 
-            passing a parameter which contains the detection state
+            handler (Callable[[List[Tuple[str, bool]]], None]): function which will be called, 
+            passing a parameter which contains the ips with their detection state 
         """
         self._get_impl().register_handler(handler)
 

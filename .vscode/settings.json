@@ -12,5 +12,6 @@
     "search.exclude": {
         "**/.vscode": true
     },
-    "restructuredtext.confPath": ""
+    "restructuredtext.confPath": "",
+    "python.formatting.provider": "autopep8"
 }

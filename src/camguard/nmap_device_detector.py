@@ -3,7 +3,7 @@ import threading
 from shutil import which
 from subprocess import run
 from threading import Event, Thread
-from typing import Callable, ClassVar, List, Optional
+from typing import Callable, ClassVar, List, Optional, Tuple
 
 from camguard.bridge_impl import NetworkDeviceDetectorImpl
 from camguard.exceptions import CamguardError
@@ -34,15 +34,14 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
         super().__init__()
         self.__stop_event = Event()
         self.__settings = settings
-        self.__args: List[str] = [self.__NMAP_BIN, self.__SCAN_ALGORITHM, self.__SCAN_TYPE, self.__settings.ip_addr]
-        self.__handler: Optional[Callable[[bool], None]] = None
+        self.__handler: Optional[Callable[[List[Tuple[str, bool]]], None]] = None
         self.__thread: Optional[Thread] = None
         
         if not which(self.__NMAP_BIN):
             # check if nmap is available, otherwise raise error
             raise CamguardError(f"Couldn't find nmap binary: '{self.__NMAP_BIN}'")
 
-    def register_handler(self, handler: Callable[[bool], None]) -> None:
+    def register_handler(self, handler: Callable[[List[Tuple[str, bool]]], None]) -> None:
         """registers a given handler, which will be called on device check
 
         Args:
@@ -80,13 +79,17 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
     def __do_work(self):
         LOGGER.info("Starting device check thread")
         while not self.__stop_event.wait(self.__settings.interval_seconds):
-            # check for device in network
-            result = run(self.__args, capture_output=True, text=True) # skipcq: PYL-W1510
-            # TODO: handle errors from cmd
-            found_device = self.__FOUND_HOST_MSG in result.stdout.lower()
+            found_devices: List[Tuple[str, bool]] = []
+            for ip in self.__settings.ip_addr:
+                args: List[str] = [self.__NMAP_BIN, self.__SCAN_ALGORITHM, self.__SCAN_TYPE, ip]
+                # check for device in network
+                result = run(args, capture_output=True, text=True) # skipcq: PYL-W1510
+                # TODO: handle errors from cmd
+                found = self.__FOUND_HOST_MSG in result.stdout.lower()
+                found_devices.append((ip, found))
 
             if self.__handler:
                 # call handler and notice about detection status
-                self.__handler(found_device)
+                self.__handler(found_devices)
 
         LOGGER.info("Exiting device check thread")

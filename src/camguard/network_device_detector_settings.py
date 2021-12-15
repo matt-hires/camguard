@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Dict
+from typing import Any, ClassVar, Dict, List
 from camguard.settings import ImplementationType, Settings
 
 
@@ -6,7 +6,7 @@ class NetworkDeviceDetectorSettings(Settings):
     """network device connector settings class
     """
     _KEY: ClassVar[str] = 'network_device_detector'
-    _IMPL_TYPE: ClassVar[str] = 'implementation'
+    __IMPL_TYPE: ClassVar[str] = 'implementation'
 
     @property
     def impl_type(self) -> ImplementationType:
@@ -20,7 +20,7 @@ class NetworkDeviceDetectorSettings(Settings):
         super()._parse_data(data)
 
         self.impl_type = ImplementationType.parse(super().get_setting_from_key(
-            setting_key=f"{NetworkDeviceDetectorSettings._KEY}.{NetworkDeviceDetectorSettings._IMPL_TYPE}",
+            setting_key=f"{NetworkDeviceDetectorSettings._KEY}.{NetworkDeviceDetectorSettings.__IMPL_TYPE}",
             settings=data, 
             default=ImplementationType.DEFAULT.value))
 
@@ -28,17 +28,17 @@ class NetworkDeviceDetectorSettings(Settings):
 class NMapDeviceDetectorSettings(NetworkDeviceDetectorSettings):
     """specialized mail notification settings for a common mail client implementation 
     """
-    _KEY: ClassVar[str] = 'nmap_device_detector'
-    _IP_ADDR: ClassVar[str] = 'ip_addr'
-    _INTERVAL_SECONDS: ClassVar[str] = 'interval_seconds'
+    __KEY: ClassVar[str] = 'nmap_device_detector'
+    __IP_ADDR: ClassVar[str] = 'ip_addr'
+    __INTERVAL_SECONDS: ClassVar[str] = 'interval_seconds'
 
     @property
-    def ip_addr(self) -> str:
-        return self._ip_addr
+    def ip_addr(self) -> List[str]:
+        return self.__ip_addr
 
     @ip_addr.setter
-    def ip_addr(self, value: str) -> None:
-        self._ip_addr = value
+    def ip_addr(self, value: List[str]) -> None:
+        self.__ip_addr = value
 
     @property
     def interval_seconds(self) -> float:
@@ -52,11 +52,11 @@ class NMapDeviceDetectorSettings(NetworkDeviceDetectorSettings):
         super()._parse_data(data)
 
         self.ip_addr = super().get_setting_from_key(
-            setting_key=f"{super()._KEY}.{self._KEY}.{NMapDeviceDetectorSettings._IP_ADDR}",
+            setting_key=f"{super()._KEY}.{self.__KEY}.{NMapDeviceDetectorSettings.__IP_ADDR}",
             settings=data)
 
         self.interval_seconds = super().get_setting_from_key(
-            setting_key=f"{super()._KEY}.{self._KEY}.{NMapDeviceDetectorSettings._INTERVAL_SECONDS}",
+            setting_key=f"{super()._KEY}.{self.__KEY}.{NMapDeviceDetectorSettings.__INTERVAL_SECONDS}",
             settings=data)
 
 
