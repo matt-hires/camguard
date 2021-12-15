@@ -88,6 +88,8 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
                 found = self.__FOUND_HOST_MSG in result.stdout.lower()
                 found_devices.append((ip, found))
 
+            LOGGER.debug(f"Device detection state: {found_devices}")
+
             if self.__handler:
                 # call handler and notice about detection status
                 self.__handler(found_devices)

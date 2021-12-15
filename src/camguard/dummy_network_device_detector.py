@@ -2,7 +2,7 @@ import logging
 from random import uniform, random
 from threading import Event, Thread
 import threading
-from typing import Callable, Optional
+from typing import Callable, List, Optional, Tuple
 from camguard.bridge_impl import NetworkDeviceDetectorImpl
 from camguard.network_device_detector_settings import DummyNetworkDeviceDetectorSettings
 
@@ -25,10 +25,10 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
         self.__settings = settings
         self.__min_detection_seconds = 10.0
         self.__max_detection_seconds = 20.0
-        self.__handler: Optional[Callable[[bool], None]] = None
+        self.__handler: Optional[Callable[[List[Tuple[str, bool]]], None]] = None
         self.__thread: Optional[Thread] = None
 
-    def register_handler(self, handler: Callable[[bool], None]) -> None:
+    def register_handler(self, handler: Callable[[List[Tuple[str, bool]]], None]) -> None:
         """registers a given handler, which will be called on device check
 
         Args:
@@ -73,9 +73,12 @@ class DummyNetworkDeviceDetector(NetworkDeviceDetectorImpl):
 
             # randomize found device
             found_device: bool = bool(round(random()))
+            found_devices: List[Tuple[str, bool]] = [('Dummy', found_device)]
+
+            LOGGER.debug(f"Device detection state: {found_devices}")
 
             if self.__handler:
                 # call handler and notice about detection status
-                self.__handler(found_device)
+                self.__handler(found_devices)
 
         LOGGER.info("Exiting device check thread")
