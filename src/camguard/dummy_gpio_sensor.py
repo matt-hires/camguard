@@ -42,7 +42,7 @@ class DummySensorThread(Thread):
                                                           self.__max_trigger_seconds), 1)):
                 LOGGER.debug("Simulating motion detection")
                 if self.handler: 
-                    self.handler() # skpcq: PYL-E1102
+                    self.handler() # skipcq: PYL-E1102
         # skipcq: PYL-W0703
         except Exception as e:
             LOGGER.exception("Unrecoverable error in dummy gpio sensor thread", exc_info=e)
