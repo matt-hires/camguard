@@ -103,12 +103,12 @@ class DummyNetworkDeviceDetectorTest(TestCase):
         sleep(2)
 
         self.__sut.stop()
-        handler_mock.assert_any_call(True)
+        handler_mock.assert_any_call([('Dummy', True)])
         self.assertFalse(self.__sut.__getattribute__(f"_{DummyNetworkDeviceDetector.__name__}__thread"))
 
     @patch('camguard.dummy_network_device_detector.random', MagicMock(return_value=0))
     @patch('camguard.dummy_network_device_detector.uniform', MagicMock(return_value=1))
-    def test_should_not_call_handler(self):
+    def test_should_call_handler_when_offline(self):
         # arrange
         handler_mock = MagicMock()
 
@@ -119,7 +119,7 @@ class DummyNetworkDeviceDetectorTest(TestCase):
         sleep(2)
 
         self.__sut.stop()
-        handler_mock.assert_any_call(False)
+        handler_mock.assert_any_call([('Dummy', False)])
         self.assertFalse(self.__sut.__getattribute__(f"_{DummyNetworkDeviceDetector.__name__}__thread"))
 
     @patch('camguard.dummy_network_device_detector.random', MagicMock(return_value=0))
