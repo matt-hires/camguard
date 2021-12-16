@@ -50,9 +50,9 @@ class MotionDetectorImpl(ABC):
 
     def on_disable(self, ips: List[Tuple[str, bool]]) -> None:
         disabled = False
-        if ips:
-            all_detected = len([ip for ip in ips if ip[1]])
-            disabled = all_detected == len(ips)
+        if ips: 
+            # disable if any of the configured devices could be found on network
+            disabled = True if [ip for ip in ips if ip[1]] else False
 
         self._disabled = disabled 
 

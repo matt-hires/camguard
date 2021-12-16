@@ -317,7 +317,7 @@ Example configuration for Dummy usage
 
 Network Device Detector (``network_device_detector``)
 `````````````````````````````````````````````````````
-| Component which checks continuously if a device can be found on the network by using the configured binary and search configuration.
+| Component which checks continuously if a device can be found on the network by using the configured binary and search configuration. If any of the configured devices is found on network, motion handler will be disabled.
 
 Implementation Type (``implementation``)
 ''''''''''''''''''''''''''''''''''''''''
