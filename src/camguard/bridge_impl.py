@@ -52,7 +52,7 @@ class MotionDetectorImpl(ABC):
         disabled = False
         if ips: 
             # disable if any of the configured devices could be found on network
-            disabled = True if [ip for ip in ips if ip[1]] else False
+            disabled = bool([ip for ip in ips if ip[1]])
 
         self._disabled = disabled 
 
