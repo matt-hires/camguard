@@ -15,7 +15,7 @@ __version__ = "1.1.0"
 LOGGER = logging.getLogger(__name__)
 
 
-def _parse_args() -> Namespace:
+def __parse_args() -> Namespace:
     parser = ArgumentParser(
         prog=__name__,
         description="A motion sensor controlled home surveillance system",
@@ -44,17 +44,17 @@ def _parse_args() -> Namespace:
     return args
 
 
-def _configure_logger(loglevel: str) -> None:
+def __configure_logger(loglevel: str) -> None:
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(threadName)s - %(name)s - %(message)s",
                         handlers=[logging.StreamHandler()], level=loglevel)
     logging.logThreads = True
 
 
-def _configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
+def __configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
     signal_map: Dict[Signals, Any] = {
         # lambda type couldn't be inferred
-        SIGTERM: lambda sig, tb: _shutdown(camguard, sig, tb),  # type: ignore
-        SIGINT: lambda sig, tb: _shutdown(camguard, sig, tb)  # type: ignore
+        SIGTERM: lambda sig, tb: __shutdown(camguard, sig, tb),  # type: ignore
+        SIGINT: lambda sig, tb: __shutdown(camguard, sig, tb)  # type: ignore
     }
 
     # setup pid file context (/var/run/camguard.pid)
@@ -70,15 +70,15 @@ def _configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
 
 
 # skipcq: PYL-W0613
-def _shutdown(camguard: Any, signal_number: Signals, stack_frame: Any) -> None:
+def __shutdown(camguard: Any, signal_number: Signals, stack_frame: Any) -> None:
     LOGGER.info("Gracefully shutting down Camguard")
     if camguard:
         camguard.stop()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
 
 
-def _run_daemonized(args: Namespace, camguard: Any) -> None:
-    daemon_context: DaemonContext = _configure_daemon(args.detach, camguard)
+def __run_daemonized(args: Namespace, camguard: Any) -> None:
+    daemon_context: DaemonContext = __configure_daemon(args.detach, camguard)
     with daemon_context:
         camguard.start()
         if not args.detach:
@@ -89,7 +89,7 @@ def _run_daemonized(args: Namespace, camguard: Any) -> None:
             time.sleep(1.0)
 
 
-def _init(camguard: Any) -> bool:
+def __init(camguard: Any) -> bool:
     success = False
     try:
         camguard.init()
@@ -105,21 +105,21 @@ def _init(camguard: Any) -> bool:
     return success
 
 
-def _run(args: Namespace, camguard: Any) -> None:
+def __run(args: Namespace, camguard: Any) -> None:
     if args.daemonize:
-        return _run_daemonized(args, camguard)
+        return __run_daemonized(args, camguard)
 
     camguard.start()
     LOGGER.info("Camguard running, press ctrl-c to quit")
     sigwait((SIGINT,))
-    _shutdown(camguard, SIGINT, None)
+    __shutdown(camguard, SIGINT, None)
 
 
 def main():
     rc: int = 0
     try:
-        args = _parse_args()
-        _configure_logger(args.log)
+        args = __parse_args()
+        __configure_logger(args.log)
 
         LOGGER.info(f"Starting up with args: {args}")
 
@@ -127,15 +127,15 @@ def main():
         _camguard = Camguard(args.config_path)
 
         # run camguard if it was successfully initialized
-        if _init(_camguard):
-            _run(args, _camguard)
+        if __init(_camguard):
+            __run(args, _camguard)
 
     except SystemExit as sysEx:
         LOGGER.debug(sysEx)
         LOGGER.info("Camguard shut down gracefully")
     # skipcq: PYL-W0703
     except Exception as ex:
-        LOGGER.exception("Unexpected error occured", exc_info=ex)
+        LOGGER.exception("Unexpected error occurred", exc_info=ex)
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
     sys.exit(rc)
