@@ -62,11 +62,11 @@ For installation on Raspberry Pi there are two options:
 
 1. Installation with ``pip``::
 
-    pip install camguard[raspi]
+    $ pip install camguard[raspi]
 
 2. Installation with available ``Makefile``::
 
-    make install
+    $ make install
 
 Usage
 -----
@@ -74,7 +74,7 @@ Usage
 
 All available cli flags can be shown with ::
 
-    camguard --help
+    $ camguard --help
 
 Example usage with unix daemon and systemd user unit ``~/.config/systemd/user/camguard.service``
     
@@ -106,7 +106,7 @@ Building
 
 This project comes with a GNU-Make ``Makefile`` which can be used for building and installation. Help for the available targets can be shown with::
 
-    make help
+    $ make help
 
 Developing
 ==========
@@ -120,24 +120,24 @@ For local development it is not possible to use the same dependencies as on the 
 Installing an environment can either be done directly via ``pip`` \.\.\. ::
 
     # install for local dev
-    pip install -e .[dev]
+    $ pip install -e .[dev]
 
     # install for raspi with remote debugging
-    pip install -e .[raspi,debug]
+    $ pip install -e .[raspi,debug]
 
 \.\.\. or via ``Makefile``::
 
     # clean + check + install + docs-html
-    make all
+    $ make all
 
     # raspi + install-systemd + raspi-settings 
-    make install
+    $ make install
     
     # raspi with debugging + install-systemd + raspi-settings
-    make install-debug
+    $ make install-debug
 
     # development + dummy-settings
-    make install-dev
+    $ make install-dev
 
 The ``Makefile`` also installs a fully functioning user systemd-unit with some default settings as well.
 
@@ -155,7 +155,7 @@ Documentation
 
 Builds html documentation with sphinx, by using makefile goal::
 
-    make docs-html
+    $ make docs-html
 
 License
 =======

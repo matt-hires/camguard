@@ -13,7 +13,7 @@ Components
 ----------
 ``camguard`` uses component based settings where each of this components can be switch on, off or set into a dummy mode for testing, without using Raspberry Pi specific dependencies.
 
-.. code:: yaml
+.. code-block:: yaml
 
     components:
         - motion_detector
@@ -76,7 +76,7 @@ Sample Rate (``sample_rate``)
 Example configuration for Raspberry Pi
 ''''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     motion_detector:
         implementation: raspi
@@ -92,7 +92,7 @@ Example configuration for Raspberry Pi
 Example configuration for Dummy usage
 '''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     motion_detector:
         implementation: dummy
@@ -153,7 +153,7 @@ Record file name format (``record_file_format``)
 Example configuration for Raspberry Pi
 ''''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     motion_handler:
         implementation: raspi
@@ -168,7 +168,7 @@ Example configuration for Raspberry Pi
 Example configuration for Dummy usage
 '''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     motion_detector:
         implementation: dummy
@@ -223,7 +223,7 @@ OAuth credentials path (``oauth_credentials_path``)
 Example configuration for GDrive File Storage
 '''''''''''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     file_storage:
         implementation: default
@@ -236,7 +236,7 @@ Example configuration for GDrive File Storage
 Example configuration for Dummy usage
 '''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     file_storage:
         implementation: dummy
@@ -290,7 +290,7 @@ Hostname (``hostname``):
 Example configuration for SMTP Mail Client 
 ''''''''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     mail_client:
         implementation: default
@@ -304,7 +304,7 @@ Example configuration for SMTP Mail Client
 Example configuration for Dummy usage 
 '''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     mail_client:
         implementation: dummy
@@ -350,7 +350,7 @@ Interval Seconds (``interval_seconds``)
 Example configuration for nmap Device Detector 
 ''''''''''''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     network_device_detector:
         implementation: default
@@ -364,7 +364,7 @@ Example configuration for nmap Device Detector
 Example configuration for Dummy Device Detector 
 '''''''''''''''''''''''''''''''''''''''''''''''
 
-.. code:: yaml
+.. code-block:: yaml
 
     network_device_detector:
         implementation: dummy
