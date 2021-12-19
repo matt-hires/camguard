@@ -33,11 +33,11 @@ def pipelinestep(func: Callable[..., Any]):
 
 
 class MotionHandler:
-    """ motion handler api which supports handler pipeline 
+    """ motion handler api class which supports handler pipeline usage
     """
 
     def __init__(self, config_path: str) -> None:
-        """default ctor
+        """default initialization
 
         Args:
             record_root_path (str): root path where to record files
@@ -64,13 +64,25 @@ class MotionHandler:
                 step.send(ret_val)
 
     def stop(self) -> None:
+        """stop motion handler
+        """
         self._get_impl().shutdown()
 
     @property
     def id(self) -> int:
+        """get handler identifier
+
+        Returns:
+            int: identifier as int
+        """
         return self._get_impl().id
 
     def _get_impl(self) -> MotionHandlerImpl:
+        """initializes implementation classes, if not already done
+
+        Returns:
+            MotionHandlerImpl: the configured implementation class
+        """
         if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_cam import DummyCam
@@ -84,13 +96,13 @@ class MotionHandler:
 
 
 class MotionDetector:
-    """ motion detector api, which supports handler pipeline 
+    """ motion detector api class, which supports handler pipeline usage
     """
 
     _lock: Lock = Lock()
 
     def __init__(self, config_path: str) -> None:
-        """default ctor
+        """default initialization
 
         Args:
             config_path (str): settings configuration path
@@ -108,7 +120,7 @@ class MotionDetector:
             coroutines to build a handler pipe which will be called when motion occurs 
         """
         self._pipeline = pipeline
-        self._get_impl().register_handler(self._on_motion)
+        self._get_impl().register_handler(self.__on_motion)
 
     def stop(self) -> None:
         """shutdown sensor, stops motion detection 
@@ -117,25 +129,47 @@ class MotionDetector:
 
     @property
     def id(self) -> int:
+        """motion detector identifier
+
+        Returns:
+            int: identifier as int
+        """
         return self._get_impl().id
 
     @property
     def disabled(self) -> bool:
+        """get disabled flag - thread safe
+
+        Returns:
+            bool: the disabled state as boolean
+        """
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
             return self._get_impl().disabled
 
     def on_disable(self, ips: List[Tuple[str, bool]]) -> None:
+        """handler function for disabling handler from network device detector
+
+        Args:
+            ips (List[Tuple[str, bool]]): detected network device ips
+        """
         # synchronize for enabling cross-thread calls for this function
         with MotionDetector._lock:
             self._get_impl().on_disable(ips)
 
-    def _on_motion(self) -> None:
+    def __on_motion(self) -> None:
+        """forward motion event to handler pipeline
+        """
         LOGGER.debug("Forwarding event to motion handler pipeline")
         for step in self._pipeline:
             step.send(self)
 
     def _get_impl(self) -> MotionDetectorImpl:
+        """initializes implementation classes, if not already done
+
+        Returns:
+            MotionDetectorImpl: the configured implementation class
+        """
         if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gpio_sensor import DummyGpioSensor
@@ -149,10 +183,15 @@ class MotionDetector:
 
 
 class FileStorage:
-    """ file storage api, which supports handler pipeline 
+    """ file storage api class, which supports handler pipeline usage
     """
 
     def __init__(self, config_path: str) -> None:
+        """default initialization
+
+        Args:
+            config_path (str): settings configuration path
+        """
         self._config_path = config_path
         self._settings: FileStorageSettings = FileStorageSettings.load_settings(self._config_path)
         self._get_impl()  # create impl objects
@@ -185,6 +224,11 @@ class FileStorage:
             self._get_impl().enqueue_files(files)
 
     def _get_impl(self) -> FileStorageImpl:
+        """initializes implementation classes, if not already done
+
+        Returns:
+            FileStorageImpl: the configured implementation class
+        """
         if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_gdrive_storage import DummyGDriveStorage
@@ -197,10 +241,15 @@ class FileStorage:
 
 
 class MailClient:
-    """mail notification api, which supports handler pipeline
+    """mail notification api class, which supports handler pipeline usage
     """
 
     def __init__(self, config_path: str) -> None:
+        """default initialization
+
+        Args:
+            config_path (str): settings configuration path
+        """
         self._config_path = config_path
         self._settings: MailClientSettings = MailClientSettings.load_settings(self._config_path)
         self._get_impl()  # create impl objects
@@ -218,6 +267,11 @@ class MailClient:
             self._get_impl().send_mail(files)
 
     def _get_impl(self) -> MailClientImpl:
+        """initializes implementation classes, if not already done
+
+        Returns:
+            MailClientImpl: the configured implementation class
+        """
         if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_mail_client import DummyMailClient
@@ -230,10 +284,15 @@ class MailClient:
 
 
 class NetworkDeviceDetector:
-    """network device detector api
+    """network device detector api class
     """
 
     def __init__(self, config_path: str) -> None:
+        """default initialization
+
+        Args:
+            config_path (str): settings configuration path
+        """
         self._config_path = config_path
         self._settings: NetworkDeviceDetectorSettings = NetworkDeviceDetectorSettings.load_settings(self._config_path)
         self._get_impl()  # create impl objects
@@ -259,6 +318,11 @@ class NetworkDeviceDetector:
         self._get_impl().stop()
 
     def _get_impl(self) -> NetworkDeviceDetectorImpl:
+        """initializes implementation classes, if not already done
+
+        Returns:
+            NetworkDeviceDetectorImpl: the configured implementation class
+        """
         if not hasattr(self, '_impl') or not self._impl:
             if self._settings.impl_type == ImplementationType.DUMMY:
                 from .dummy_network_device_detector import DummyNetworkDeviceDetector
