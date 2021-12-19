@@ -3,7 +3,7 @@ camguard - A python home surveillance system
 ===============================================
 
 | |github license| |_| |PyPI Python| |_| |Deepsource Resolved Issues| |_| |Deepsource Active Issues|
-| |Travis CI|
+| |Travis CI| |_| |RTD|
 
 .. blank
 .. |_| unicode:: 0xA0 
@@ -23,6 +23,9 @@ camguard - A python home surveillance system
 .. |Travis CI| image:: https://img.shields.io/travis/com/matt-hires/camguard?logo=travis 
     :target: https://app.travis-ci.com/matt-hires/camguard
     :alt: Travis CI
+.. |RTD| image:: https://img.shields.io/readthedocs/camguard?logo=readthedocs&logoColor=%238CA1AF
+    :target: https://camguard.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 ``camguard`` offers a home surveillance system for |raspi|_ while using a connected motion sensor and camera. It can be used as a cli-application as well as a unix daemon.
 
