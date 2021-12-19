@@ -1,4 +1,6 @@
-from . import main
+"""entrypoint of camguard application aka top-level code environment
+"""
+import sys
+from camguard import main
 
-if __name__ == '__main__':
-    main()
+sys.exit(main())

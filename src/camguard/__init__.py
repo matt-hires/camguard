@@ -161,7 +161,8 @@ def __init(camguard: Any) -> bool:
 
 
 def __run(args: Namespace, camguard: Any) -> None:
-    """runs camguard as program or daemonized process
+    """Runs camguard as program or daemonized process.
+    Shutdown is done by handling SystemExit exception.
 
     Args:
         args (Namespace): argument storage object, which is returned from parsing arguments
@@ -177,11 +178,11 @@ def __run(args: Namespace, camguard: Any) -> None:
     __shutdown(camguard, SIGINT)
 
 
-def main() -> None:
+def main() -> int:
     """main entry point of camguard.
     parses cli args, configures logging and handles startup
     """
-    rc: int = 0
+    rc: int = 1
     try:
         args = __parse_args()
         __configure_logger(args.log)
@@ -194,13 +195,13 @@ def main() -> None:
         # run camguard if it was successfully initialized
         if __init(_camguard):
             __run(args, _camguard)
-
     except SystemExit as sysEx:
-        LOGGER.debug(sysEx)
+        LOGGER.debug(f"Shut down by system exit: {str(sysEx)}")
         LOGGER.info("Camguard shut down gracefully")
+        rc = 0
     # skipcq: PYL-W0703
     except Exception as ex:
         LOGGER.exception("Unexpected error occurred", exc_info=ex)
 
     LOGGER.debug(f"Camguard exit with code: {rc}")
-    sys.exit(rc)
+    return rc
