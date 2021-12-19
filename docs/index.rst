@@ -13,6 +13,7 @@ Contents
 
    setup
    config
+   cli
 
 
 Indices and tables

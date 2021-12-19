@@ -21,12 +21,11 @@ from camguard.exceptions import \
 __version__ = '1.1.0'
 LOGGER = logging.getLogger(__name__)
 
-
-def __parse_args() -> Namespace:
-    """configures cli and parses arguments
+def _parser() -> ArgumentParser:
+    """creates argument parser for parsing arguments
 
     Returns:
-        Namespace: as a simple object for storing arguments
+        ArgumentParser: parser object
     """
     parser = ArgumentParser(
         prog=__name__,
@@ -48,6 +47,14 @@ def __parse_args() -> Namespace:
                         "only useful when combined with --daemonize. "
                         "Redundant if the process is started by the init system "
                         "(sys-v, systemd, ...)")
+    return parser
+
+def __parse_args(parser: ArgumentParser) -> Namespace:
+    """configures cli and parses arguments
+
+    Returns:
+        Namespace: as a simple object for storing arguments
+    """
     args = parser.parse_args()
 
     if args.detach and not args.daemonize:
@@ -184,7 +191,7 @@ def main() -> int:
     """
     rc: int = 1
     try:
-        args = __parse_args()
+        args = __parse_args(_parser())
         __configure_logger(args.log)
 
         LOGGER.info(f"Starting up with args: {args}")

@@ -338,7 +338,7 @@ The settings node of the selected implementation type, available values are:
 Following settings are *only available for ``nmap_device_detector``*.
 
 IP Addresses (``ip_addr``)
-''''''''''''''''''''''''
+''''''''''''''''''''''''''
 | The IP Addresses from the network device, which should detected 
 | Type: ``list[str]``
 

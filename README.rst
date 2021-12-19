@@ -76,8 +76,9 @@ All available cli flags can be shown with ::
 
     camguard --help
 
-Example usage with unix daemon and systemd user unit ``~/.config/systemd/user/camguard.service``::
+Example usage with unix daemon and systemd user unit ``~/.config/systemd/user/camguard.service``
     
+.. code-block:: cfg
 
     [Unit]
     Description=Camguard Test-Service
