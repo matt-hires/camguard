@@ -11,7 +11,7 @@ from pid import PidFile  # type: ignore[reportMissingTypeStubs]
 from camguard.exceptions import \
     CamguardError  # type: ignore[reportMissingTypeStubs]
 
-__version__ = "1.1.0"
+__version__ = '1.1.0'
 LOGGER = logging.getLogger(__name__)
 
 
@@ -21,16 +21,16 @@ def __parse_args() -> Namespace:
         description="A motion sensor controlled home surveillance system",
         formatter_class=ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
-    parser.add_argument("-l", type=str, default="INFO", dest='log',
-                        choices=["INFO", "DEBUG", "WARN", "ERROR", "CRITICAL"],
+    parser.add_argument('-l', type=str, default='INFO', dest='log',
+                        choices=['INFO', 'DEBUG', 'WARN', 'ERROR', 'CRITICAL'],
                         help="Define custom log level")
-    parser.add_argument("-c", metavar="CONFIG_PATH", type=str, default="$HOME/.config/camguard", dest="config_path",
+    parser.add_argument('-c', metavar='CONFIG_PATH', type=str, default='$HOME/.config/camguard', dest='config_path',
                         help="Define custom config path, '~' and env variables will be resolved, "
                         "file name is 'settings.yaml'.")
-    parser.add_argument("--daemonize", default=False, action="store_true", help="Run camguard as a unix daemon")
-    parser.add_argument("--detach", default=False, action="store_true",
+    parser.add_argument('--daemonize', default=False, action='store_true', help="Run camguard as a unix daemon")
+    parser.add_argument('--detach', default=False, action='store_true',
                         help="Detach process from current terminal "
                         "to run in the background as a daemon. Therefore this is "
                         "only useful when combined with --daemonize. "
@@ -58,7 +58,7 @@ def __configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
     }
 
     # setup pid file context (/var/run/camguard.pid)
-    pid_file: Optional[PidFile] = PidFile(pidname="camguard") if detach else None
+    pid_file: Optional[PidFile] = PidFile(pidname='camguard') if detach else None
     work_dir: str = '/' if detach else '.'
 
     return DaemonContext(detach_process=detach,
@@ -72,6 +72,7 @@ def __configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
 # skipcq: PYL-W0613
 def __shutdown(camguard: Any, signal_number: Signals, stack_frame: Any) -> None:
     LOGGER.info("Gracefully shutting down Camguard")
+    print('break on this line')
     if camguard:
         camguard.stop()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
@@ -115,7 +116,7 @@ def __run(args: Namespace, camguard: Any) -> None:
     __shutdown(camguard, SIGINT, None)
 
 
-def main():
+def main() -> None:
     rc: int = 0
     try:
         args = __parse_args()
@@ -123,7 +124,7 @@ def main():
 
         LOGGER.info(f"Starting up with args: {args}")
 
-        from .camguard import Camguard
+        from camguard.camguard import Camguard
         _camguard = Camguard(args.config_path)
 
         # run camguard if it was successfully initialized
