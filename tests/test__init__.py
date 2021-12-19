@@ -19,6 +19,7 @@ class Test__init__(TestCase):
 
     @patch('camguard.sigwait', MagicMock())
     @patch('camguard.logging', MagicMock())
+    @patch('camguard.LOGGER', MagicMock())
     def test_should_run_stop(self):
         # arrange
         args_parser_mock = MagicMock(name='args_parser_mock')
@@ -39,6 +40,7 @@ class Test__init__(TestCase):
 
     @patch('camguard.sigwait', MagicMock())
     @patch('camguard.logging', MagicMock())
+    @patch('camguard.LOGGER', MagicMock())
     @patch('camguard.DaemonContext', MagicMock())
     def test_should_run_when_daemonized(self):
         # arrange
@@ -64,6 +66,7 @@ class Test__init__(TestCase):
 
     @patch('camguard.sigwait', MagicMock())
     @patch('camguard.logging', MagicMock())
+    @patch('camguard.LOGGER', MagicMock())
     def test_should_stop_on_init_error(self):
         # arrange
         args_parser_mock = MagicMock(name='args_parser_mock')
@@ -88,6 +91,7 @@ class Test__init__(TestCase):
 
     @patch('camguard.sigwait', MagicMock())
     @patch('camguard.logging', MagicMock())
+    @patch('camguard.LOGGER', MagicMock())
     def test_should_exit_on_unexpected_error(self):
         # arrange
         args_parser_mock = MagicMock(name='args_parser_mock')

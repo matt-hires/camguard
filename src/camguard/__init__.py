@@ -21,6 +21,7 @@ from camguard.exceptions import \
 __version__ = '1.1.0'
 LOGGER = logging.getLogger(__name__)
 
+
 def _parser() -> ArgumentParser:
     """creates argument parser for parsing arguments
 
@@ -49,6 +50,7 @@ def _parser() -> ArgumentParser:
                         "(sys-v, systemd, ...)")
     return parser
 
+
 def __parse_args(parser: ArgumentParser) -> Namespace:
     """configures cli and parses arguments
 
@@ -74,8 +76,6 @@ def __configure_logger(loglevel: str) -> None:
                         handlers=[logging.StreamHandler()], level=loglevel)
     logging.logThreads = True
 
-# skipcq: PYL-W0613
-
 
 def __shutdown(camguard: Optional[Any], signal_number: Signals) -> None:
     """handle shutdown of camguard/-daemon
@@ -90,7 +90,6 @@ def __shutdown(camguard: Optional[Any], signal_number: Signals) -> None:
     """
 
     LOGGER.info("Gracefully shutting down Camguard")
-    print('break on this line')
     if camguard:
         camguard.stop()
     raise SystemExit(f"Received shutdown signal: {signal_number}")
