@@ -1,3 +1,10 @@
+"""
+init module of camguard, which supports:
+* init, start and stop handling
+* configuration of logging and cli arguments
+* daemonized usage
+"""
+
 import logging
 import sys
 import time
@@ -16,6 +23,11 @@ LOGGER = logging.getLogger(__name__)
 
 
 def __parse_args() -> Namespace:
+    """configures cli and parses arguments
+
+    Returns:
+        Namespace: as a simple object for storing arguments
+    """
     parser = ArgumentParser(
         prog=__name__,
         description="A motion sensor controlled home surveillance system",
@@ -45,16 +57,52 @@ def __parse_args() -> Namespace:
 
 
 def __configure_logger(loglevel: str) -> None:
+    """configures basic logging system
+
+    Args:
+        loglevel (str): given loglevel to configure, this is restricted by cli-args to: 
+                        INFO, DEBUG, WARN, ERROR, CRITICAL
+    """
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(threadName)s - %(name)s - %(message)s",
                         handlers=[logging.StreamHandler()], level=loglevel)
     logging.logThreads = True
 
+# skipcq: PYL-W0613
+
+
+def __shutdown(camguard: Optional[Any], signal_number: Signals) -> None:
+    """handle shutdown of camguard/-daemon
+    shutdown signal can be raised by cli (ctrl+c) or init-system in a daemon usage scenario (i.e. systemd)
+
+    Args:
+        camguard (Optional[Any]): camguard instance which has been started, could be 
+        signal_number (Signals): system signal which has been raised 
+
+    Raises:
+        SystemExit: for shutting down camguard 
+    """
+
+    LOGGER.info("Gracefully shutting down Camguard")
+    print('break on this line')
+    if camguard:
+        camguard.stop()
+    raise SystemExit(f"Received shutdown signal: {signal_number}")
+
 
 def __configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
+    """in case of running daemonized, this configures daemon as described in PEP 3143
+
+    Args:
+        detach (bool): set to true to detach from terminal 
+        camguard (Any): the camguard instance to run 
+
+    Returns:
+        DaemonContext: daemon context which handles turning program into a daemon process
+    """
     signal_map: Dict[Signals, Any] = {
         # lambda type couldn't be inferred
-        SIGTERM: lambda sig, tb: __shutdown(camguard, sig, tb),  # type: ignore
-        SIGINT: lambda sig, tb: __shutdown(camguard, sig, tb)  # type: ignore
+        SIGTERM: lambda sig, _: __shutdown(camguard, sig),  # type: ignore
+        SIGINT: lambda sig, _: __shutdown(camguard, sig)  # type: ignore
     }
 
     # setup pid file context (/var/run/camguard.pid)
@@ -69,16 +117,14 @@ def __configure_daemon(detach: bool, camguard: Any) -> DaemonContext:
                          working_directory=work_dir)
 
 
-# skipcq: PYL-W0613
-def __shutdown(camguard: Any, signal_number: Signals, stack_frame: Any) -> None:
-    LOGGER.info("Gracefully shutting down Camguard")
-    print('break on this line')
-    if camguard:
-        camguard.stop()
-    raise SystemExit(f"Received shutdown signal: {signal_number}")
-
-
 def __run_daemonized(args: Namespace, camguard: Any) -> None:
+    """in case of running daemonized, this configures the daemon and starts camguard in background,
+     while staying in a main loop
+
+    Args:
+        args (Namespace): argument storage object which is returned from parsing arguments
+        camguard (Any): the camguard instance to run 
+    """
     daemon_context: DaemonContext = __configure_daemon(args.detach, camguard)
     with daemon_context:
         camguard.start()
@@ -91,6 +137,14 @@ def __run_daemonized(args: Namespace, camguard: Any) -> None:
 
 
 def __init(camguard: Any) -> bool:
+    """initialize camguard and its equipment before start, automatically stops if an error occurs
+
+    Args:
+        camguard (Any): camguard instance to run
+
+    Returns:
+        bool: True on success, otherwise False
+    """
     success = False
     try:
         camguard.init()
@@ -107,16 +161,26 @@ def __init(camguard: Any) -> bool:
 
 
 def __run(args: Namespace, camguard: Any) -> None:
+    """runs camguard as program or daemonized process
+
+    Args:
+        args (Namespace): argument storage object, which is returned from parsing arguments
+        camguard (Any): camguard instance to run
+
+    """
     if args.daemonize:
         return __run_daemonized(args, camguard)
 
     camguard.start()
     LOGGER.info("Camguard running, press ctrl-c to quit")
     sigwait((SIGINT,))
-    __shutdown(camguard, SIGINT, None)
+    __shutdown(camguard, SIGINT)
 
 
 def main() -> None:
+    """main entry point of camguard.
+    parses cli args, configures logging and handles startup
+    """
     rc: int = 0
     try:
         args = __parse_args()
