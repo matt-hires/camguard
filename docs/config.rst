@@ -179,6 +179,8 @@ Example configuration for Dummy usage
             record_interval_seconds: 0.5
             record_file_format: "{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg" # default
 
+.. _file-storage-label:
+
 File Storage (``file_storage``)
 ```````````````````````````````
 | A component which handles file storage of the recorded files from the motion handler. 
@@ -213,6 +215,8 @@ OAuth token path (``oauth_token_path``)
 | Folder path for saving Google-OAuth ``token.json`` file.
 | Type: ``string``
 | Default: ``'.'``
+
+.. _google-oauth-credentials-label:
 
 OAuth credentials path (``oauth_credentials_path``)
 '''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -371,3 +375,28 @@ Example configuration for Dummy Device Detector
 
         dummy_network_device_detector:
             # there are no specific settings for this node
+
+Configuring Google-OAuth for Google-Drive
+-----------------------------------------
+To enable the file storage for google-drive usage (see :ref:'file-storage-label`), it's necessary to configure google-oauth authentication for your google account following these steps:
+
+1. Create a |google cloud platform project|_ 
+2. Enable Google-Drive API
+3. Create |google access credentials|_ 
+   
+   1. Configure OAuth consent screen. ⚠️ Take care to *not* configure a logo/icon for the project, otherwise you'll have to verify your production state. [#project_verification]_
+   2. Set Application Type to **Desktop**
+4. Download client secret json and rename it to `credentials.json`
+5. Copy `credentials.json` to `~/.config/camguard` or configure :ref:`google-oauth-credentials-label`
+
+.. _`google cloud platform project`: https://developers.google.com/workspace/guides/create-project 
+.. |google cloud platform project| replace:: **Google Cloud Platform Project**
+
+.. _`google access credentials`: https://developers.google.com/workspace/guides/create-credentials
+.. |google access credentials| replace:: **access credentials**
+
+.. rubric:: Footnotes
+.. [#project_verification] Google verifies projects configured for a user type of External and a publishing status of In production if they meet special criterial like displaying icon/logo on OAuth consent screen. See |google verification status|_
+
+.. _`google verification status`: https://support.google.com/cloud/answer/10311615?hl=en#zippy=%2Cin-production%2Cverification-not-required%2Cneeds-verification
+.. |google verification status| replace:: **Google Project Verification Status**
