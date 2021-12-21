@@ -87,7 +87,7 @@ Example usage with unix daemon and systemd user unit ``~/.config/systemd/user/ca
 
     [Service]
     Type=simple
-    ExecStart=python -u -m camguard $HOME/.config/camguard/settings.yaml --daemonize
+    ExecStart=/home/username/.local/bin/camguard -c /home/username/.config/camguard/settings.yaml --daemonize
     TimeoutStopSec=3
 
     [Install]
