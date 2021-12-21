@@ -1,6 +1,6 @@
-===============================================
-camguard - A python home surveillance system
-===============================================
+===================================
+camguard - home surveillance system
+===================================
 
 | |github license| |_| |PyPI Python| |_| |Travis CI| |_| |RTD|
 | |Deepsource Resolved Issues| |_| |Deepsource Active Issues|
