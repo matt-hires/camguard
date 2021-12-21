@@ -3,17 +3,21 @@
 # Date: 12.12.20 14:01
 # Description: Watch project file system changes and sync them to remote pi
 
+# change to your raspi hostname and sync directory
 remote_host="pi@raspberrycam"
 remote_dir="/home/pi/pydev/camguard"
-rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__" \
-"--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version" \
-"--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/" \
-"--exclude=credentials.json" "--exclude=record/" "--exclude=**/*.tmp" \
-"--exclude=settings.yaml" "--exclude=.coverage" "--exclude=htmlcov/" \
-"--exclude=client_secrets.json" \
-"--exclude=record_dummy")
 
-inotify_excludes="(\.idea)|(.*~)|(venv)|(\.python-version)|(__pycache__)|(\.git)|(\.vscode)|(\.tox)|(camguard-.*)|(.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)"
+# sync excludes
+rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__"
+    "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version"
+    "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/"
+    "--exclude=**/*.tmp" "--exclude=settings.yaml" "--exclude=.coverage" "--exclude=htmlcov/" 
+    "--exclude=docs/_build")
+
+# watcher excludes
+inotify_excludes="(\.idea)|(.*~)|(venv)|(\.python-version)|\
+(__pycache__)|(\.git)|(\.vscode)|(\.tox)|(camguard-.*)|\
+(.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)|(docs)"
 
 printf "Running initial sync to '%s:%s'\n" "$remote_host" "$remote_dir"
 rsync -avP --force --delete --rsh=ssh '.' "$remote_host":"$remote_dir" "${rsync_excludes[@]}"

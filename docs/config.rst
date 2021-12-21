@@ -2,7 +2,7 @@
 Configuration
 =============
 
-Configuration for ``camguard`` is done in a *yaml*-File with a configurable path, which will be set to ``$HOME/.config/camguard/settings.yaml`` by default. The parent directory path can be changed with the cli flag ``-c CONFIG_PATH`` (see ``camguard --help`` for further information).
+Configuration for ``camguard`` is done in a *yaml*-File with a configurable path, which will be set to ``$HOME/.config/camguard/settings.yaml`` by default. The parent directory path can be changed with the cli flag ``-c CONFIG_PATH`` (see :doc:`cli`).
 
 When installing ``camguard`` by using the available ``Makefile``, a default configuration for Raspberry Pi is automatically copied to the default path.
 

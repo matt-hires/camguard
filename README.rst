@@ -144,6 +144,38 @@ Installing an environment can either be done directly via ``pip`` \.\.\. ::
 
 The ``Makefile`` also installs a fully functioning user systemd-unit with some default settings as well.
 
+Sync changes to remote Raspberry Pi
+-----------------------------------
+
+| For syncing changes to a remote raspberry pi the script `sync_watch.sh` can be used. 
+| It requires usage of the following tools:
+
+* `inotifywait` - a cli file watcher
+* `rsync` - for syncing changes to remote pi
+* `ssh` - for network file transfers
+
+Adaption to host and sync directory can be done via the variables `remote_host` and `remote_dir` in the script, as well as additional excludes for the watcher and rsync:
+
+.. code-block:: bash
+    :name: sync-watch
+    :caption: sync_watch.sh
+
+    # change to your raspi hostname and sync directory
+    remote_host="pi@raspberrycam"
+    remote_dir="/home/pi/pydev/camguard"
+
+    # sync excludes
+    rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__"
+        "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version"
+        "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/"
+        "--exclude=**/*.tmp" "--exclude=settings.yaml" "--exclude=.coverage" "--exclude=htmlcov/" 
+        "--exclude=docs/_build")
+
+    # watcher excludes
+    inotify_excludes="(\.idea)|(.*~)|(venv)|(\.python-version)|\
+    (__pycache__)|(\.git)|(\.vscode)|(\.tox)|(camguard-.*)|\
+    (.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)|(docs)"
+
 Static Code Analysis
 --------------------
 
