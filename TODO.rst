@@ -28,6 +28,9 @@ Refactoring
 PENDING
 =======
 
+* documentation
+    - provide sample configuration
+
 ====
 DONE
 ====
