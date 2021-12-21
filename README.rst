@@ -187,7 +187,7 @@ This project performs static code analysis check with |deepsource|_.
 Documentation
 -------------
 
-Builds html documentation with sphinx, by using makefile goal::
+Build html documentation with sphinx, by using makefile goal::
 
     $ make docs-html
 
