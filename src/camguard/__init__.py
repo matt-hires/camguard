@@ -18,7 +18,7 @@ from pid import PidFile  # type: ignore[reportMissingTypeStubs]
 from camguard.exceptions import \
     CamguardError  # type: ignore[reportMissingTypeStubs]
 
-__version__ = '1.1.0'
+__version__ = '1.1.0-beta'
 LOGGER = logging.getLogger(__name__)
 
 

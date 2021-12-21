@@ -1,3 +1,8 @@
-graft src/camguard/certs
+include LICENSE NOTICE *.cfg *.ini *.py *.rst *.yml *.toml
+
+graft src
 graft tests
-global-exclude *.pyc
+
+exclude TODO.rst
+
+global-exclude *.py[cod]

@@ -22,14 +22,15 @@ DEBUG_ARGS := -l DEBUG
 
 PYTHON_PIP := ${PYTHON} -m pip
 PYTHON_TOX := ${PYTHON} -m tox
+PYTHON_BUILD := ${PYTHON} -m build
+PYTHON_UPLOAD := ${PYTHON} -m twine upload
 
 SOURCE_DIR := ${CURDIR}/src
 MODULE_DIR := ${SRC_DIR}/${NAME}
 TESTS_DIR := ${CURDIR}/tests
-BUILD_DIR := ${CURDIR}/build
+DIST_DIR := ${CURDIR}/dist
 
-GENERATED_FILES := ${BUILD_DIR} 
-GENERATED_FILES += ${CURDIR}/dist
+GENERATED_FILES := ${DIST_DIR} 
 GENERATED_FILES += ${CURDIR}/pip-wheel-metadata
 GENERATED_FILES += ${SOURCE_DIR}/${NAME}.egg-info
 GENERATED_FILES += ${CURDIR}/__pycache__
@@ -55,7 +56,9 @@ help:
 	@echo "uninstall-settings       uninstall settings"
 	@echo "uninstall                uninstall modules + systemd + settings"
 	@echo "check                    run tests (tox)"
-	@echo "build                    build python project to ${BUILD_DIR}"
+	@echo "dist                     build distribution in ${DIST_DIR}"
+	@echo "dist-upload              build distribution and upload"
+	@echo "dist-test-upload         build distribution and upload to test repository"
 	@echo "docs-html                build html documentation in ${DOCS_DIR}"
 	@echo "clean                    clean all generated files"
 
@@ -70,8 +73,14 @@ install: install-systemd install-raspi-settings
 uninstall: uninstall-systemd uninstall-settings
 	${PYTHON_PIP} uninstall ${NAME}
 
-build: 
-	${PYTHON_PIP} install -b ${BUILD_DIR} .  
+dist: 
+	${PYTHON_BUILD} --outdir ${DIST_DIR}
+
+dist-test-upload: dist 
+	${PYTHON_UPLOAD} --repository testpypi ${DIST_DIR}/*
+
+dist-upload: dist 
+	${PYTHON_UPLOAD} ${DIST_DIR}/*
 
 check: 
 	${PYTHON_TOX}

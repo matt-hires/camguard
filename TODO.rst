@@ -28,15 +28,15 @@ Refactoring
 PENDING
 =======
 
+====
+DONE
+====
 * increase test coverage
     - ITs
     - Unit-Tests
 
 * Write documentation 
 
-====
-DONE
-====
 * email notification
     - make mail client optional
 

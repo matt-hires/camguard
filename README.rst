@@ -5,7 +5,6 @@ camguard - home surveillance system
 | |github license| |_| |PyPI Python| |_| |Travis CI| |_| |RTD|
 | |Deepsource Resolved Issues| |_| |Deepsource Active Issues|
 
-.. blank
 .. |_| unicode:: 0xA0 
 
 .. |github license| image:: https://img.shields.io/github/license/matt-hires/camguard?logo=Open%20Source%20Initiative&logoColor=0F0 
@@ -169,12 +168,12 @@ Adaption to host and sync directory can be done via the variables `remote_host` 
         "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version"
         "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/"
         "--exclude=**/*.tmp" "--exclude=settings.yaml" "--exclude=.coverage" "--exclude=htmlcov/" 
-        "--exclude=docs/_build")
+        "--exclude=docs/_build" "--exclude=dist/")
 
     # watcher excludes
     inotify_excludes="(\.idea)|(.*~)|(venv)|(\.python-version)|\
     (__pycache__)|(\.git)|(\.vscode)|(\.tox)|(camguard-.*)|\
-    (.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)|(docs)"
+    (.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)|(docs)|(dist)"
 
 Static Code Analysis
 --------------------
@@ -198,6 +197,6 @@ License
 ``camguard`` is released under the GNU General Public License v3.0
 
 .. _`raspi`: https://www.raspberrypi.org/
-.. |raspi| replace:: **Raspberry PI** 
+.. |raspi| replace:: **Raspberry Pi** 
 .. _`camguard rtd`: https://camguard.readthedocs.io
 .. |camguard rtd| replace:: **camguard.readthedocs.io**

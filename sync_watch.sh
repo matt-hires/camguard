@@ -12,12 +12,12 @@ rsync_excludes=("--exclude=venv/" "--exclude=*.log" "--exclude=**/__pycache__"
     "--exclude=.tox/" "--exclude=.git/" "--exclude=.python-version"
     "--exclude=pip-wheel-metadata/" "--exclude=src/*.egg-info/" "--exclude=.vscode/"
     "--exclude=**/*.tmp" "--exclude=settings.yaml" "--exclude=.coverage" "--exclude=htmlcov/" 
-    "--exclude=docs/_build")
+    "--exclude=docs/_build" "--exclude=dist/")
 
 # watcher excludes
 inotify_excludes="(\.idea)|(.*~)|(venv)|(\.python-version)|\
 (__pycache__)|(\.git)|(\.vscode)|(\.tox)|(camguard-.*)|\
-(.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)|(docs)"
+(.*\.egg-info)|(settings\.yaml)|(\.coverage)|(htmlcov)|(docs)|(dist)"
 
 printf "Running initial sync to '%s:%s'\n" "$remote_host" "$remote_dir"
 rsync -avP --force --delete --rsh=ssh '.' "$remote_host":"$remote_dir" "${rsync_excludes[@]}"
