@@ -17,6 +17,7 @@ Features
 --------
 
 * nmap device detector -> check for errors from nmap cmd
+* provide functionality to hash password for mail server connection settings
 
 Refactoring
 -----------

@@ -43,7 +43,7 @@ The settings node of the selected implementation type, available values are:
 - raspi_gpio_sensor
 - dummy_gpio_sensor
 
-Following settings are *only available for ``raspi_gpio_sensor``*.
+Following settings are *only* available for ``raspi_gpio_sensor``.
 
 Raspberry Pi GPIO-Pin Number (``gpio_pin_number``)
 ''''''''''''''''''''''''''''''''''''''''''''''''''
