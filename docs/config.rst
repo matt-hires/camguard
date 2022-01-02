@@ -9,6 +9,8 @@ When installing ``camguard`` by using the available ``Makefile``, a default conf
 Settings
 ========
 
+For further explanation about component interaction please refer to :doc:`intro`.
+
 Components
 ----------
 ``camguard`` uses component based settings where each of this components can be switch on, off or set into a dummy mode for testing, without using Raspberry Pi specific dependencies.
@@ -24,7 +26,7 @@ Components
 
 Motion detector (``motion_detector``)
 `````````````````````````````````````
-| A motion detector which calls a given handler on motion.
+| A motion detector which calls a motion handler pipeline on detection.
 | The following settings are available for ``motion_detector`` node:
 
 Implementation Type (``implementation``)

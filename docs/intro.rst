@@ -15,6 +15,8 @@ Components
 
     Motion detection flow with handler pipe
 
+For further explanation about component configuration please refer to :doc:`config`.
+
 Motion detector
 ---------------
 Runs the motion detection thread and calls handler pipeline if motion is detected by the sensor.

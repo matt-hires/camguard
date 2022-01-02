@@ -21,5 +21,4 @@ Picture of the setup
 ----------------------------
 
 .. image:: ./_static/raspi_setup.jpg
-    :height: 504px
-    :width: 378px
+   :scale: 50%
