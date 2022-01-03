@@ -402,3 +402,237 @@ To enable the file storage for google-drive usage (see :ref:'file-storage-label`
 
 .. _`google verification status`: https://support.google.com/cloud/answer/10311615?hl=en#zippy=%2Cin-production%2Cverification-not-required%2Cneeds-verification
 .. |google verification status| replace:: **Google Project Verification Status**
+
+Example configurations
+----------------------
+
+.. code-block:: yaml
+    :linenos:
+    :name: raspi-config.yaml 
+    :caption: Sample configuration for Raspberry Pi (including comments and optionals)
+
+    components:
+        - motion_detector # mandatory
+        - motion_handler # mandatory
+        - file_storage
+        - mail_client
+        - network_device_detector
+
+    # motion detector settings node
+    # type: node
+    # required: yes
+    motion_detector:
+        # implementation type for camguard equipment
+        # type: enumeration
+        # required: no
+        # values: [raspi, dummy]
+        # default: raspi
+        implementation: raspi
+
+        # implementation settings node 
+        # type: node
+        # required: yes
+        # values: [raspi_gpio_sensor, dummy_gpio_sensor]
+        raspi_gpio_sensor: 
+
+            # raspi gpio pin number where motion sensor is connected
+            # type: integer
+            # required: yes
+            gpio_pin_number: 23 
+
+            # raspi gpio pin number for a optional notification led
+            # type: integer
+            # required: no
+            # default: 0, which means it is disabled
+            notification_led_gpio_pin_number: 16
+
+            # The length of the queue used to store values read from the sensor.
+            # This defaults to 1 which effectively disables the queue. If your motion
+            # sensor is particularly "twitchy" you may wish to increase this value.
+            # type: int
+            # required: no
+            # default: 1, which disabled the queue
+            #queue_length: 0
+
+            # When the average of all values in the internal queue rises above this value,
+            # the sensor will be considered "active"
+            # type: float
+            # required: no
+            # default: 0.5, which means half of the queue has to be considered "active"
+            #threshold: 0.5
+
+            # The length of time to wait between retrieving the state 
+            # of the underlying device.
+            # Defaults to 0.0 indicating that values are retrieved as fast as possible.
+            # type: float
+            # required: no
+            # default: 0.0
+            #sample_wait: 0.0
+
+    # motion handler settings node
+    # type: node
+    # required: yes
+    motion_handler:
+        # implementation type for camguard equipment
+        # type: enumeration
+        # required: no
+        # values: [raspi, dummy]
+        # default: raspi
+        implementation: raspi
+
+        # implementation settings node 
+        # type: node
+        # required: no
+        # values: [raspi_cam, dummy_cam]
+        raspi_cam:
+            # path where files should be saved, '~' and env variables will be resolved
+            # type: string
+            # required: no 
+            # default: "$HOME/.camguard/records"
+            # record_path: "$HOME/.camguard/records"
+
+            # picture count per motion detection
+            # type: integer
+            # required: no
+            # default: 15
+            record_count: 15
+
+            # interval between taking pictures in seconds 
+            # type: float
+            # required: no 
+            # default: 1.0
+            record_interval_seconds: 1.0
+
+            # file name format where,
+            # counter = 3 Digit Number from 1..record_count
+            # timestamp = current date format
+            # type: string
+            # required: no
+            # default: "{counter:03d}_{timestamp:%y%m%d_%H%M%S%f}_capture.jpg"
+            record_file_format: "{timestamp:%y%m%d_%H%M%S%f}_capture_{counter:03d}.jpg"
+
+    # file storage settings node
+    # type: node
+    # required: yes
+    file_storage:
+        # implementation settings node 
+        # type: node
+        # required: yes
+        # values: [gdrive_storage, dummy_gdrive_storage]
+        gdrive_storage:
+            # name of the upload folder in gdrive root 
+            # type: string
+            # required: no
+            # default: "Camguard"
+            #upload_folder_name: "Camguard"
+            
+            # root folder path for saving google oauth 'token.json'
+            # type: string
+            # required: no
+            # default: "."
+            oauth_token_path: "~/.config/camguard"
+
+            # root folder path for loading google oauth 'credentials.json'
+            # type: string
+            # required: no
+            # default: "."
+            oauth_credentials_path: "~/.config/camguard"
+
+    # mail notification settings node
+    # type: node
+    # required: yes
+    mail_client:
+        # switch mail client to dummy/offline mode (simulate mail sending) 
+        # type: enumeration
+        # required: no
+        # values: [dummy, default]
+        # default: default
+        #implementation: dummy
+        
+        # username for smtp authentication
+        # type: string
+        # required: yes
+        username: myUser
+        
+        # password for smtp authentication
+        # type: string
+        # required: yes
+        password: myPw 
+
+        # sender mail address of the notification mail
+        # type: string
+        # required: yes
+        sender_mail: sender@mail.com
+
+        # receiver mail address of the notification mail 
+        # type: string
+        # required: yes
+        receiver_mail: receiver@mail.com 
+
+        # mail server hostname
+        # type: string
+        # required: yes
+        hostname: my.mail.com
+
+    # automatically disable motion detection when configured device is found in network
+    # type: dict
+    # required: no
+    network_device_detector:
+        # switch network device detector to dummy/mode (simulate detection)
+        # type: enumeration
+        # required: no
+        # values: [dummy, default]
+        # default: default
+        #implementation: default
+
+        # implementation settings node
+        # type: dict
+        # required: yes
+        # values: [nmap_device_detector, dummy_network_device_detector]
+        nmap_device_detector:
+            # the ip address to detect on the network
+            # type: string
+            # required: yes
+            ip_addr: 
+                    - '192.168.1.1'
+                    - '192.168.1.2'
+
+            # the detection interval in seconds
+            # type: float
+            # required: yes
+            interval_seconds: 4.0
+
+.. code-block:: yaml
+    :linenos:
+    :name: dummy-config.yaml 
+    :caption: Sample configuration for development-/dummy-usage 
+
+    components:
+        - motion_handler
+        - motion_detector
+        - file_storage
+        - mail_client
+        - network_device_detector
+
+    motion_handler:
+        implementation: dummy
+        dummy_cam:
+            record_count: 5
+            record_interval_seconds: 0.5
+
+    motion_detector:
+        implementation: dummy
+
+    file_storage:
+        implementation: dummy
+
+    mail_client:
+        implementation: dummy
+        username: camguard # hard-coded for dummy usage
+        password: dummy # hard-coded for dummy usage
+        receiver_mail: dummy-receiver@camguard.at # hard-coded for dummy usage
+        sender_mail: dummy-sender@camguard.at # hard-coded for dummy usage
+        hostname: localhost
+
+    network_device_detector:
+        implementation: dummy

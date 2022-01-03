@@ -13,7 +13,7 @@ components:
     - motion_handler # mandatory
     - file_storage
     - mail_client
-    #- network_device_detector # optional
+    #- network_device_detector
 
 # motion detector settings node
 # type: dict
@@ -196,7 +196,7 @@ mail_client:
     # required: yes
     #hostname:
 
-# automatically turn off motion detection when configured device in network 
+# automatically disable motion detection when configured device is found in network 
 # type: dict
 # required: no
 #network_device_detector:

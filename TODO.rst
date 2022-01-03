@@ -3,9 +3,6 @@ TODO for camguard cli/daemon
 
 Wishlist
 --------
-
-* Recording/Upload subfolder {capture}_{count}
-
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
@@ -29,12 +26,13 @@ Refactoring
 PENDING
 =======
 
-* documentation
-    - provide sample configuration
-
 ====
 DONE
 ====
+* documentation
+    - provide sample configuration
+    - document component interaction
+
 * increase test coverage
     - ITs
     - Unit-Tests
