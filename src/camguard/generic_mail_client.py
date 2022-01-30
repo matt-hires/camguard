@@ -16,7 +16,11 @@ class GenericMailClient(MailClientImpl):
     """generic smtp mail client implementation, supports sending notification mails to a configured receiver mail
     """
     __PORT: ClassVar[int] = 587  # for starttls
-    __MAIL_MSG: ClassVar[str] = "Camguard motion triggered, files where recorded and uploaded: {files}"
+    __MAIL_MSG: ClassVar[str] = ("*** Motion triggered ***\n"
+                                 "\n"
+                                 "The following files where recorded and enqueued for upload:\n"
+                                 "{files}")
+
     __MAIL_SUBJECT: ClassVar[str] = "Camguard motion triggered"
 
     def __init__(self, settings: GenericMailClientSettings) -> None:
@@ -44,7 +48,7 @@ class GenericMailClient(MailClientImpl):
                          f"{self.__settings.hostname}:{GenericMailClient.__PORT}",
                          exc_info=client_err)
 
-    @staticmethod
+    @ staticmethod
     def __create_msg(sender: str, receiver: str, files: List[str]) -> EmailMessage:
         msg: EmailMessage = EmailMessage()
         msg.add_header('Subject', GenericMailClient.__MAIL_SUBJECT)

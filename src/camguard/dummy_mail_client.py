@@ -16,7 +16,10 @@ class DummyMailClient(MailClientImpl):
     """dummy implementation for mail notification
     """
     _PORT: ClassVar[int] = 8025
-    _MAIL_MSG: ClassVar[str] = "Notification test mail: Recording was triggered, and following files recorded: {files}"
+    _MAIL_MSG: ClassVar[str] = ("*** Notification test mail ***\n"
+                                "\n"
+                                "Recording was triggered, and following files recorded:\n"
+                                "{files}")
 
     def __init__(self, settings: DummyMailClientSettings) -> None:
         self._settings = settings
@@ -53,6 +56,6 @@ class DummyMailClient(MailClientImpl):
         msg.add_header("Subject", self.__class__.__name__ + " test mail")
         msg.add_header("From", sender)
         msg.add_header("To", receiver)
-        msg.set_content(DummyMailClient._MAIL_MSG.format(files=files))
+        msg.set_content(DummyMailClient._MAIL_MSG.format(files=",\n".join(files)))
 
         return msg

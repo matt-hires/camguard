@@ -3,9 +3,9 @@ from time import sleep
 from unittest import TestCase
 from unittest.mock import MagicMock, PropertyMock, call, create_autospec, mock_open, patch
 
-from google_auth_oauthlib.flow import InstalledAppFlow # type: ignore
-from googleapiclient.discovery import build # type: ignore
-from googleapiclient.http import MediaFileUpload # type: ignore
+from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
+from googleapiclient.discovery import build  # type: ignore
+from googleapiclient.http import MediaFileUpload  # type: ignore
 
 from camguard.exceptions import GDriveError
 from camguard.file_storage_settings import GDriveStorageSettings
@@ -58,13 +58,13 @@ class GDriveStorageTest(TestCase):
         self._patcher.start()
         self.sut = GDriveStorage(self._storage_settings_mock)
 
-    @patch("camguard.gdrive_storage.GDriveStorage._search_file", MagicMock(return_value=[]))
+    @patch("camguard.gdrive_storage.GDriveStorage._GDriveStorage__search_file", MagicMock(return_value=[]))
     def test_should_create_root(self):
         # arrange
 
         # mock root folder query
-        create_folder_dict = {
-            'name': self.sut._upload_folder_name,  # type: ignore
+        create_folder_dict = { # type: ignore
+            'name': self.sut._GDriveStorage__upload_folder_name,  # type: ignore
             'mimeType': GDriveMimetype.FOLDER.value,
             'parents': ['root']
         }
@@ -77,7 +77,8 @@ class GDriveStorageTest(TestCase):
         self._googleapi_service_mock.assert_has_calls(
             [call.__enter__().files().create(body=create_folder_dict, fields='id, name, parents')], any_order=True)
 
-    @patch("camguard.gdrive_storage.GDriveStorage._search_file", MagicMock(return_value=[MagicMock(), MagicMock()]))
+    @patch("camguard.gdrive_storage.GDriveStorage._GDriveStorage__search_file",
+           MagicMock(return_value=[MagicMock(), MagicMock()]))
     def test_should_raise_error_when_more_than_one_root_found(self):
         # arrange
         file = "capture1.jpeg"
@@ -102,7 +103,7 @@ class GDriveStorageTest(TestCase):
         ])
 
         # act
-        with patch("camguard.gdrive_storage.GDriveStorage._search_file", search_file_mock):
+        with patch("camguard.gdrive_storage.GDriveStorage._GDriveStorage__search_file", search_file_mock):
             self.sut.upload(file)
 
         # assert
@@ -128,7 +129,7 @@ class GDriveStorageTest(TestCase):
         ])
 
         # act
-        with patch("camguard.gdrive_storage.GDriveStorage._search_file", search_file_mock):
+        with patch("camguard.gdrive_storage.GDriveStorage._GDriveStorage__search_file", search_file_mock):
             self.sut.upload(file)
 
         # assert
@@ -166,3 +167,24 @@ class GDriveUploadManagerTest(TestCase):
 
         # assert
         upload_mock.assert_called()
+
+    @patch("camguard.gdrive_storage.GDriveStorage.upload")
+    @patch("camguard.gdrive_storage.GDriveStorageAuth.authenticate", MagicMock())
+    def test_should_not_fill_queue_on_upload_error(self, upload_mock: MagicMock):
+        # arrange
+        # mock GDriveStorageSettings
+        storage_settings_mock = create_autospec(spec=GDriveStorageSettings, spec_set=True)
+        type(storage_settings_mock).upload_folder_name = PropertyMock(return_value="Camguard")
+        sut = GDriveStorage(storage_settings_mock)
+        file = "capture1.jpeg"
+        upload_mock.side_effect = AssertionError("Test")
+
+        # act
+        sut.start()
+        sut.enqueue_files([file])
+        sleep(1.0)  # worker stop event check is between 100ms and 500ms
+        sut.stop()
+
+        # assert
+        upload_mock.assert_called()
+        self.assertEqual(0, sut._GDriveStorage__upload_man._GDriveUploadManager__queue.unfinished_tasks)  # type: ignore

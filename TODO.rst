@@ -6,6 +6,8 @@ Wishlist
 * gdrive persist queue
     - via file system (create directory to_upload / uploaded) ?
     - via a persisted queue file
+* improve mail notification
+    - include status of uploaded files (success/failed/skipped) 
 
 Bugs
 ----
@@ -29,6 +31,7 @@ PENDING
 ====
 DONE
 ====
+* fix bug with full file-queue on network outage in google drive file storage 
 * documentation
     - provide sample configuration
     - document component interaction
