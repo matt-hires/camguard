@@ -96,7 +96,7 @@ install-dev: install-dummy-settings
 
 install-dummy-settings:
 	mkdir -p ${SETTINGS_INSTALL_PATH}
-	cp ${DUMMY_SETTINGS_PATH} ${SETTINGS_INSTALL_PATH}/${SETTINGS_FILE}
+	cp -n ${DUMMY_SETTINGS_PATH} ${SETTINGS_INSTALL_PATH}/${SETTINGS_FILE}
 
 install-raspi-settings:
 	mkdir -p ${SETTINGS_INSTALL_PATH}
