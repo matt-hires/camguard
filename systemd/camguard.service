@@ -1,5 +1,5 @@
 [Unit]
-Description=Camguard Test-Service
+Description=Camguard Service
 
 [Service]
 Type=simple

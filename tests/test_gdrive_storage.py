@@ -142,8 +142,6 @@ class GDriveStorageTest(TestCase):
                                              media_body=self._media_file_mock,
                                              fields='id, name, parents')], any_order=True)
 
-        # self._gdrive_mock.CreateFile.assert_called_with(create_file_dict)
-
     def tearDown(self) -> None:
         self._patcher.stop()
 
