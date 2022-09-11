@@ -1,6 +1,7 @@
 # for running tox with travis there is no straight forward solution, see:
 # https://docs.travis-ci.com/user/languages/python/#using-tox-as-the-build-script
 # therefore running tests and coverage is done manually for travis
+dist: focal
 language: python
 
 jobs:
@@ -8,10 +9,17 @@ jobs:
         - name: "setup python 3.7.3"
           language: python
           python: "3.7.3"
-          rust: "1.5.1"
           install: 
             - pip install -U six # six is not up to date in travis image
             - make install-dev
+
+env:
+  global:
+    - PATH=$PATH:$HOME/.cargo/bin
+
+before_install:
+    - curl --output rustup-download.sh https://sh.rustup.rs
+    - sh rustup-download.sh -y
 
 script:
     # run test with coverage
