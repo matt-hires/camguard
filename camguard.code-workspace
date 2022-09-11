@@ -27,6 +27,7 @@
             "nmap",
             "raspi",
             "skipcq"
-        ]
+        ],
+        "esbonio.sphinx.confDir" : "${workspaceFolder}/docs"
     }
 }
