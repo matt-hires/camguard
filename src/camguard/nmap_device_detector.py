@@ -62,7 +62,8 @@ class NMapDeviceDetector(NetworkDeviceDetectorImpl):
         self.__thread.start()
 
     def stop(self) -> None:
-        """stop nmap device detection thread, does nothing is thread has never been started
+        """stop nmap device detection thread, 
+        does nothing if thread has never been started
         """
         LOGGER.info("Stopping detector thread")
 
