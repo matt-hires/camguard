@@ -1,7 +1,7 @@
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
 default:
-    image: python:3.9.18-bookworm 
+    image: python:3.9.2-alpine3.13 
     before_script:
         - python --version ; pip --version  # For debugging
         - pip install virtualenv
@@ -31,9 +31,9 @@ build:
 test:
     stage: test
     script:
-        - coverage run --source=src/camguard -m unittest -v
-        - coverage report -m
-        - coverage xml
+        - python -m coverage run --source=src/camguard -m unittest -v
+        - python -m coverage report -m
+        - python -m coverage xml
 
 pages:
     stage: deploy

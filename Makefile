@@ -96,11 +96,11 @@ install-dev: install-dummy-settings
 
 install-dummy-settings:
 	mkdir -p ${SETTINGS_INSTALL_PATH}
-	cp -n ${DUMMY_SETTINGS_PATH} ${SETTINGS_INSTALL_PATH}/${SETTINGS_FILE}
+	-cp -n ${DUMMY_SETTINGS_PATH} ${SETTINGS_INSTALL_PATH}/${SETTINGS_FILE}
 
 install-raspi-settings:
 	mkdir -p ${SETTINGS_INSTALL_PATH}
-	cp -n ${RASPI_SETTINGS_PATH} ${SETTINGS_INSTALL_PATH}/${SETTINGS_FILE}
+	-cp -n ${RASPI_SETTINGS_PATH} ${SETTINGS_INSTALL_PATH}/${SETTINGS_FILE}
 
 uninstall-settings:
 	rm -r ${SETTINGS_INSTALL_PATH}
