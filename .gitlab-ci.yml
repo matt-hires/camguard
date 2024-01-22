@@ -13,7 +13,6 @@ default:
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PATH: "$PATH:$HOME/.cargo/bin"
 
 # https://pip.pypa.io/en/stable/topics/caching/
 cache:
