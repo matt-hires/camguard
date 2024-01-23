@@ -4,11 +4,8 @@ default:
     image: python:3.9.2-buster
     before_script:
         - python --version ; pip --version  # For debugging
-        - pip install virtualenv
-        - python -m venv ./venv
-        - source venv/bin/activate
-        - curl --output rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs # due to python twine
-        - sh rustup.sh -y
+        - "echo \"Debug: All Env variables\""
+        - env
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -28,17 +25,23 @@ stages:
 
 prepare:
     stage: .pre
+    needs: []
     script:
-        - "echo \"Debug: All Env variables\""
-        - env
+        - pip install virtualenv
+        - python -m venv ./venv
+        - source venv/bin/activate
+        - curl --output rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs # due to python twine
+        - sh rustup.sh -y
 
 build:
     stage: build
+    needs: [".pre"]
     script:
         - pip install -e ".[dev]"
 
 test:
     stage: test
+    needs: ["build"]
     script:
         - python -m coverage run --source=src/camguard -m unittest -v
         - python -m coverage report -m
@@ -46,6 +49,7 @@ test:
 
 pages:
     stage: deploy
+    needs: ["build"]
     script:
         - make -C ./docs
     artifacts:
@@ -56,6 +60,7 @@ pages:
 
 deploy:
     stage: deploy
+    needs: ["build", "test"]
     script: "echo \"Deploy is still a: TODO\""
     rules:
         - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
