@@ -6,6 +6,11 @@ default:
         - python --version ; pip --version  # For debugging
         - "echo \"Debug: All Env variables\""
         - env
+        - pip install virtualenv
+        - python -m venv ./venv
+        - source venv/bin/activate
+        - curl --output rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs # due to python twine
+        - sh rustup.sh -y
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -18,39 +23,27 @@ cache:
     - .cache/pip
 
 stages:
-    - .pre
     - build
     - test
     - deploy
 
-prepare:
-    stage: .pre
-    needs: []
-    script:
-        - pip install virtualenv
-        - python -m venv ./venv
-        - source venv/bin/activate
-        - curl --output rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs # due to python twine
-        - sh rustup.sh -y
-
 build:
     stage: build
-    needs: ["prepare"]
     script:
         - pip install -e ".[dev]"
 
 test:
     stage: test
-    needs: ["build"]
     script:
+        - pip install -e ".[dev]"
         - python -m coverage run --source=src/camguard -m unittest -v
         - python -m coverage report -m
         - python -m coverage xml
 
 pages:
     stage: deploy
-    needs: ["build"]
     script:
+        - pip install -e ".[dev]"
         - make -C ./docs
     artifacts:
         paths:
@@ -60,7 +53,8 @@ pages:
 
 deploy:
     stage: deploy
-    needs: ["build", "test"]
+    dependencies:
+      - build
     script: "echo \"Deploy is still a: TODO\""
     rules:
         - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
