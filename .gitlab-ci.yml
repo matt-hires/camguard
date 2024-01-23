@@ -48,7 +48,7 @@ pages:
     script:
         - pip install -e ".[dev]"
         - make -C ./docs html
-        - mkdir
+        - mkdir ./public
         - cp -r ./docs/_build/html* ./public
     artifacts:
         paths:
