@@ -35,7 +35,7 @@ prepare:
 
 build:
     stage: build
-    needs: [".pre"]
+    needs: ["prepare"]
     script:
         - pip install -e ".[dev]"
 
