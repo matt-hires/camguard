@@ -47,7 +47,7 @@ pages:
     stage: deploy
     script:
         - pip install -e ".[dev]"
-        - make -C ./docs
+        - make -C ./docs html
     artifacts:
         paths:
             - ./docs/_build/html/*
