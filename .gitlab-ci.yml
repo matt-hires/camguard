@@ -39,6 +39,9 @@ test:
         - python -m coverage run --source=src/camguard -m unittest -v
         - python -m coverage report -m
         - python -m coverage xml
+    artifacts:
+        paths:
+            - ./coverage.xml
 
 pages:
     stage: deploy
@@ -47,14 +50,24 @@ pages:
         - make -C ./docs
     artifacts:
         paths:
-            - build/html/*
+            - ./docs/_build/html/*
     rules:
         - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
 
+report:
+    stage: deploy
+    script:
+        # Install deepsource CLI
+        - curl https://deepsource.io/cli | sh
+        # Set DEEPSOURCE_DSN env variable from repository settings page
+        - export DEEPSOURCE_DSN=https://ff59e9aa168344afa352eda62e1e684c@deepsource.io
+        # Set CODECOV env variable
+        - export CODECOV_TOKEN='430bff0a-5869-4f49-9b5a-ecd0ec0322e5'
+        # Report coverage artifact to 'test-coverage' analyzer
+        - ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+
 deploy:
     stage: deploy
-    dependencies:
-      - build
     script: "echo \"Deploy is still a: TODO\""
     rules:
         - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
