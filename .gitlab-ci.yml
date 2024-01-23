@@ -48,9 +48,11 @@ pages:
     script:
         - pip install -e ".[dev]"
         - make -C ./docs html
+        - mkdir
+        - cp -r ./docs/_build/html* ./public
     artifacts:
         paths:
-            - ./docs/_build/html/*
+            - ./public 
     rules:
         - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
 
